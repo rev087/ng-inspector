@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>ng-inspector</title>
+	<script>
+		safari.application.addEventListener("command", function(event) {
+			if ( event.command == 'toggle-popover') {
+				safari.application.activeBrowserWindow.activeTab.page.dispatchMessage("toggle-inspector", "engage");
+			}
+		}, false);
+	</script>
+</head>
+<body>
+</body>
+</html>
