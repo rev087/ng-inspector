@@ -35,6 +35,15 @@
 	/* Prevent selection */
 	-webkit-user-select: none;
 	user-select: none;
+
+	/* Animate the clickthrough fade-out */
+	transition: opacity .2s;
+}
+
+/* Clickthrough */
+.ngi-inspector.ngi-clickthrough {
+	pointer-events: none;
+	opacity: .2;
 }
 
 .ngi-inspector .ngi-app>label {
