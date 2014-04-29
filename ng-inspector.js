@@ -180,7 +180,7 @@
 		}
 
 		// Label ng-repeat items
-		if (this.node.getAttribute('ng-repeat')) {
+		if (this.node && this.node.getAttribute('ng-repeat')) {
 			this.addAssociation('ngRepeat', true);
 		}
 
