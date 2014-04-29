@@ -110,12 +110,13 @@
 		return this;
 	}
 
-	var ScopeItem = function(scope, depth) {
+	var ScopeItem = function(scope, module, depth) {
 		
 		if ( typeof depth === 'undefined' || isNaN(depth) )
 			depth = 0;
 
 		this.scope = scope;
+		this.module = module;
 		this.depth = depth;
 
 		this.element = document.createElement('div');
@@ -138,6 +139,54 @@
 				this.node = ngScopes.item(i);
 				break;
 			}
+		}
+
+		this.addAssociation = function(text, isMinor) {
+			var span = document.createElement('span');
+			span.className = 'ngi-association';
+			span.innerText = text;
+			if (isMinor) span.classList.add('ngi-minor');
+			this.label.appendChild(span);
+		};
+
+		// Find the scope's controller(s) and/or directive(s)
+		if (this.module) {
+			for (var i = 0; i < this.module._invokeQueue.length; i++) {
+				var invoke = this.module._invokeQueue[i];
+				var provider = invoke[0];
+				var name = invoke[2][0];
+				switch (provider) {
+					case '$controllerProvider':
+						var els = document.querySelectorAll('[ng-controller='+name+']');
+						for ( var i = 0; i < els.length; i++ ) {
+							var el = angular.element(els.item(i));
+							if ( el.scope().$id === this.scope.$id ) {
+								this.addAssociation(name);
+							}
+						}
+						break;
+					case '$compileProvider':
+						var attrib = name.replace(/([a-z\d])([A-Z])/g, '$1-$2').toLowerCase();
+						var els = document.querySelectorAll('['+attrib+']');
+						for ( var i = 0; i < els.length; i++ ) {
+							var el = angular.element(els.item(i));
+							if ( el.scope().$id === this.scope.$id ) {
+								this.addAssociation(name);
+							}
+						}
+						break;
+				}
+			}
+		}
+
+		// Label ng-repeat items
+		if (this.node.getAttribute('ng-repeat')) {
+			this.addAssociation('ngRepeat', true);
+		}
+
+		// Label root scopes
+		if (this.scope.$root.$id === this.scope.$id) {
+			this.addAssociation('$rootScope', true);
 		}
 
 		// Models
@@ -192,7 +241,7 @@
 			var childScope = this.scope.$$childHead;
 
 			do {
-				var childItem = new ScopeItem(childScope, this.depth + 1);
+				var childItem = new ScopeItem(childScope, this.module, this.depth + 1);
 				this.drawer.appendChild(childItem.element);
 			} while (childScope = childScope.$$nextSibling);
 		};
@@ -249,7 +298,7 @@
 				for (var i = 0; i < newChildScopes.length; i++) {
 					var added = scopeItem.oldChildScopes.indexOf(newChildScopes[i]) < 0;
 					if ( added ) {
-						var childItem = new ScopeItem(newChildScopes[i], scopeItem.depth + 1);
+						var childItem = new ScopeItem(newChildScopes[i], scopeItem.module, scopeItem.depth + 1);
 						scopeItem.drawer.appendChild(childItem.element);
 					}
 				}
@@ -274,9 +323,17 @@
 	var AppItem = function(node, inspector) {
 
 		this.node = node;
-		this.name = node.getAttribute('ng-app') ?
-			node.getAttribute('ng-app') : 'ng-app';
 		this.scope = angular.element(node).scope();
+
+		// Find the module
+		this.module = null;
+		this.name = null;
+		if (node.getAttribute('ng-app')) {
+			this.name = node.getAttribute('ng-app');
+			this.module = angular.module(this.name);
+		} else {
+			this.name = 'ng-app';
+		}
 
 		this.element = document.createElement('div');
 		this.element.className = 'ngi-app';
@@ -288,7 +345,7 @@
 
 		// Set the root scope
 		$scope = angular.element(this.node).scope();
-		this.rootScopeItem = new ScopeItem($scope);
+		this.rootScopeItem = new ScopeItem($scope, this.module);
 		this.drawer.appendChild(this.rootScopeItem.element);
 
 		this.destroy = function() {

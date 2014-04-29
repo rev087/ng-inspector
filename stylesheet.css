@@ -1,11 +1,11 @@
 .ngi-highlight,
 .ngi-highlight .ng-scope {
 	border: 1px solid #53A0FD !important;
-	box-shadow: 0px 0px 4px #53A0FD !important;
+	box-shadow: inset 0px 0px 4px #53A0FD !important;
 }
 .ngi-highlight .ng-binding {
 	border: 1px solid red !important;
-	box-shadow: 0px 0px 4px red !important;
+	box-shadow: inset 0px 0px 4px red !important;
 }
 
 .ngi-inspector * {
@@ -96,6 +96,15 @@
 	color: white;
 	border-top: 1px solid #6EA9E1;
 	border-bottom: 1px solid #4881C6;
+}
+
+.ngi-scope .ngi-association {
+	padding-left: 5px;
+	font-weight: bold;
+}
+.ngi-scope .ngi-association.ngi-minor {
+	color: rgba(0, 0, 0, .4);
+	font-weight: normal;
 }
 
 .ngi-model > label {
