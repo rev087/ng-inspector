@@ -141,6 +141,9 @@
 			}
 		}
 
+		// Association labels
+		/////////////////////
+
 		this.addAssociation = function(text, isMinor) {
 			var span = document.createElement('span');
 			span.className = 'ngi-association';
@@ -151,8 +154,8 @@
 
 		// Find the scope's controller(s) and/or directive(s)
 		if (this.module) {
-			for (var i = 0; i < this.module._invokeQueue.length; i++) {
-				var invoke = this.module._invokeQueue[i];
+			for (var n = 0; n < this.module._invokeQueue.length; n++) {
+				var invoke = this.module._invokeQueue[n];
 				var provider = invoke[0];
 				var name = invoke[2][0];
 				switch (provider) {
