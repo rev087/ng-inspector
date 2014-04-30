@@ -1,5 +1,6 @@
 .ngi-highlight,
-.ngi-highlight .ng-scope {
+.ngi-highlight .ng-scope,
+.ngi-highlight .ng-isolate-scope {
 	border: 1px solid #53A0FD !important;
 	box-shadow: inset 0px 0px 4px #53A0FD !important;
 }
@@ -84,6 +85,9 @@
 
 	cursor: pointer;
 }
+.ngi-inspector .ngi-scope.ngi-isolate-scope > label {
+	background: #F8F8F8 url(icons/isolate-scope.png) no-repeat 4px 7px;
+}
 
 .ngi-inspector .ngi-app > .ngi-scope > label {
 	border-top: 1px solid #F8F8F8;
@@ -96,6 +100,9 @@
 	color: white;
 	border-top: 1px solid #6EA9E1;
 	border-bottom: 1px solid #4881C6;
+}
+.ngi-inspector .ngi-scope.ngi-isolate-scope>label:hover {
+	background-image: url(icons/isolate-scope.png), linear-gradient(-179deg, #82BEEB 0%, #5290D7 100%);
 }
 
 .ngi-inspector .ngi-scope .ngi-assoc {
@@ -113,28 +120,28 @@
 	font-weight: normal;
 }
 
-.ngi-model > label {
+.ngi-inspector .ngi-model > label {
 	padding: 0 5px 0 24px;
 	background: #fff url(icons/model.png) no-repeat 4px 7px;
 	position: relative;
 }
-.ngi-model.ngi-model-string > label { background-image: url(icons/string.png); }
-.ngi-model.ngi-model-function > label { background-image: url(icons/function.png); }
-.ngi-model.ngi-model-object > label { background-image: url(icons/object.png); }
-.ngi-model.ngi-model-array > label { background-image: url(icons/array.png); }
-.ngi-model.ngi-model-boolean > label { background-image: url(icons/boolean.png); }
-.ngi-model.ngi-model-number > label { background-image: url(icons/number.png); }
-.ngi-model.ngi-model-element > label { background-image: url(icons/element.png); }
-.ngi-model.ngi-model-undefined > label { background-image: url(icons/undefined.png); }
-.ngi-model.ngi-model-null > label { background-image: url(icons/null.png); }
+.ngi-inspector .ngi-model.ngi-model-string > label { background-image: url(icons/string.png); }
+.ngi-inspector .ngi-model.ngi-model-function > label { background-image: url(icons/function.png); }
+.ngi-inspector .ngi-model.ngi-model-object > label { background-image: url(icons/object.png); }
+.ngi-inspector .ngi-model.ngi-model-array > label { background-image: url(icons/array.png); }
+.ngi-inspector .ngi-model.ngi-model-boolean > label { background-image: url(icons/boolean.png); }
+.ngi-inspector .ngi-model.ngi-model-number > label { background-image: url(icons/number.png); }
+.ngi-inspector .ngi-model.ngi-model-element > label { background-image: url(icons/element.png); }
+.ngi-inspector .ngi-model.ngi-model-undefined > label { background-image: url(icons/undefined.png); }
+.ngi-inspector .ngi-model.ngi-model-null > label { background-image: url(icons/null.png); }
 
-.ngi-model.ngi-model-string > label > .ngi-value { color: green; }
-.ngi-model.ngi-model-boolean > label > .ngi-value { color: blue }
-.ngi-model.ngi-model-number > label > .ngi-value { color: red; }
-.ngi-model.ngi-model-null > label > .ngi-value,
-.ngi-model.ngi-model-undefined > label > .ngi-value { color: gray; }
+.ngi-inspector .ngi-model.ngi-model-string > label > .ngi-value { color: green; }
+.ngi-inspector .ngi-model.ngi-model-boolean > label > .ngi-value { color: blue }
+.ngi-inspector .ngi-model.ngi-model-number > label > .ngi-value { color: red; }
+.ngi-inspector .ngi-model.ngi-model-null > label > .ngi-value,
+.ngi-inspector .ngi-model.ngi-model-undefined > label > .ngi-value { color: gray; }
 
-.ngi-model > label:hover {	
+.ngi-inspector .ngi-model > label:hover {	
 	cursor: pointer;
 	color: #53A0FD;
 }

@@ -110,6 +110,24 @@
 		return this;
 	}
 
+	var DIRECTIVE_CACHE = [];
+
+	var getDirective = function(module, invoker) {
+		var name = invoker[2][0];
+
+		if (!(module.name in DIRECTIVE_CACHE))
+			DIRECTIVE_CACHE[module.name] = [];
+
+		if (name in DIRECTIVE_CACHE)
+			return DIRECTIVE_CACHE[module.name][name];
+
+		// /restrict\:\s*['"]([EACM]+)['"]/
+		var fn = angular.isArray(invoker[2][1]) ?
+			invoker[2][1][invoker[2][1].length-1] : invoker[2][1];
+
+		return DIRECTIVE_CACHE[module.name][name] = fn();
+	}
+
 	var ScopeItem = function(scope, module, depth) {
 		
 		if ( typeof depth === 'undefined' || isNaN(depth) )
@@ -135,8 +153,16 @@
 		this.node = null;
 		var ngScopes = document.querySelectorAll('.ng-scope');
 		for ( var i = 0; i < ngScopes.length; i++ ) {
-			if (angular.element(ngScopes.item(i)).scope() === scope) {
+			if (angular.element(ngScopes.item(i)).scope().$id === scope.$id) {
 				this.node = ngScopes.item(i);
+				break;
+			}
+		}
+		var ngIsolateScopes = document.querySelectorAll('.ng-isolate-scope');
+		for ( var i = 0; i < ngIsolateScopes.length; i++ ) {
+			if (angular.element(ngIsolateScopes.item(i)).isolateScope().$id === scope.$id) {
+				this.node = ngIsolateScopes.item(i);
+				this.element.classList.add('ngi-isolate-scope');
 				break;
 			}
 		}
@@ -169,15 +195,38 @@
 						}
 						break;
 					case '$compileProvider':
-						var attrib = name.replace(/([a-z\d])([A-Z])/g, '$1-$2').toLowerCase();
-						var els = document.querySelectorAll('['+attrib+']');
+						var dasherized = name.replace(/([a-z\d])([A-Z])/g, '$1-$2').toLowerCase();
+						var dir = getDirective(this.module, invoke);
+
+						var els = [];
+						
+						// Get elements by the attribute
+						if (!dir.restrict || (angular.isString(dir.restrict) && dir.restrict.indexOf('A') > -1)) {
+							var attrEls = document.querySelectorAll('['+dasherized+']');
+							for ( var i = 0; i < attrEls.length; i++ ) {
+								els.push(attrEls[i]);
+							}
+						}
+
+						// Get elements by the tag name
+						if (angular.isString(dir.restrict) && dir.restrict.indexOf('E') > -1) {
+							var elemEls = document.querySelectorAll(dasherized);
+							for ( var i = 0; i < elemEls.length; i++ ) {
+								els.push(elemEls[i]);
+							}
+						}
+
+						// Find associated directives and label the ScopeElement
 						for ( var i = 0; i < els.length; i++ ) {
-							var el = angular.element(els.item(i));
-							if ( el.scope().$id === this.scope.$id ) {
+							var el = angular.element(els[i]);
+							if ( (el.isolateScope() && el.isolateScope().$id) === this.scope.$id ||
+								el.scope().$id === this.scope.$id ) {
 								this.addAssociation(name);
 							}
 						}
 						break;
+
+
 				}
 			}
 		}
@@ -409,8 +458,8 @@
 
 		// Capture the mouse wheel while hovering the inspector
 		this.element.addEventListener('mousewheel', function(event) {
-			if ((event.wheelDeltaY > 0 && inspector.scrollTop === 0)
-				|| (event.wheelDeltaY < 0 && (
+			if ((event.wheelDeltaY > 0 && inspector.scrollTop === 0) ||
+				(event.wheelDeltaY < 0 && (
 					inspector.element.scrollTop + inspector.element.offsetHeight) === inspector.element.scrollHeight
 				)) {
 				event.preventDefault();
