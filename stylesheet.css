@@ -98,11 +98,17 @@
 	border-bottom: 1px solid #4881C6;
 }
 
-.ngi-scope .ngi-association {
-	padding-left: 5px;
-	font-weight: bold;
+.ngi-inspector .ngi-scope .ngi-assoc {
+	margin-left: 5px !important;
+	padding: 2px 5px !important;
+	background: rgba(0, 0, 0, .3);
+	border-radius: 4px;
+	color: #F8F8F8;
+	text-shadow: none !important;
 }
-.ngi-scope .ngi-association.ngi-minor {
+.ngi-inspector .ngi-scope .ngi-assoc.ngi-minor-assoc {
+	padding: 0px !important;
+	background: transparent;
 	color: rgba(0, 0, 0, .4);
 	font-weight: normal;
 }

@@ -146,9 +146,9 @@
 
 		this.addAssociation = function(text, isMinor) {
 			var span = document.createElement('span');
-			span.className = 'ngi-association';
+			span.className = 'ngi-assoc';
 			span.innerText = text;
-			if (isMinor) span.classList.add('ngi-minor');
+			if (isMinor) span.classList.add('ngi-minor-assoc');
 			this.label.appendChild(span);
 		};
 
@@ -347,7 +347,7 @@
 		this.element.appendChild(this.drawer);
 
 		// Set the root scope
-		$scope = angular.element(this.node).scope();
+		$scope = angular.element(this.node).scope().$root;
 		this.rootScopeItem = new ScopeItem($scope, this.module);
 		this.drawer.appendChild(this.rootScopeItem.element);
 
