@@ -13,9 +13,9 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleShortVersionString</key>
-	<string>0.1</string>
+	<string>v0.2.6</string>
 	<key>CFBundleVersion</key>
-	<string>0.1</string>
+	<string>v0.2.6</string>
 	<key>Chrome</key>
 	<dict>
 		<key>Database Quota</key>
@@ -83,5 +83,7 @@
 			<string>All</string>
 		</dict>
 	</dict>
+	<key>Update Manifest URL</key>
+	<string>http://rev087.github.io/ng-inspector/update-manifest.plist</string>
 </dict>
 </plist>
