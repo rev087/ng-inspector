@@ -4,6 +4,8 @@
 	border: 1px solid #53A0FD !important;
 	box-shadow: inset 0px 0px 4px #53A0FD !important;
 }
+.ngi-highlight .ng-dirty,
+.ngi-highlight .ng-pristine,
 .ngi-highlight .ng-binding {
 	border: 1px solid red !important;
 	box-shadow: inset 0px 0px 4px red !important;

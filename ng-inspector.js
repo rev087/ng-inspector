@@ -178,62 +178,39 @@
 			this.label.appendChild(span);
 		};
 
-		// Find the scope's controller(s) and/or directive(s)
-		if (this.module) {
-			for (var n = 0; n < this.module._invokeQueue.length; n++) {
-				var invoke = this.module._invokeQueue[n];
-				var provider = invoke[0];
-				var name = invoke[2][0];
-				switch (provider) {
-					case '$controllerProvider':
-						var els = document.querySelectorAll('[ng-controller='+name+']');
-						for ( var i = 0; i < els.length; i++ ) {
-							var el = angular.element(els.item(i));
-							if ( el.scope().$id === this.scope.$id ) {
-								this.addAssociation(name);
-							}
-						}
-						break;
-					case '$compileProvider':
-						var dasherized = name.replace(/([a-z\d])([A-Z])/g, '$1-$2').toLowerCase();
-						var dir = getDirective(this.module, invoke);
+		var assoc = this.module.associations;
 
-						var els = [];
-						
-						// Get elements by the attribute
-						if (!dir.restrict || (angular.isString(dir.restrict) && dir.restrict.indexOf('A') > -1)) {
-							var attrEls = document.querySelectorAll('['+dasherized+']');
-							for ( var i = 0; i < attrEls.length; i++ ) {
-								els.push(attrEls[i]);
-							}
-						}
+		// Controllers
+		for ( var i = 0; i < assoc.controllers.length; i++) {
+			var name = assoc.controllers[i];
+			if (this.node.getAttribute('ng-controller') === name) {
+				this.addAssociation(name);
+			}
+		}
 
-						// Get elements by the tag name
-						if (angular.isString(dir.restrict) && dir.restrict.indexOf('E') > -1) {
-							var elemEls = document.querySelectorAll(dasherized);
-							for ( var i = 0; i < elemEls.length; i++ ) {
-								els.push(elemEls[i]);
-							}
-						}
-
-						// Find associated directives and label the ScopeElement
-						for ( var i = 0; i < els.length; i++ ) {
-							var el = angular.element(els[i]);
-							if ( (el.isolateScope() && el.isolateScope().$id) === this.scope.$id ||
-								el.scope().$id === this.scope.$id ) {
-								this.addAssociation(name);
-							}
-						}
-						break;
-
-
-				}
+		// Directives, restrict: A
+		for ( var i = 0; i < assoc.directives.A.length; i++) {
+			var attr = assoc.directives.A[i];
+			if (this.node.hasAttribute(attr)) {
+				this.addAssociation(attr);
+			}
+		}
+		// Directives, restrict: E
+		for ( var i = 0; i < assoc.directives.E.length; i++) {
+			var tagName = assoc.directives.E[i];
+			if (this.node.tagName.toLowerCase() === tagName.toLowerCase()) {
+				this.addAssociation(tagName);
 			}
 		}
 
 		// Label ng-repeat items
-		if (this.node && this.node.getAttribute('ng-repeat')) {
+		if (this.node.getAttribute('ng-repeat')) {
 			this.addAssociation('ngRepeat', true);
+		}
+
+		// Label ng-if scopes
+		if (this.node.getAttribute('ng-if')) {
+			this.addAssociation('ngIf', true);
 		}
 
 		// Label root scopes
@@ -329,6 +306,12 @@
 				scopeItem.node.classList.remove('ngi-highlight');
 		});
 
+		// console.log the DOM element the scope is attached to
+		this.label.addEventListener('click', function(event) {
+			// scopeItem.drawer.classList.toggle('ngi-collapsed');
+			console.log(scopeItem.node);
+		}, true);
+
 		// Check for changes in every digest cycle
 		this.oldModels = this.getModels();
 		this.oldChildScopes = this.getChildScopes();
@@ -395,9 +378,60 @@
 		this.drawer.className = 'ngi-drawer';
 		this.element.appendChild(this.drawer);
 
+		// Retrieve all the available directives and controllers
+		this.associations = {
+			controllers: [],
+			directives: {
+				A: [],
+				E: [],
+				C: [],
+				M: []
+			}
+		};
+		if (this.module) {
+			for (var n = 0; n < this.module._invokeQueue.length; n++) {
+				var invoke = this.module._invokeQueue[n];
+				var provider = invoke[0];
+				var name = invoke[2][0];
+
+				switch (provider) {
+					case '$controllerProvider':
+						this.associations.controllers.push(name);
+						break;
+					case '$compileProvider':
+						var dasherized = name.replace(/([a-z\d])([A-Z])/g, '$1-$2').toLowerCase();
+						var dir = getDirective(this.module, invoke);
+						
+						// restrict: 'A' is the default
+						if (!dir.restrict || (angular.isString(dir.restrict) && dir.restrict.indexOf('A') > -1)) {
+							this.associations.directives.A.push(dasherized);
+						}
+
+						// restrict: 'E'
+						if (angular.isString(dir.restrict) && dir.restrict.indexOf('E') > -1) {
+							this.associations.directives.E.push(dasherized);
+						}
+
+						// restrict: 'C'
+						if (angular.isString(dir.restrict) && dir.restrict.indexOf('C') > -1) {
+							this.associations.directives.C.push(dasherized);
+						}
+
+						// restrict: 'M'
+						if (angular.isString(dir.restrict) && dir.restrict.indexOf('M') > -1) {
+							this.associations.directives.M.push(dasherized);
+						}
+
+						break;
+
+
+				}
+			}
+		};
+
 		// Set the root scope
 		$scope = angular.element(this.node).scope().$root;
-		this.rootScopeItem = new ScopeItem($scope, this.module);
+		this.rootScopeItem = new ScopeItem($scope, this);
 		this.drawer.appendChild(this.rootScopeItem.element);
 
 		this.destroy = function() {
@@ -446,15 +480,6 @@
 				document.body.appendChild(this.element);
 			}
 		};
-
-		// Collapsing scopes
-		this.element.addEventListener('click', function(event) {
-			var parent = event.target.parentElement;
-			if (parent.classList.contains('ngi-scope')) {
-				var drawer = parent.querySelector('.ngi-drawer');
-				drawer.classList.toggle('ngi-collapsed');
-			}
-		}, true);
 
 		// Capture the mouse wheel while hovering the inspector
 		this.element.addEventListener('mousewheel', function(event) {
