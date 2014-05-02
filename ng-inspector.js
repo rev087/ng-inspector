@@ -167,6 +167,10 @@
 			}
 		}
 
+		// Now that we have the node, we can check if the scope is an isolate
+		var isolateScope = angular.element(this.node).isolateScope();
+		this.isIsolate = isolateScope &&  isolateScope.$id === this.scope.$id;
+
 		// Association labels
 		/////////////////////
 
@@ -190,16 +194,18 @@
 
 		// Directives, restrict: A
 		for ( var i = 0; i < assoc.directives.A.length; i++) {
-			var attr = assoc.directives.A[i];
-			if (this.node.hasAttribute(attr)) {
-				this.addAssociation(attr);
+			var desc = assoc.directives.A[i];
+			if (this.node.hasAttribute(desc.name) &&
+				this.isIsolate === desc.isIsolate) {
+				this.addAssociation(desc.name);
 			}
 		}
 		// Directives, restrict: E
 		for ( var i = 0; i < assoc.directives.E.length; i++) {
-			var tagName = assoc.directives.E[i];
-			if (this.node.tagName.toLowerCase() === tagName.toLowerCase()) {
-				this.addAssociation(tagName);
+			var desc = assoc.directives.E[i];
+			if (this.node.tagName.toLowerCase() === desc.name.toLowerCase() &&
+				this.isIsolate === desc.isIsolate) {
+				this.addAssociation(desc.name);
 			}
 		}
 
@@ -399,27 +405,28 @@
 						this.associations.controllers.push(name);
 						break;
 					case '$compileProvider':
-						var dasherized = name.replace(/([a-z\d])([A-Z])/g, '$1-$2').toLowerCase();
-						var dir = getDirective(this.module, invoke);
+						var dasherized = name.replace(/([a-z\d])([A-Z])/g, '$1-$2').toLowerCase(),
+							dir = getDirective(this.module, invoke),
+							desc = {name: dasherized, isIsolate: angular.isObject(dir.scope)}
 						
 						// restrict: 'A' is the default
 						if (!dir.restrict || (angular.isString(dir.restrict) && dir.restrict.indexOf('A') > -1)) {
-							this.associations.directives.A.push(dasherized);
+							this.associations.directives.A.push(desc);
 						}
 
 						// restrict: 'E'
 						if (angular.isString(dir.restrict) && dir.restrict.indexOf('E') > -1) {
-							this.associations.directives.E.push(dasherized);
+							this.associations.directives.E.push(desc);
 						}
 
 						// restrict: 'C'
 						if (angular.isString(dir.restrict) && dir.restrict.indexOf('C') > -1) {
-							this.associations.directives.C.push(dasherized);
+							this.associations.directives.C.push(desc);
 						}
 
 						// restrict: 'M'
 						if (angular.isString(dir.restrict) && dir.restrict.indexOf('M') > -1) {
-							this.associations.directives.M.push(dasherized);
+							this.associations.directives.M.push(desc);
 						}
 
 						break;
