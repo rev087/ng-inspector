@@ -16,3 +16,9 @@ In the long term, I'd like to offer at least a larger subset of the features ava
 
 Thanks for caitp, wafflejock and zomg at #angularjs for helping me figure out a lot of
 AngularJS edge cases.
+
+## License
+
+The MIT License (MIT)  
+
+See LICENSE.md for details.
