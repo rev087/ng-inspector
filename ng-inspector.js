@@ -169,11 +169,11 @@
 
 		// Now that we have the node, we can check if the scope is an isolate
 		// this.isIsolate = null;
-		// if (angular.element(this.node).isolateScope) {
-		var isolateScope = angular.element(this.node).isolateScope();
-		this.isIsolate = (isolateScope &&  isolateScope.$id === this.scope.$id) ?
-			true : false;
-		// }
+		if (angular.element(this.node).isolateScope) {
+			var isolateScope = angular.element(this.node).isolateScope();
+			this.isIsolate = (isolateScope &&  isolateScope.$id === this.scope.$id) ?
+				true : false;
+		}
 
 		// Association labels
 		/////////////////////
@@ -214,17 +214,17 @@
 		}
 
 		// Label ng-repeat items
-		if (this.node.getAttribute('ng-repeat')) {
+		if (this.node && this.node.getAttribute('ng-repeat')) {
 			this.addAssociation('ngRepeat', true);
 		}
 
 		// Label ng-if scopes
-		if (this.node.getAttribute('ng-if')) {
+		if (this.node && this.node.getAttribute('ng-if')) {
 			this.addAssociation('ngIf', true);
 		}
 
 		// Label root scopes
-		if (this.scope.$root.$id === this.scope.$id) {
+		if (this.node && this.scope.$root.$id === this.scope.$id) {
 			this.addAssociation('$rootScope', true);
 		}
 
