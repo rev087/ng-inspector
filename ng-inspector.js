@@ -191,7 +191,7 @@
 		// Controllers
 		for ( var i = 0; i < assoc.controllers.length; i++) {
 			var name = assoc.controllers[i];
-			if (this.node.getAttribute('ng-controller') === name) {
+			if (this.node && this.node.getAttribute('ng-controller') === name) {
 				this.addAssociation(name);
 			}
 		}
@@ -199,7 +199,7 @@
 		// Directives, restrict: A
 		for ( var i = 0; i < assoc.directives.A.length; i++) {
 			var desc = assoc.directives.A[i];
-			if (this.node.hasAttribute(desc.name) &&
+			if (this.node && this.node.hasAttribute(desc.name) &&
 				this.isIsolate === desc.isIsolate) {
 				this.addAssociation(desc.name);
 			}
@@ -207,7 +207,8 @@
 		// Directives, restrict: E
 		for ( var i = 0; i < assoc.directives.E.length; i++) {
 			var desc = assoc.directives.E[i];
-			if (this.node.tagName.toLowerCase() === desc.name.toLowerCase() &&
+			if (this.node &&
+				this.node.tagName.toLowerCase() === desc.name.toLowerCase() &&
 				this.isIsolate === desc.isIsolate) {
 				this.addAssociation(desc.name);
 			}
@@ -388,6 +389,14 @@
 		this.drawer.className = 'ngi-drawer';
 		this.element.appendChild(this.drawer);
 
+		var requires = [];
+		var getRequires = function(module) {
+			for (var n = 0; n < this.module.requires.length; n++) {
+				var m = 
+				console.log(this.module.requires);
+			}
+		}
+
 		// Retrieve all the available directives and controllers
 		this.associations = {
 			controllers: [],
@@ -399,6 +408,9 @@
 			}
 		};
 		if (this.module) {
+
+
+
 			for (var n = 0; n < this.module._invokeQueue.length; n++) {
 				var invoke = this.module._invokeQueue[n];
 				var provider = invoke[0];
