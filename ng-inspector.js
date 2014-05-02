@@ -168,8 +168,12 @@
 		}
 
 		// Now that we have the node, we can check if the scope is an isolate
+		// this.isIsolate = null;
+		// if (angular.element(this.node).isolateScope) {
 		var isolateScope = angular.element(this.node).isolateScope();
-		this.isIsolate = isolateScope &&  isolateScope.$id === this.scope.$id;
+		this.isIsolate = (isolateScope &&  isolateScope.$id === this.scope.$id) ?
+			true : false;
+		// }
 
 		// Association labels
 		/////////////////////
