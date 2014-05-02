@@ -407,9 +407,9 @@
 					case '$compileProvider':
 						var dasherized = name.replace(/([a-z\d])([A-Z])/g, '$1-$2').toLowerCase(),
 							dir = getDirective(this.module, invoke),
-							desc = {name: dasherized, isIsolate: angular.isObject(dir.scope)}
+							desc = {name: dasherized, isIsolate: angular.isObject(dir.scope)};
 						
-						// restrict: 'A' is the default
+						// restrict: 'A' (default)
 						if (!dir.restrict || (angular.isString(dir.restrict) && dir.restrict.indexOf('A') > -1)) {
 							this.associations.directives.A.push(desc);
 						}
@@ -430,8 +430,6 @@
 						}
 
 						break;
-
-
 				}
 			}
 		};
