@@ -1,3 +1,15 @@
+Array.prototype.merge = function(a) {
+	for (var i = 0; i < a.length; i++) {
+		if (this.indexOf(a[i]) < 0) this.push(a[i]);
+	}
+	return this;
+};
+
+Array.prototype.include = function(e) {
+	if (this.indexOf(e) < 0) this.push(e);
+	return this;
+};
+
 // Tested with AngularJS v1.2.16
 (function() {
 
@@ -110,31 +122,13 @@
 		return this;
 	}
 
-	var DIRECTIVE_CACHE = [];
-
-	var getDirective = function(module, invoker) {
-		var name = invoker[2][0];
-
-		if (!(module.name in DIRECTIVE_CACHE))
-			DIRECTIVE_CACHE[module.name] = [];
-
-		if (name in DIRECTIVE_CACHE)
-			return DIRECTIVE_CACHE[module.name][name];
-
-		// /restrict\:\s*['"]([EACM]+)['"]/
-		var fn = angular.isArray(invoker[2][1]) ?
-			invoker[2][1][invoker[2][1].length-1] : invoker[2][1];
-
-		return DIRECTIVE_CACHE[module.name][name] = fn();
-	}
-
-	var ScopeItem = function(scope, module, depth) {
+	var ScopeItem = function(scope, appItem, depth) {
 		
 		if ( typeof depth === 'undefined' || isNaN(depth) )
 			depth = 0;
 
 		this.scope = scope;
-		this.module = module;
+		this.appItem = appItem;
 		this.depth = depth;
 
 		this.element = document.createElement('div');
@@ -149,44 +143,63 @@
 		this.drawer.className = 'ngi-drawer';
 		this.element.appendChild(this.drawer);
 
-		// Find this scope's DOM element
+		// Find the DOM Node
+		////////////////////
+
 		this.node = null;
-		var ngScopes = document.querySelectorAll('.ng-scope');
-		for ( var i = 0; i < ngScopes.length; i++ ) {
-			if (angular.element(ngScopes.item(i)).scope().$id === scope.$id) {
-				this.node = ngScopes.item(i);
-				break;
+		this.isIsolate = null;
+		this.findDOMNode = function(el) {
+
+			$el = angular.element(el);
+
+			// Check for a match in the element isolate scope
+			if ($el.isolateScope && $el.isolateScope() && $el.isolateScope().$id === this.scope.$id) {
+				this.node = el;
+				this.isIsolate = true;
+				return true;
 			}
-		}
-		var ngIsolateScopes = document.querySelectorAll('.ng-isolate-scope');
-		for ( var i = 0; i < ngIsolateScopes.length; i++ ) {
-			if (angular.element(ngIsolateScopes.item(i)).isolateScope().$id === scope.$id) {
-				this.node = ngIsolateScopes.item(i);
-				this.element.classList.add('ngi-isolate-scope');
-				break;
+
+			// Check for a match in the element scope
+			if ($el.scope && $el.scope() && $el.scope().$id === this.scope.$id) {
+				this.node = el;
+				this.isIsolate = false;
+				return true;
 			}
+
+			var children = el.querySelectorAll('.ng-scope, .ng-isolate-scope');
+			for (var i = 0; i < children.length; i++) {
+				var match = this.findDOMNode(children[i]);
+				if (match) return true;
+			}
+
+			return false;
+		};
+		this.findDOMNode(this.appItem.node);
+
+		if (!this.node && this.appItem.inspector.showWarnings) {
+			console.warn('ng-inspector: No DOM node found for scope ' + this.scope.$id);
 		}
 
-		// Now that we have the node, we can check if the scope is an isolate
-		// this.isIsolate = null;
-		if (angular.element(this.node).isolateScope) {
-			var isolateScope = angular.element(this.node).isolateScope();
-			this.isIsolate = (isolateScope &&  isolateScope.$id === this.scope.$id) ?
-				true : false;
-		}
+		if (this.isIsolate) this.element.classList.add('ngi-isolate-scope');
 
 		// Association labels
 		/////////////////////
 
-		this.addAssociation = function(text, isMinor) {
+		this.assocLabels = [];
+		this.addAssociation = function(text, isBuiltIn) {
+			if (this.assocLabels.indexOf(text) < 0) {
+				this.assocLabels.push(text);
+			} else {
+				return;
+			}
 			var span = document.createElement('span');
 			span.className = 'ngi-assoc';
 			span.innerText = text;
-			if (isMinor) span.classList.add('ngi-minor-assoc');
+			if (isBuiltIn) span.classList.add('ngi-minor-assoc');
 			this.label.appendChild(span);
 		};
 
-		var assoc = this.module.associations;
+		var assoc = this.appItem.associations;
 
 		// Controllers
 		for ( var i = 0; i < assoc.controllers.length; i++) {
@@ -199,34 +212,40 @@
 		// Directives, restrict: A
 		for ( var i = 0; i < assoc.directives.A.length; i++) {
 			var desc = assoc.directives.A[i];
-			if (this.node && this.node.hasAttribute(desc.name) &&
+			if (this.node && this.node.hasAttribute(desc.dasherized) &&
 				this.isIsolate === desc.isIsolate) {
-				this.addAssociation(desc.name);
+				this.addAssociation(desc.name, desc.isBuiltIn);
 			}
 		}
 		// Directives, restrict: E
 		for ( var i = 0; i < assoc.directives.E.length; i++) {
 			var desc = assoc.directives.E[i];
 			if (this.node &&
-				this.node.tagName.toLowerCase() === desc.name.toLowerCase() &&
+				this.node.tagName.toLowerCase() === desc.dasherized.toLowerCase() &&
 				this.isIsolate === desc.isIsolate) {
-				this.addAssociation(desc.name);
+				this.addAssociation(desc.name, desc.isBuiltIn);
 			}
 		}
 
 		// Label ng-repeat items
-		if (this.node && this.node.getAttribute('ng-repeat')) {
+		if (this.node && this.node.hasAttribute('ng-repeat')) {
 			this.addAssociation('ngRepeat', true);
 		}
 
 		// Label ng-if scopes
-		if (this.node && this.node.getAttribute('ng-if')) {
+		if (this.node && this.node.hasAttribute('ng-if')) {
 			this.addAssociation('ngIf', true);
 		}
 
 		// Label root scopes
-		if (this.node && this.scope.$root.$id === this.scope.$id) {
+		if (this.scope.$root.$id === this.scope.$id) {
 			this.addAssociation('$rootScope', true);
+		}
+
+		// Label ng-transclude scopes
+		if (this.node && this.node.parentNode && this.node.parentNode.hasAttribute &&
+			this.node.parentNode.hasAttribute('ng-transclude')) {
+			this.addAssociation('ngTransclude', true);
 		}
 
 		// Models
@@ -274,14 +293,13 @@
 		///////////////
 
 		this.processChildScopes = function() {
-
 			// No children? Nothing to see here citizen, move along.
 			if ( !this.scope.$$childHead ) return;
 
 			var childScope = this.scope.$$childHead;
 
 			do {
-				var childItem = new ScopeItem(childScope, this.module, this.depth + 1);
+				var childItem = new ScopeItem(childScope, this.appItem, this.depth + 1);
 				this.drawer.appendChild(childItem.element);
 			} while (childScope = childScope.$$nextSibling);
 		};
@@ -344,7 +362,7 @@
 				for (var i = 0; i < newChildScopes.length; i++) {
 					var added = scopeItem.oldChildScopes.indexOf(newChildScopes[i]) < 0;
 					if ( added ) {
-						var childItem = new ScopeItem(newChildScopes[i], scopeItem.module, scopeItem.depth + 1);
+						var childItem = new ScopeItem(newChildScopes[i], scopeItem.appItem, scopeItem.depth + 1);
 						scopeItem.drawer.appendChild(childItem.element);
 					}
 				}
@@ -369,6 +387,7 @@
 	var AppItem = function(node, inspector) {
 
 		this.node = node;
+		this.inspector = inspector;
 		this.scope = angular.element(node).scope();
 
 		// Find the module
@@ -389,12 +408,84 @@
 		this.drawer.className = 'ngi-drawer';
 		this.element.appendChild(this.drawer);
 
-		var requires = [];
-		var getRequires = function(module) {
-			for (var n = 0; n < this.module.requires.length; n++) {
-				var m = 
-				console.log(this.module.requires);
+		// Recursively get all the required modules
+		var traversed = [];
+		var getRequires = function(moduleName) {
+			
+			if (traversed.indexOf(moduleName) < 0) {
+				traversed.push(moduleName);
+			} else {
+				return [];
 			}
+
+			var mod = angular.module(moduleName);
+			for (var n = 0; n < mod.requires.length; n++) {
+				if (requires.indexOf(moduleName) < 0)
+					requires.include(mod.requires[n]);
+				requires.merge(getRequires(mod.requires[n]));
+			}
+			requires.include(moduleName);
+			return requires;
+		}
+
+		var requires = ['ng'];
+		if (this.module) {
+			requires.merge(getRequires(this.module.name));
+		}
+		if (this.inspector.showWarnings) {
+			console.info('ng-inspector: Inspecting AngularJS modules:', requires);
+		}
+
+		// Hold on to your seat belts...
+		var injector = angular.element(this.node).injector();
+
+		// Utility to retrieve directive instances. Used to learn the restrict
+		// and scope settings.
+		var DIRECTIVE_CACHE = [];
+		this.getDirective = function(module, invoker) {
+			var name = invoker[2][0];
+
+			if (!(module.name in DIRECTIVE_CACHE))
+				DIRECTIVE_CACHE[module.name] = [];
+
+			if (name in DIRECTIVE_CACHE)
+				return DIRECTIVE_CACHE[module.name][name];
+
+			var fn = angular.isArray(invoker[2][1]) ?
+				invoker[2][1][invoker[2][1].length-1] : invoker[2][1];
+
+			var dir = null;
+			try {
+				dir = injector.invoke(fn);
+			} catch (err) {
+				// We couldn't invoke, so let's coercing that restrict out of the
+				// stubborn directive
+				var match = {
+					restrict: /restrict\s*:\s*['"]([EACM]+)['"]/.exec(fn),
+					isIsolate: /scope\s*:\s*{/.test(fn),
+					isChild: /scope\s*:\s*(true)/i.test(fn)
+				}
+				if (match.restrict && match.restrict.length > 1) {
+					dir = {
+						restrict: match.restrict[1],
+						scope: match.isIsolate ? {} : (match.isChild ? true : null)
+					}
+				}
+				else {
+					// No luck this way either, fall back to the defaults
+					if (this.inspector.showWarnings) {	
+						console.warn('ng-inspector: Could not inspect directive ' + name + ' from ' + module.name);
+					}
+					dir = {restrict: 'A', scope: null}
+				}
+			}
+
+			// If the directive uses the simple link function syntaxe, it won't return
+			// an object. In this case, we assume the defaults.
+			if (angular.isFunction(dir)) dir = {restrict: 'A', scope: null};
+
+			// Cache and return
+			return DIRECTIVE_CACHE[module.name][name] = dir;
 		}
 
 		// Retrieve all the available directives and controllers
@@ -409,48 +500,63 @@
 		};
 		if (this.module) {
 
+			for (var f = 0; f < requires.length; f++) {
+				var mod = angular.module(requires[f]);
+				for (var n = 0; n < mod._invokeQueue.length; n++) {
+					var invoke = mod._invokeQueue[n];
+					var provider = invoke[0];
+					var name = invoke[2][0];
 
+					//deb
+					switch (provider) {
+						case '$controllerProvider':
+							this.associations.controllers.push(name);
+							break;
+						case '$compileProvider':
 
-			for (var n = 0; n < this.module._invokeQueue.length; n++) {
-				var invoke = this.module._invokeQueue[n];
-				var provider = invoke[0];
-				var name = invoke[2][0];
+							// Can't handle this, move on
+							if (!angular.isString(name)) { continue; }
 
-				switch (provider) {
-					case '$controllerProvider':
-						this.associations.controllers.push(name);
-						break;
-					case '$compileProvider':
-						var dasherized = name.replace(/([a-z\d])([A-Z])/g, '$1-$2').toLowerCase(),
-							dir = getDirective(this.module, invoke),
-							desc = {name: dasherized, isIsolate: angular.isObject(dir.scope)};
-						
-						// restrict: 'A' (default)
-						if (!dir.restrict || (angular.isString(dir.restrict) && dir.restrict.indexOf('A') > -1)) {
-							this.associations.directives.A.push(desc);
-						}
+							var dasherized = name.replace(/([a-z\d])([A-Z])/g, '$1-$2').toLowerCase(),
+								dir = this.getDirective(mod, invoke),
+								desc = {
+									name: name,
+									dasherized: dasherized,
+									isIsolate: angular.isObject(dir.scope),
+									isBuiltIn: [
+											'ng', 'ngRoute', 'ngAnimate', 'ngResource',
+											'ngCookies', 'ngTouch', 'ngSanitize', 'ngMock',
+										].indexOf(mod.name) > -1
+								};
+							
+							// restrict: 'A' (default)
+							if (!dir.restrict || (angular.isString(dir.restrict) && dir.restrict.indexOf('A') > -1)) {
+								this.associations.directives.A.push(desc);
+							}
 
-						// restrict: 'E'
-						if (angular.isString(dir.restrict) && dir.restrict.indexOf('E') > -1) {
-							this.associations.directives.E.push(desc);
-						}
+							// restrict: 'E'
+							if (angular.isString(dir.restrict) && dir.restrict.indexOf('E') > -1) {
+								this.associations.directives.E.push(desc);
+							}
 
-						// restrict: 'C'
-						if (angular.isString(dir.restrict) && dir.restrict.indexOf('C') > -1) {
-							this.associations.directives.C.push(desc);
-						}
+							// restrict: 'C'
+							if (angular.isString(dir.restrict) && dir.restrict.indexOf('C') > -1) {
+								this.associations.directives.C.push(desc);
+							}
 
-						// restrict: 'M'
-						if (angular.isString(dir.restrict) && dir.restrict.indexOf('M') > -1) {
-							this.associations.directives.M.push(desc);
-						}
+							// restrict: 'M'
+							if (angular.isString(dir.restrict) && dir.restrict.indexOf('M') > -1) {
+								this.associations.directives.M.push(desc);
+							}
 
-						break;
+							break;
+					}
 				}
 			}
+			// console.log(JSON.stringify(this.associations));
 		};
 
-		// Set the root scope
+		// Set the root scope item
 		$scope = angular.element(this.node).scope().$root;
 		this.rootScopeItem = new ScopeItem($scope, this);
 		this.drawer.appendChild(this.rootScopeItem.element);
@@ -493,7 +599,13 @@
 			}
 		};
 
-		this.toggle = function() {
+		this.toggle = function(settings) {
+			if (angular.isObject(settings) && 'showWarnings' in settings) {
+				this.showWarnings = settings.showWarnings;
+			} else {
+				this.showWarnings = false;
+			}
+
 			if ( this.element.parentNode ) {
 				document.body.removeChild(this.element);
 			} else {
@@ -534,7 +646,9 @@
 		}
 
 		// Filter toggle events
-		if (e.data == 'ngi-toggle') inspector.toggle();
+		if (angular.isObject(e.data) && e.data.command === 'ngi-toggle') {
+			inspector.toggle(e.data.settings);
+		}
 
 	}, false);
 

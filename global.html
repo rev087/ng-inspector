@@ -6,7 +6,7 @@
 	<script>
 		safari.application.addEventListener("command", function(event) {
 			if ( event.command == 'toggle-popover') {
-				safari.application.activeBrowserWindow.activeTab.page.dispatchMessage("toggle-inspector", "engage");
+				safari.application.activeBrowserWindow.activeTab.page.dispatchMessage("toggle-inspector", {showWarnings:safari.extension.settings.showWarnings});
 			}
 		}, false);
 	</script>

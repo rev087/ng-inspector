@@ -9,7 +9,11 @@ if (window.top === window) {
 	// Forward the toggle event
 	safari.self.addEventListener('message', function(event) {
 		if ( event.name == 'toggle-inspector') {
-			window.postMessage('ngi-toggle', window.location.origin);
+			var message = {
+				command: 'ngi-toggle',
+				settings: event.message
+			};
+			window.postMessage(message, window.location.origin);
 		}
 	}, false);
 
