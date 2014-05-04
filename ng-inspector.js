@@ -49,7 +49,13 @@
 
 			if (angular.isString(scope[key])) {
 				this.element.classList.add('ngi-model-string');
-				value.innerText = '"' + scope[key] + '"';
+				if (scope[key].trim().length > 25) {
+					value.innerText = '"' + scope[key].trim().substr(0, 25) + ' (…)"';
+					value.appendChild(lengthIndicator(scope[key].length));
+				}
+				else {
+					value.innerText = '"' + scope[key].trim() + '"';
+				}
 			}
 			else if (angular.isFunction(scope[key])) {
 				this.element.classList.add('ngi-model-function');
