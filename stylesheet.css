@@ -27,7 +27,7 @@
 	z-index: 999999999999 !important;
 
 	/* Styling */
-	background: #E8E8E8;
+	background: #D8D8D8;
 	border-left: 1px solid #B0B0B0;
 	font-family: 'Helvetica Neue', sans-serif;
 
@@ -41,6 +41,12 @@
 
 	/* Animate the clickthrough fade-out */
 	transition: opacity .2s;
+}
+
+.ngi-inspector.ngi-processing {
+	background-image: url(processing.png);
+	background-position: center center;
+	background-repeat: no-repeat;
 }
 
 /* Clickthrough */

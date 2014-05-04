@@ -10,8 +10,18 @@ Array.prototype.include = function(e) {
 	return this;
 };
 
-// Tested with AngularJS v1.2.16
 (function() {
+
+	var mergeArray = function() {
+		var merged = [];
+		for (var a = 0; a < arguments.length; a++) {
+			var arr = arguments[a];
+			for (var i = 0; i < arr.length; i++) {
+				if (merged.indexOf(arr[i]) < 0) merged.push(arr[i]);
+			}
+		}
+		return merged;
+	};
 
 	var ModelItem = function(scope, key, depth) {
 
@@ -122,13 +132,14 @@ Array.prototype.include = function(e) {
 		return this;
 	}
 
-	var ScopeItem = function(scope, appItem, depth) {
+	var ScopeItem = function(scope, appItem, parentScopeItem, depth) {
 		
 		if ( typeof depth === 'undefined' || isNaN(depth) )
 			depth = 0;
 
 		this.scope = scope;
 		this.appItem = appItem;
+		this.parentScopeItem = parentScopeItem;
 		this.depth = depth;
 
 		this.element = document.createElement('div');
@@ -153,19 +164,26 @@ Array.prototype.include = function(e) {
 			$el = angular.element(el);
 
 			// Check for a match in the element isolate scope
-			if ($el.isolateScope && $el.isolateScope() && $el.isolateScope().$id === this.scope.$id) {
-				this.node = el;
-				this.isIsolate = true;
-				return true;
+			if ('isolateScope' in $el) {
+				var $isolateScope = $el.isolateScope();
+				if ($isolateScope && $isolateScope.$id === this.scope.$id) {
+					this.node = el;
+					this.isIsolate = true;
+					return true;
+				}
 			}
 
 			// Check for a match in the element scope
-			if ($el.scope && $el.scope() && $el.scope().$id === this.scope.$id) {
-				this.node = el;
-				this.isIsolate = false;
-				return true;
+			if ('scope' in $el) {
+				var $scope = $el.scope();
+				if ($scope && $scope.$id === this.scope.$id) {
+					this.node = el;
+					this.isIsolate = false;
+					return true;
+				}
 			}
 
+			// No match, look deeper
 			var children = el.querySelectorAll('.ng-scope, .ng-isolate-scope');
 			for (var i = 0; i < children.length; i++) {
 				var match = this.findDOMNode(children[i]);
@@ -174,7 +192,10 @@ Array.prototype.include = function(e) {
 
 			return false;
 		};
-		this.findDOMNode(this.appItem.node);
+		if (this.parentScopeItem && this.parentScopeItem.node)
+			this.findDOMNode(this.parentScopeItem.node);
+		else
+			this.findDOMNode(this.appItem.node);
 
 		if (!this.node && this.appItem.inspector.showWarnings) {
 			console.warn('ng-inspector: No DOM node found for scope ' + this.scope.$id);
@@ -230,6 +251,11 @@ Array.prototype.include = function(e) {
 		// Label ng-repeat items
 		if (this.node && this.node.hasAttribute('ng-repeat')) {
 			this.addAssociation('ngRepeat', true);
+		}
+
+		// Label ng-include scopes
+		if (this.node && this.node.hasAttribute('ng-include')) {
+			this.addAssociation('ngInclude', true);
 		}
 
 		// Label ng-if scopes
@@ -299,7 +325,7 @@ Array.prototype.include = function(e) {
 			var childScope = this.scope.$$childHead;
 
 			do {
-				var childItem = new ScopeItem(childScope, this.appItem, this.depth + 1);
+				var childItem = new ScopeItem(childScope, this.appItem, this, this.depth + 1);
 				this.drawer.appendChild(childItem.element);
 			} while (childScope = childScope.$$nextSibling);
 		};
@@ -337,14 +363,14 @@ Array.prototype.include = function(e) {
 
 		// console.log the DOM element the scope is attached to
 		this.label.addEventListener('click', function(event) {
-			// scopeItem.drawer.classList.toggle('ngi-collapsed');
+			// scopeItem.drawer.classList.toggle('ngi-collapsed'); // toggle drawer
 			console.log(scopeItem.node);
 		}, true);
 
 		// Check for changes in every digest cycle
 		this.oldModels = this.getModels();
 		this.oldChildScopes = this.getChildScopes();
-		this.scope.$watch(function() {
+		this.watcherDestructor = this.scope.$watch(function() {
 
 			// Models
 			var newModels = scopeItem.getModels();
@@ -362,7 +388,7 @@ Array.prototype.include = function(e) {
 				for (var i = 0; i < newChildScopes.length; i++) {
 					var added = scopeItem.oldChildScopes.indexOf(newChildScopes[i]) < 0;
 					if ( added ) {
-						var childItem = new ScopeItem(newChildScopes[i], scopeItem.appItem, scopeItem.depth + 1);
+						var childItem = new ScopeItem(newChildScopes[i], scopeItem.appItem, scopeItem, scopeItem.depth + 1);
 						scopeItem.drawer.appendChild(childItem.element);
 					}
 				}
@@ -378,6 +404,7 @@ Array.prototype.include = function(e) {
 				var m = this.models.pop();
 				m.destroy();
 			}
+			this.watcherDestructor();
 			this.element.parentNode.removeChild(this.element);
 		}
 
@@ -583,20 +610,22 @@ Array.prototype.include = function(e) {
 		this.apps = [];
 
 		this.process = function() {
-			
-			// Clear the drawer
-			while (this.apps.length > 0) {
-				var app = this.apps.pop();
-				app.destroy();
-			}
+			if (this.showWarnings) console.time('ng-inspector');
+			this.element.classList.add('ngi-processing');
 
 			// Retrieve the ng-app elements from the DOM
-			var els = document.querySelectorAll('[ng-app]');
-			for ( var i = 0; i < els.length; i++ ) {
-				var app = new AppItem(els.item(i), this);
-				this.apps.push(app);
-				this.drawer.appendChild(app.element);
-			}
+			var that = this;
+			requestAnimationFrame(function() {
+				var els = document.querySelectorAll('[ng-app]');
+				for ( var i = 0; i < els.length; i++ ) {
+					var app = new AppItem(els.item(i), that);
+					that.apps.push(app);
+					that.drawer.appendChild(app.element);
+				}
+				that.element.classList.remove('ngi-processing');
+				if (that.showWarnings) console.timeEnd('ng-inspector');
+			});
+
 		};
 
 		this.toggle = function(settings) {
@@ -607,11 +636,13 @@ Array.prototype.include = function(e) {
 			}
 
 			if ( this.element.parentNode ) {
+				this.destroy();
 				document.body.removeChild(this.element);
 			} else {
-				this.process();
 				document.body.appendChild(this.element);
+				this.process();
 			}
+
 		};
 
 		// Capture the mouse wheel while hovering the inspector
@@ -623,6 +654,13 @@ Array.prototype.include = function(e) {
 				event.preventDefault();
 			}
 		});
+
+		this.destroy = function() {
+			while (this.apps.length > 0) {
+				var app = this.apps.pop();
+				app.destroy();
+			}
+		};
 
 		return this;
 	}
