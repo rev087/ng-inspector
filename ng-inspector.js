@@ -1,15 +1,3 @@
-Array.prototype.merge = function(a) {
-	for (var i = 0; i < a.length; i++) {
-		if (this.indexOf(a[i]) < 0) this.push(a[i]);
-	}
-	return this;
-};
-
-Array.prototype.include = function(e) {
-	if (this.indexOf(e) < 0) this.push(e);
-	return this;
-};
-
 (function() {
 
 	var mergeArray = function() {
@@ -22,6 +10,10 @@ Array.prototype.include = function(e) {
 		}
 		return merged;
 	};
+
+	var arrayInclude = function(arr, el) {
+		if (arr.indexOf(el) < 0) arr.push(el);
+	}
 
 	var ModelItem = function(scope, key, depth) {
 
@@ -448,16 +440,16 @@ Array.prototype.include = function(e) {
 			var mod = angular.module(moduleName);
 			for (var n = 0; n < mod.requires.length; n++) {
 				if (requires.indexOf(moduleName) < 0)
-					requires.include(mod.requires[n]);
-				requires.merge(getRequires(mod.requires[n]));
+					arrayInclude(requires, mod.requires[n]);
+				requires = mergeArray(requires, getRequires(mod.requires[n]));
 			}
-			requires.include(moduleName);
+			arrayInclude(requires, moduleName);
 			return requires;
 		}
 
 		var requires = ['ng'];
 		if (this.module) {
-			requires.merge(getRequires(this.module.name));
+			requires = mergeArray(requires, getRequires(this.module.name));
 		}
 		if (this.inspector.showWarnings) {
 			console.info('ng-inspector: Inspecting AngularJS modules:', requires);
