@@ -601,6 +601,7 @@
 		this.element = document.createElement('div');
 		this.element.className = 'ngi-inspector';
 		this.element.innerHTML = '';
+		this.element.style.width = localStorage.getItem("inspector-width") + 'px';
 
 		// Create the root node for the ng-app items
 		this.drawer = document.createElement('div');
@@ -644,8 +645,8 @@
 			}
 		};
 
-		// Events
-		/////////
+		// Scrolling
+		////////////
 
 		// Capture the mouse wheel while hovering the inspector
 		this.element.addEventListener('mousewheel', function(event) {
@@ -658,6 +659,7 @@
 		});
 
 		// Resizing
+		///////////
 
 		this.isResizing = false;
 		this.canResize = false;
@@ -689,8 +691,11 @@
 		});
 
 		document.body.addEventListener('mouseup', function(event) {
-			inspector.isResizing = false;
-			document.body.classList.remove('ngi-resizing');
+			if (inspector.isResizing) {
+				inspector.isResizing = false;
+				document.body.classList.remove('ngi-resizing');
+				localStorage.setItem("inspector-width", inspector.element.offsetWidth);
+			}
 		});
 
 		// Life cycle
