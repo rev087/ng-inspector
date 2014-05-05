@@ -11,6 +11,15 @@
 	box-shadow: inset 0px 0px 4px red !important;
 }
 
+body.ngi-resize {
+	cursor: col-resize !important;
+}
+body.ngi-resizing {
+	-webkit-user-select: none;
+	user-select: none;
+	cursor: col-resize !important;
+}
+
 .ngi-inspector * {
 	margin: 0 !important;
 	padding: 0;
@@ -101,7 +110,7 @@
 	border-top: 1px solid #F8F8F8;
 }
 
-.ngi-inspector .ngi-scope>label:hover {
+body:not(.ngi-resizing) .ngi-inspector .ngi-scope>label:hover {
 	background-image: url(icons/scope.png), linear-gradient(-179deg, #82BEEB 0%, #5290D7 100%);
 	background-position: 4px 7px, 0 0;
 	text-shadow: -1px -1px 0 #5290D7, 1px 1px 0 #82BEEB;
@@ -109,7 +118,7 @@
 	border-top: 1px solid #6EA9E1;
 	border-bottom: 1px solid #4881C6;
 }
-.ngi-inspector .ngi-scope.ngi-isolate-scope>label:hover {
+body:not(.ngi-resizing) .ngi-inspector .ngi-scope.ngi-isolate-scope>label:hover {
 	background-image: url(icons/isolate-scope.png), linear-gradient(-179deg, #82BEEB 0%, #5290D7 100%);
 }
 
@@ -149,7 +158,7 @@
 .ngi-inspector .ngi-model.ngi-model-null > label > .ngi-value,
 .ngi-inspector .ngi-model.ngi-model-undefined > label > .ngi-value { color: gray; }
 
-.ngi-inspector .ngi-model > label:hover {	
+body:not(.ngi-resizing) .ngi-inspector .ngi-model > label:hover {	
 	cursor: pointer;
 	color: #53A0FD;
 }

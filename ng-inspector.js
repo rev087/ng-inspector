@@ -1,5 +1,7 @@
 (function() {
 
+	var inspector = null;
+
 	var mergeArray = function() {
 		var merged = [];
 		for (var a = 0; a < arguments.length; a++) {
@@ -351,7 +353,7 @@
 		// Highlight DOM elements the scope is attached to when hovering the item
 		// in the inspector
 		this.label.addEventListener('mouseover', function() {
-			if ( scopeItem.node )
+			if ( !inspector.isResizing && scopeItem.node )
 				scopeItem.node.classList.add('ngi-highlight');
 		});
 		this.label.addEventListener('mouseout', function() {
@@ -634,14 +636,16 @@
 			}
 
 			if ( this.element.parentNode ) {
-				this.destroy();
 				document.body.removeChild(this.element);
+				this.flush();
 			} else {
 				document.body.appendChild(this.element);
 				this.process();
 			}
-
 		};
+
+		// Events
+		/////////
 
 		// Capture the mouse wheel while hovering the inspector
 		this.element.addEventListener('mousewheel', function(event) {
@@ -653,7 +657,46 @@
 			}
 		});
 
-		this.destroy = function() {
+		// Resizing
+
+		this.isResizing = false;
+		this.canResize = false;
+
+		document.body.addEventListener('mousemove', function(event) {
+			var el = inspector.element;
+
+			// Don't do anything if the inspector is detached from the DOM
+			if (!el.parentNode) return;
+
+			if (el.offsetLeft - 3 <= event.clientX && event.clientX <= el.offsetLeft + 2) {
+				inspector.canResize = true;
+				document.body.classList.add('ngi-resize');
+			} else {
+				inspector.canResize = false;
+				document.body.classList.remove('ngi-resize');
+			}
+			
+			if (inspector.isResizing) {
+				el.style.width = (document.width - event.clientX) + 'px';
+			}
+		});
+
+		document.body.addEventListener('mousedown', function(event) {
+			if (inspector.canResize) {
+				inspector.isResizing = true;
+				document.body.classList.add('ngi-resizing');
+			}
+		});
+
+		document.body.addEventListener('mouseup', function(event) {
+			inspector.isResizing = false;
+			document.body.classList.remove('ngi-resizing');
+		});
+
+		// Life cycle
+		/////////////
+
+		this.flush = function() {
 			while (this.apps.length > 0) {
 				var app = this.apps.pop();
 				app.destroy();
@@ -662,8 +705,6 @@
 
 		return this;
 	}
-
-	var inspector = null;
 
 	window.onload = function() {
 		// Instantiate the inspector
