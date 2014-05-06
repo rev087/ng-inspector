@@ -197,7 +197,7 @@
 		else
 			this.findDOMNode(this.appItem.node);
 
-		if (!this.node && this.appItem.ngInspector.showWarnings) {
+		if (!this.node && ngInspector.showWarnings) {
 			console.warn('ng-inspector: No DOM node found for scope ' + this.scope.$id);
 		}
 
@@ -411,17 +411,16 @@
 		return this;
 	}
 
-	var AppItem = function(node, ngInspector) {
+	var AppItem = function(node) {
 
-		this.node = node;
-		this.ngInspector = ngInspector;
+		this.node = node === document ? node.querySelector('html') : node;
 		this.scope = angular.element(node).scope();
 
 		// Find the module
 		this.module = null;
 		this.name = null;
-		if (node.getAttribute('ng-app')) {
-			this.name = node.getAttribute('ng-app');
+		if (this.node.getAttribute('ng-app')) {
+			this.name = this.node.getAttribute('ng-app');
 			this.module = angular.module(this.name);
 		} else {
 			this.name = 'ng-app';
@@ -459,7 +458,7 @@
 		if (this.module) {
 			requires = mergeArray(requires, getRequires(this.module.name));
 		}
-		if (this.ngInspector.showWarnings) {
+		if (ngInspector.showWarnings) {
 			console.info('ng-inspector: Inspecting AngularJS modules:', requires);
 		}
 
@@ -500,7 +499,7 @@
 				}
 				else {
 					// No luck this way either, fall back to the defaults
-					if (this.ngInspector.showWarnings) {	
+					if (ngInspector.showWarnings) {	
 						console.warn('ng-inspector: Could not inspect directive ' + name + ' from ' + module.name);
 					}
 					dir = {restrict: 'A', scope: null}
@@ -609,6 +608,9 @@
 		this.element.appendChild(this.drawer);
 
 		this.apps = [];
+		this.bootstrappedApps = [];
+
+		this.showWarnings = false;
 
 		this.process = function() {
 			if (!('angular' in window)) {
@@ -620,16 +622,26 @@
 			this.element.classList.add('ngi-processing');
 
 			// Retrieve the ng-app elements from the DOM
-			var that = this;
 			requestAnimationFrame(function() {
-				var els = document.querySelectorAll('[ng-app]');
-				for ( var i = 0; i < els.length; i++ ) {
-					var app = new AppItem(els.item(i), that);
-					that.apps.push(app);
-					that.drawer.appendChild(app.element);
+
+				// Process the auto-bootstrapped module via ngApp
+				// (being the first ngApp in the page)
+				var el = document.querySelector('[ng-app]');
+				if (el) {
+					var app = new AppItem(el);
+					ngInspector.apps.push(app);
+					ngInspector.drawer.appendChild(app.element);
 				}
-				that.element.classList.remove('ngi-processing');
-				if (that.showWarnings) console.timeEnd('ng-inspector');
+
+				// Process the asyncronously bootstrapped modules, captured
+				// by the angular.bootstrap wrapper below
+				for ( var i = 0; i < ngInspector.bootstrappedApps.length; i++ ) {
+					var app = new AppItem(ngInspector.bootstrappedApps[i].element);
+					ngInspector.apps.push(app);
+					ngInspector.drawer.appendChild(app.element);
+				}
+				ngInspector.element.classList.remove('ngi-processing');
+				if (ngInspector.showWarnings) console.timeEnd('ng-inspector');
 			});
 
 		};
@@ -719,6 +731,14 @@
 	window.addEventListener('load', function() {
 		// Instantiate the inspector
 		ngInspector = new NGInspector();
+
+		if ('angular' in window) {
+			var _bootstrap = angular.bootstrap;
+			angular.bootstrap = function(element, modules) {
+				ngInspector.bootstrappedApps.push({element:element, modules:modules});
+				_bootstrap.apply(this, arguments);
+			}
+		}
 	});
 
 	window.addEventListener('message', function (e) {
