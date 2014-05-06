@@ -716,10 +716,10 @@
 		return this;
 	}
 
-	window.onload = function() {
+	window.addEventListener('load', function() {
 		// Instantiate the inspector
 		ngInspector = new NGInspector();
-	};
+	});
 
 	window.addEventListener('message', function (e) {
 
