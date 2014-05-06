@@ -1,6 +1,6 @@
 (function() {
 
-	var inspector = null;
+	var ngInspector = null;
 
 	var mergeArray = function() {
 		var merged = [];
@@ -197,7 +197,7 @@
 		else
 			this.findDOMNode(this.appItem.node);
 
-		if (!this.node && this.appItem.inspector.showWarnings) {
+		if (!this.node && this.appItem.ngInspector.showWarnings) {
 			console.warn('ng-inspector: No DOM node found for scope ' + this.scope.$id);
 		}
 
@@ -353,7 +353,7 @@
 		// Highlight DOM elements the scope is attached to when hovering the item
 		// in the inspector
 		this.label.addEventListener('mouseover', function() {
-			if ( !inspector.isResizing && scopeItem.node )
+			if ( !ngInspector.isResizing && scopeItem.node )
 				scopeItem.node.classList.add('ngi-highlight');
 		});
 		this.label.addEventListener('mouseout', function() {
@@ -411,10 +411,10 @@
 		return this;
 	}
 
-	var AppItem = function(node, inspector) {
+	var AppItem = function(node, ngInspector) {
 
 		this.node = node;
-		this.inspector = inspector;
+		this.ngInspector = ngInspector;
 		this.scope = angular.element(node).scope();
 
 		// Find the module
@@ -459,7 +459,7 @@
 		if (this.module) {
 			requires = mergeArray(requires, getRequires(this.module.name));
 		}
-		if (this.inspector.showWarnings) {
+		if (this.ngInspector.showWarnings) {
 			console.info('ng-inspector: Inspecting AngularJS modules:', requires);
 		}
 
@@ -500,7 +500,7 @@
 				}
 				else {
 					// No luck this way either, fall back to the defaults
-					if (this.inspector.showWarnings) {	
+					if (this.ngInspector.showWarnings) {	
 						console.warn('ng-inspector: Could not inspect directive ' + name + ' from ' + module.name);
 					}
 					dir = {restrict: 'A', scope: null}
@@ -595,7 +595,7 @@
 		return this;
 	}
 
-	var Inspector = function() {
+	var NGInspector = function() {
 
 		// Create the inspector view
 		this.element = document.createElement('div');
@@ -611,6 +611,11 @@
 		this.apps = [];
 
 		this.process = function() {
+			if (!('angular' in window)) {
+				console.warn('This page does not include AngularJS.');
+				return;
+			}
+
 			if (this.showWarnings) console.time('ng-inspector');
 			this.element.classList.add('ngi-processing');
 
@@ -630,7 +635,7 @@
 		};
 
 		this.toggle = function(settings) {
-			if (angular.isObject(settings) && 'showWarnings' in settings) {
+			if (settings && 'showWarnings' in settings) {
 				this.showWarnings = settings.showWarnings;
 			} else {
 				this.showWarnings = false;
@@ -650,9 +655,9 @@
 
 		// Capture the mouse wheel while hovering the inspector
 		this.element.addEventListener('mousewheel', function(event) {
-			if ((event.wheelDeltaY > 0 && inspector.scrollTop === 0) ||
+			if ((event.wheelDeltaY > 0 && ngInspector.scrollTop === 0) ||
 				(event.wheelDeltaY < 0 && (
-					inspector.element.scrollTop + inspector.element.offsetHeight) === inspector.element.scrollHeight
+					ngInspector.element.scrollTop + ngInspector.element.offsetHeight) === ngInspector.element.scrollHeight
 				)) {
 				event.preventDefault();
 			}
@@ -665,36 +670,36 @@
 		this.canResize = false;
 
 		document.body.addEventListener('mousemove', function(event) {
-			var el = inspector.element;
+			var el = ngInspector.element;
 
 			// Don't do anything if the inspector is detached from the DOM
 			if (!el.parentNode) return;
 
 			if (el.offsetLeft - 3 <= event.clientX && event.clientX <= el.offsetLeft + 2) {
-				inspector.canResize = true;
+				ngInspector.canResize = true;
 				document.body.classList.add('ngi-resize');
 			} else {
-				inspector.canResize = false;
+				ngInspector.canResize = false;
 				document.body.classList.remove('ngi-resize');
 			}
 			
-			if (inspector.isResizing) {
+			if (ngInspector.isResizing) {
 				el.style.width = (document.width - event.clientX) + 'px';
 			}
 		});
 
 		document.body.addEventListener('mousedown', function(event) {
-			if (inspector.canResize) {
-				inspector.isResizing = true;
+			if (ngInspector.canResize) {
+				ngInspector.isResizing = true;
 				document.body.classList.add('ngi-resizing');
 			}
 		});
 
 		document.body.addEventListener('mouseup', function(event) {
-			if (inspector.isResizing) {
-				inspector.isResizing = false;
+			if (ngInspector.isResizing) {
+				ngInspector.isResizing = false;
 				document.body.classList.remove('ngi-resizing');
-				localStorage.setItem("inspector-width", inspector.element.offsetWidth);
+				localStorage.setItem("inspector-width", ngInspector.element.offsetWidth);
 			}
 		});
 
@@ -713,7 +718,7 @@
 
 	window.onload = function() {
 		// Instantiate the inspector
-		inspector = new Inspector();
+		ngInspector = new NGInspector();
 	};
 
 	window.addEventListener('message', function (e) {
@@ -721,15 +726,15 @@
 		// Make sure the message was sent by this tab
 		if (e.origin !== window.location.origin) return;
 
-		// Fail if the inspector has not been initialized yet
-		if ( !inspector ) {
-			console.error('The ng-inspector has not yet initialized');
-			return;
-		}
-
 		// Filter toggle events
-		if (angular.isObject(e.data) && e.data.command === 'ngi-toggle') {
-			inspector.toggle(e.data.settings);
+		if (e.data && e.data.command === 'ngi-toggle') {
+
+			// Fail if the inspector has not been initialized yet
+			if ( !ngInspector ) {
+				return console.error('The ng-inspector has not yet initialized');
+			}
+
+			ngInspector.toggle(e.data.settings);
 		}
 
 	}, false);
