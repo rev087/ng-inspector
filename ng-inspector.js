@@ -52,7 +52,7 @@
 			if (angular.isString(scope[key])) {
 				this.element.classList.add('ngi-model-string');
 				if (scope[key].trim().length > 25) {
-					value.innerText = '"' + scope[key].trim().substr(0, 25) + ' (…)"';
+					value.innerText = '"' + scope[key].trim().substr(0, 25) + ' (...)"';
 					value.appendChild(lengthIndicator(scope[key].length));
 				}
 				else {
@@ -62,7 +62,7 @@
 			else if (angular.isFunction(scope[key])) {
 				this.element.classList.add('ngi-model-function');
 				var args = angular.injector().annotate(scope[key]).join(', ');
-				value.innerText = 'function(' + args + ') {…}';
+				value.innerText = 'function(' + args + ') {...}';
 			}
 			else if (angular.isArray(scope[key])) {
 				this.element.classList.add('ngi-model-array');
@@ -71,7 +71,7 @@
 					value.innerText = '[]';
 				}
 				else {
-					value.innerText = '[…]';
+					value.innerText = '[...]';
 					value.appendChild(lengthIndicator(length));
 				}
 				
@@ -83,7 +83,7 @@
 					value.innerText = '{}';
 				}
 				else {
-					value.innerText = '{…}';
+					value.innerText = '{...}';
 					value.appendChild(lengthIndicator(length));
 				}
 			}
