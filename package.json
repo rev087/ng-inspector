@@ -1,6 +1,6 @@
 {
   "name": "ng-inspector",
-  "version": "0.3.0",
+  "version": "v0.3.1",
   "description": "A Safari extension to inspect AngularJS applications",
   "main": "ng-inspector.js",
   "scripts": {
@@ -25,6 +25,9 @@
   "devDependencies": {
     "gulp": "~3.6.2",
     "gulp-concat": "~2.2.0",
-    "gulp-wrap": "~0.3.0"
+    "gulp-wrap": "~0.3.0",
+    "semver": "~2.3.0",
+    "colors": "~0.6.2",
+    "plist": "~0.4.3"
   }
 }
