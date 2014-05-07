@@ -85,5 +85,7 @@
 	</dict>
 	<key>Update Manifest URL</key>
 	<string>http://rev087.github.io/ng-inspector/update-manifest.plist</string>
+	<key>Website</key>
+	<string>https://github.com/rev087/ng-inspector</string>
 </dict>
 </plist>

@@ -24,7 +24,6 @@
   "homepage": "https://github.com/rev087/ng-inspector",
   "devDependencies": {
     "gulp": "~3.6.2",
-    "gulp-clean": "~0.2.4",
     "gulp-concat": "~2.2.0",
     "gulp-wrap": "~0.3.0"
   }

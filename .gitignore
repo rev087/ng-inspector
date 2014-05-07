@@ -1,6 +1,3 @@
 node_modules
-certs
-dist
-build
 npm-debug.log
 .DS_Store

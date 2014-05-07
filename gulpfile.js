@@ -1,41 +1,22 @@
 var gulp = require('gulp');
-var clean = require('gulp-clean');
 var concat = require('gulp-concat');
 var wrap = require('gulp-wrap');
 
-gulp.task('concat', function() {
+gulp.task('build', function() {
+
+	// Concatenate the /src/*.js files to ng-inspector.js
 	return gulp.src('src/*.js')
 		.pipe(concat('ng-inspector.js', {newLine:"\n\n"}))
 		.pipe(wrap("(function(window) {\n<%= contents %>\n})(window);"), {variable:'data'})
-		.pipe(gulp.dest('build/ng-inspector.safariextension/'));
-});
+		.pipe(gulp.dest('ng-inspector.safariextension/'));
 
-gulp.task('clean', function() {
-	return gulp.src('build/**/*.*', {read:false})
-		.pipe(clean({force:true}));
-});
+	// Here would be a good place to build the archive. But it requires a custom
+	// build of the `xar` executable to extract certificates from a Safari-built
+	// .safariextz, then signing the .xar archive (renamed .safariextz).
 
-gulp.task('build', ['clean', 'concat'], function() {
-
-	// Source
-	gulp.src([
-		'global.html',
-		'Info.plist',
-		'inject-end.js',
-		'ng.png',
-		'Settings.plist',
-		'stylesheet.css'
-		])
-		.pipe(gulp.dest('build/ng-inspector.safariextension/'));
-
-	// Icons
-	gulp.src('icons/*.png')
-		.pipe(gulp.dest('build/ng-inspector.safariextension/icons'));
-
-
-	// Build the archive
-
+	// Steps to build from the command line:
+	// http://developer.streak.com/2013/01/how-to-build-safari-extension-using.html
 
 });
 
-gulp.task('default', ['concat']);
+gulp.task('default', ['build']);
