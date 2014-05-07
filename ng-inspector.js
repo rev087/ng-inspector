@@ -175,7 +175,9 @@
 
 			// Check for a match in the element scope
 			if ('scope' in $el) {
-				var $scope = $el.scope();
+				// .data('$scope') is more efficient than .scope() as it doesn't
+				// traverse the DOM up
+				var $scope = $el.data('$scope');
 				if ($scope && $scope.$id === this.scope.$id) {
 					this.node = el;
 					this.isIsolate = false;
