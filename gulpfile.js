@@ -7,24 +7,6 @@ var colors = require('colors');
 var plist = require('plist');
 var spawn = require('child_process').spawn;
 
-
-gulp.task('build', function() {
-
-	// Concatenate the /src/*.js files to ng-inspector.js
-	return gulp.src('src/*.js')
-		.pipe(concat('ng-inspector.js', {newLine:"\n\n"}))
-		.pipe(wrap("(function(window) {\n<%= contents %>\n})(window);"), {variable:'data'})
-		.pipe(gulp.dest('ng-inspector.safariextension/'));
-
-	// Here would be a good place to build the archive. But it requires a custom
-	// build of the `xar` executable to extract certificates from a Safari-built
-	// .safariextz, then signing the .xar archive (renamed .safariextz).
-
-	// Steps to build from the command line:
-	// http://developer.streak.com/2013/01/how-to-build-safari-extension-using.html
-
-});
-
 function run(cmd, args, callback) {
 	var child = spawn(cmd, args);
 	var buffer = '';
@@ -87,5 +69,27 @@ function bump(release) {
 gulp.task('bump:major', function() { bump('major'); });
 gulp.task('bump:minor', function() { bump('minor'); });
 gulp.task('bump:patch', function() { bump('patch'); });
+
+gulp.task('build', function() {
+
+	// Concatenate the /src/*.js files to ng-inspector.js
+	return gulp.src('src/*.js')
+		.pipe(concat('ng-inspector.js', {newLine:"\n\n"}))
+		.pipe(wrap("(function(window) {\n<%= contents %>\n})(window);"), {variable:'data'})
+		.pipe(gulp.dest('ng-inspector.safariextension/'));
+
+	// Here would be a good place to build the archive. But it requires a custom
+	// build of the `xar` executable to extract certificates from a Safari-built
+	// .safariextz, then signing the .xar archive (renamed .safariextz).
+
+	// Steps to build from the command line:
+	// http://developer.streak.com/2013/01/how-to-build-safari-extension-using.html
+
+});
+
+gulp.task('watch', function() {
+	gulp.watch('./src/*.js', ['build']);
+});
+
 
 gulp.task('default', ['build']);
