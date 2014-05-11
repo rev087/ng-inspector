@@ -112,6 +112,37 @@ NGI.Inspector = function() {
 		return dig(document);
 	};
 
+
+	// Traverses the DOM looking for a Node assigned to a specific scope
+	// usage: ngInspector.domScopes
+	this.domScopes = function(id) {
+		var scopes = {};
+		function dig(el) {
+			var child = el.firstChild;
+			if (!child) return;
+			do {
+				var $el = angular.element(el);
+
+				if (Object.keys($el.data()).length > 0) {
+
+					var $scope = $el.data('$scope');
+					var $isolate = $el.isolateScope();
+
+					if ($scope) {
+						scopes[$scope.$id] = $scope;
+					}
+					else if ($isolate) {
+						scopes[$isolate.$id] = $isolate;
+					}
+				}
+				var res = dig(child);
+				if (res) return res;
+			} while (child = child.nextSibling);
+		}
+		dig(document);
+		return Object.keys(scopes);
+	};
+
 };
 
 /* global NGI, console */
@@ -400,13 +431,13 @@ NGI.InspectorAgent = function() {
 		els = Array.prototype.slice.apply(els, [0]);
 		els.push(document);
 		for (var i = 0; i < els.length; i++) {
-			var $el = angular.element(els[i]);
+			var $el = window.angular.element(els[i]);
 			if ($el.data('$injector')) {
 				moduleNodes.push(els[i]);
 			}
-		};
+		}
 		return moduleNodes;
-	};
+	}
 
 	this.performInspection = function() {
 
@@ -421,15 +452,12 @@ NGI.InspectorAgent = function() {
 		var attrs = ['ng\\:app', 'ng-app', 'x-ng-app', 'data-ng-app'];
 		
 		var moduleNodes = findModuleNodes();
-		for (var i = 0; i < attrs.length; i++) {
-			// Only the first ngApp is auto-bootstrapped
-			var node = document.querySelector('['+attrs[i]+']');
-			if (node) {
-				var requires = node.getAttribute(attrs[i]);
-				inspectModule(node, requires);
+		for (var m = 0; m < moduleNodes.length; m++) {
+			for (var i = 0; i < attrs.length; i++) {
+				var requires = moduleNodes[m].getAttribute(attrs[i]);
+				inspectModule(moduleNodes[m], requires);
 			}
-		}
-
+		};
 
 		// Starts the DOM traversal mechanism
 		// if (ngInspector.settings.showWarnings)
