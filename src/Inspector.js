@@ -110,4 +110,35 @@ NGI.Inspector = function() {
 		return dig(document);
 	};
 
+
+	// Traverses the DOM looking for a Node assigned to a specific scope
+	// usage: ngInspector.domScopes
+	this.domScopes = function(id) {
+		var scopes = {};
+		function dig(el) {
+			var child = el.firstChild;
+			if (!child) return;
+			do {
+				var $el = angular.element(el);
+
+				if (Object.keys($el.data()).length > 0) {
+
+					var $scope = $el.data('$scope');
+					var $isolate = $el.isolateScope();
+
+					if ($scope) {
+						scopes[$scope.$id] = $scope;
+					}
+					else if ($isolate) {
+						scopes[$isolate.$id] = $isolate;
+					}
+				}
+				var res = dig(child);
+				if (res) return res;
+			} while (child = child.nextSibling);
+		}
+		dig(document);
+		return Object.keys(scopes);
+	};
+
 };
