@@ -284,13 +284,13 @@ NGI.InspectorAgent = function() {
 		els = Array.prototype.slice.apply(els, [0]);
 		els.push(document);
 		for (var i = 0; i < els.length; i++) {
-			var $el = angular.element(els[i]);
+			var $el = window.angular.element(els[i]);
 			if ($el.data('$injector')) {
 				moduleNodes.push(els[i]);
 			}
-		};
+		}
 		return moduleNodes;
-	};
+	}
 
 	this.performInspection = function() {
 
@@ -305,15 +305,12 @@ NGI.InspectorAgent = function() {
 		var attrs = ['ng\\:app', 'ng-app', 'x-ng-app', 'data-ng-app'];
 		
 		var moduleNodes = findModuleNodes();
-		for (var i = 0; i < attrs.length; i++) {
-			// Only the first ngApp is auto-bootstrapped
-			var node = document.querySelector('['+attrs[i]+']');
-			if (node) {
-				var requires = node.getAttribute(attrs[i]);
-				inspectModule(node, requires);
+		for (var m = 0; m < moduleNodes.length; m++) {
+			for (var i = 0; i < attrs.length; i++) {
+				var requires = moduleNodes[m].getAttribute(attrs[i]);
+				inspectModule(moduleNodes[m], requires);
 			}
-		}
-
+		};
 
 		// Starts the DOM traversal mechanism
 		// if (ngInspector.settings.showWarnings)
