@@ -1,32 +1,25 @@
-var ngInspector = null;
-
 window.addEventListener('load', function() {
-	// Instantiate the inspector
-	ngInspector = new NGInspector();
 
-	if ('angular' in window) {
-		var _bootstrap = angular.bootstrap;
-		angular.bootstrap = function(element, modules) {
-			ngInspector.bootstrappedApps.push({element:element, modules:modules});
-			_bootstrap.apply(this, arguments);
-		}
-	}
+	// Instantiate the inspector
+	window.ngInspector = new NGI.Inspector();
+
 });
 
-window.addEventListener('message', function (e) {
+window.addEventListener('message', function (event) {
 
-	// Make sure the message was sent by this tab
-	if (e.origin !== window.location.origin) return;
+	// Ensure the message was sent by this origin
+	if (event.origin !== window.location.origin) return;
 
-	// Filter toggle events
-	if (e.data && e.data.command === 'ngi-toggle') {
+	// Respond to 'ngi-toggle' events only
+	if (event.data && event.data.command === 'ngi-toggle') {
 
-		// Fail if the inspector has not been initialized yet
-		if ( !ngInspector ) {
+
+		// Fail if the inspector has not been initialized yet (before window.load)
+		if ( !window.ngInspector ) {
 			return console.error('The ng-inspector has not yet initialized');
 		}
 
-		ngInspector.toggle(e.data.settings);
+		window.ngInspector.toggle(event.data.settings);
 	}
 
 }, false);

@@ -1,6 +1,7 @@
 var gulp = require('gulp');
 var concat = require('gulp-concat');
 var wrap = require('gulp-wrap');
+// var jshint = require('gulp-jshint');
 var semver = require('semver');
 var fs = require('fs');
 var colors = require('colors');
@@ -73,9 +74,19 @@ gulp.task('bump:patch', function() { bump('patch'); });
 gulp.task('build', function() {
 
 	// Concatenate the /src/*.js files to ng-inspector.js
-	return gulp.src('src/*.js')
+	return gulp.src([
+		'src/Inspector.js',
+		'src/InspectorAgent.js',
+		'src/InspectorPane.js',
+		'src/TreeView.js',
+		'src/Module.js',
+		'src/Scope.js',
+		'src/bootstrap.js'
+	])
+		// .pipe(jshint())
+		// .pipe(jshint.reporter('default'))
 		.pipe(concat('ng-inspector.js', {newLine:"\n\n"}))
-		.pipe(wrap("(function(window) {\n<%= contents %>\n})(window);"), {variable:'data'})
+		.pipe(wrap("\"use strict\";\n(function(window) {\n<%= contents %>\n})(window);"), {variable:'data'})
 		.pipe(gulp.dest('ng-inspector.safariextension/'));
 
 	// Here would be a good place to build the archive. But it requires a custom
@@ -88,7 +99,7 @@ gulp.task('build', function() {
 });
 
 gulp.task('watch', function() {
-	gulp.watch('./src/*.js', ['build']);
+	gulp.watch('src/*.js', ['build']);
 });
 
 

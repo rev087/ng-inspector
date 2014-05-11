@@ -85,6 +85,10 @@ body.ngi-resizing {
 	margin-top: -1px;
 }
 
+.ngi-inspector .ngi-app>label>small {
+	color: #999;
+}
+
 .ngi-inspector .ngi-scope {
 	background: #fff;
 }

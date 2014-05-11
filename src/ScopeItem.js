@@ -20,55 +20,6 @@ var ScopeItem = function(scope, appItem, parentScopeItem, depth) {
 	this.drawer.className = 'ngi-drawer';
 	this.element.appendChild(this.drawer);
 
-	// Find the DOM Node
-	////////////////////
-
-	this.node = null;
-	this.isIsolate = null;
-	this.findDOMNode = function(el) {
-
-		$el = angular.element(el);
-
-		// Check for a match in the element isolate scope
-		if ('isolateScope' in $el) {
-			var $isolateScope = $el.isolateScope();
-			if ($isolateScope && $isolateScope.$id === this.scope.$id) {
-				this.node = el;
-				this.isIsolate = true;
-				return true;
-			}
-		}
-
-		// Check for a match in the element scope
-		if ('scope' in $el) {
-			// .data('$scope') is more efficient than .scope() as it doesn't
-			// traverse the DOM up
-			var $scope = $el.data('$scope');
-			if ($scope && $scope.$id === this.scope.$id) {
-				this.node = el;
-				this.isIsolate = false;
-				return true;
-			}
-		}
-
-		// No match, look deeper
-		var children = el.querySelectorAll('.ng-scope, .ng-isolate-scope');
-		for (var i = 0; i < children.length; i++) {
-			var match = this.findDOMNode(children[i]);
-			if (match) return true;
-		}
-
-		return false;
-	};
-	if (this.parentScopeItem && this.parentScopeItem.node)
-		this.findDOMNode(this.parentScopeItem.node);
-	else
-		this.findDOMNode(this.appItem.node);
-
-	if (!this.node && ngInspector.showWarnings) {
-		console.warn('ng-inspector: No DOM node found for scope ' + this.scope.$id);
-	}
-
 	if (this.isIsolate) this.element.classList.add('ngi-isolate-scope');
 
 	// Association labels
@@ -217,23 +168,6 @@ var ScopeItem = function(scope, appItem, parentScopeItem, depth) {
 	this.scope.$on('$destroy', function() {
 		scopeItem.destroy();
 	})
-
-	// Highlight DOM elements the scope is attached to when hovering the item
-	// in the inspector
-	this.label.addEventListener('mouseover', function() {
-		if ( !ngInspector.isResizing && scopeItem.node )
-			scopeItem.node.classList.add('ngi-highlight');
-	});
-	this.label.addEventListener('mouseout', function() {
-		if ( scopeItem.node )
-			scopeItem.node.classList.remove('ngi-highlight');
-	});
-
-	// console.log the DOM element the scope is attached to
-	this.label.addEventListener('click', function(event) {
-		// scopeItem.drawer.classList.toggle('ngi-collapsed'); // toggle drawer
-		console.log(scopeItem.node);
-	}, true);
 
 	// Check for changes in every digest cycle
 	this.oldModels = this.getModels();

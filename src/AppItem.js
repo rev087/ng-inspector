@@ -1,26 +1,5 @@
 var AppItem = function(node) {
 
-	this.node = node === document ? node.querySelector('html') : node;
-	this.scope = angular.element(node).scope();
-
-	// Find the module
-	this.module = null;
-	this.name = null;
-	if (this.node.getAttribute('ng-app')) {
-		this.name = this.node.getAttribute('ng-app');
-		this.module = angular.module(this.name);
-	} else {
-		this.name = 'ng-app';
-	}
-
-	this.element = document.createElement('div');
-	this.element.className = 'ngi-app';
-	this.element.innerHTML = '<label>' + this.name + '</label>';
-
-	this.drawer = document.createElement('div');
-	this.drawer.className = 'ngi-drawer';
-	this.element.appendChild(this.drawer);
-
 	// Recursively get all the required modules
 	var traversed = [];
 	var getRequires = function(moduleName) {
