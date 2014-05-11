@@ -40,12 +40,28 @@ NGI.Inspector = function() {
 	// Debugging utlities, to be used in the console
 
 	// Retrieves the "breadcrumb" of a specific scope in the hierarchy
-	// usage: ngInspector.getScope('002');
-	this.breadcrumb = function(id) {
+	// usage: ngInspector.scope('002');
+	this.scope = function(id) {
+
+		function findRoot(el) {
+			var child = el.firstChild;
+			if (!child) return;
+			do {
+				var $el = angular.element(el);
+
+				if ($el.data('$scope')) {
+					return $el.data('$scope').$root;
+				}
+
+				var res = findRoot(child);
+				if (res) return res;
+
+			} while (child = child.nextSibling);
+		}
 
 		function dig(scope, breadcrumb) {
-			var newBreadcrub = breadcrumb.slice(0);
-			newBreadcrub.push(scope.$id);
+			var newBreadcrumb = breadcrumb.slice(0);
+			newBreadcrumb.push(scope.$id);
 
 			if (scope.$id == id) {
 				console.log(newBreadcrumb);
@@ -57,17 +73,18 @@ NGI.Inspector = function() {
 			if (!child) return;
 
 			do {
-				var res = dig(child, newBreadcrub);
+				var res = dig(child, newBreadcrumb);
 				if (res) return res;
 			} while (child = child.$$nextSibling);
 
 		}
-		return dig(angular.element(document.querySelector('html')).scope(), []);
+
+		return dig(findRoot(document), []);
 	};
 
 	// Traverses the DOM looking for a Node assigned to a specific scope
-	// usage: ngInspector.nodeForScopeId
-	this.nodeForScope = function(id) {
+	// usage: ngInspector.scopeNode
+	this.scopeNode = function(id) {
 		function dig(el) {
 			var child = el.firstChild;
 			if (!child) return;
@@ -93,6 +110,4 @@ NGI.Inspector = function() {
 		return dig(document);
 	};
 
-
 };
-

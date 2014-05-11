@@ -108,7 +108,7 @@ NGI.Module.instance = function(node, name) {
 	}
 
 	// Names of dependencies
-	if (typeof name === typeof {} && name.length) {
+	if (name && typeof name === typeof {}) {
 		module.instantiateDeps(name);
 	}
 

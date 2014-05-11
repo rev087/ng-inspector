@@ -42,12 +42,28 @@ NGI.Inspector = function() {
 	// Debugging utlities, to be used in the console
 
 	// Retrieves the "breadcrumb" of a specific scope in the hierarchy
-	// usage: ngInspector.getScope('002');
-	this.breadcrumb = function(id) {
+	// usage: ngInspector.scope('002');
+	this.scope = function(id) {
+
+		function findRoot(el) {
+			var child = el.firstChild;
+			if (!child) return;
+			do {
+				var $el = angular.element(el);
+
+				if ($el.data('$scope')) {
+					return $el.data('$scope').$root;
+				}
+
+				var res = findRoot(child);
+				if (res) return res;
+
+			} while (child = child.nextSibling);
+		}
 
 		function dig(scope, breadcrumb) {
-			var newBreadcrub = breadcrumb.slice(0);
-			newBreadcrub.push(scope.$id);
+			var newBreadcrumb = breadcrumb.slice(0);
+			newBreadcrumb.push(scope.$id);
 
 			if (scope.$id == id) {
 				console.log(newBreadcrumb);
@@ -59,17 +75,18 @@ NGI.Inspector = function() {
 			if (!child) return;
 
 			do {
-				var res = dig(child, newBreadcrub);
+				var res = dig(child, newBreadcrumb);
 				if (res) return res;
 			} while (child = child.$$nextSibling);
 
 		}
-		return dig(angular.element(document.querySelector('html')).scope(), []);
+
+		return dig(findRoot(document), []);
 	};
 
 	// Traverses the DOM looking for a Node assigned to a specific scope
-	// usage: ngInspector.nodeForScopeId
-	this.nodeForScope = function(id) {
+	// usage: ngInspector.scopeNode
+	this.scopeNode = function(id) {
 		function dig(el) {
 			var child = el.firstChild;
 			if (!child) return;
@@ -95,10 +112,7 @@ NGI.Inspector = function() {
 		return dig(document);
 	};
 
-
 };
-
-
 
 /* global NGI, console */
 /* jshint strict: false */
@@ -223,124 +237,178 @@ NGI.InspectorAgent = function() {
 
 	};
 
-	// Counter for the node probings being scheduled with setTimeout
-	var probeQueue = 0;
 
-	// The recursive DOM traversal function. This is the meat of
-	// `NGI.InspectorAgent`, where AngularJS objects are identified in the DOM.
-	function traverse(node, currentModule) {
+	function traverseDOM(node) {
 
-		// We can skip all nodeTypes except ELEMENT, COMMENT and DOCUMENT nodes
-		if (node.nodeType === Node.ELEMENT_NODE ||
-			 node.nodeType === Node.COMMENT_NODE ||
-			 node.nodeType === Node.DOCUMENT_NODE) {
+		// Counter for the node probings being scheduled with setTimeout
+		var probeQueue = 1;
+		traverse(node, []);
 
-			// Wrap the DOM node to get access to angular.element methods
-			var $node = window.angular.element(node);
+		// The recursive DOM traversal function. This is the meat of
+		// `NGI.InspectorAgent`, where AngularJS objects are identified in the DOM.
+		function traverse(node, currentModule) {
 
-			var nodeData = $node.data();
-			// if (Object.keys(nodeData).length > 0)
-				// NGI.TreeView.flushNode(node);
-			// ---REMOVE---
-			// 	console.log(probeQueue, Object.keys(nodeData), node);
-			// ---REMOVE---
+			// We can skip all nodeTypes except ELEMENT, COMMENT and DOCUMENT nodes
+			if (node.nodeType === Node.ELEMENT_NODE ||
+				 node.nodeType === Node.COMMENT_NODE ||
+				 node.nodeType === Node.DOCUMENT_NODE) {
 
-			// The first check attempts to detect the presence of an AngularJS module
-			// by checking for an instance of the AngularJS $injector service stored
-			// in the DOM node
-			if (nodeData['$injector']) {
+				// Wrap the DOM node to get access to angular.element methods
+				var $node = window.angular.element(node);
 
-				var module;
+				var nodeData = $node.data();
+				// if (Object.keys(nodeData).length > 0)
+					// NGI.TreeView.flushNode(node);
+				// ---REMOVE---
+				// 	console.log(probeQueue, Object.keys(nodeData), node);
+				// ---REMOVE---
 
-				// Probe the node for the ngApp directive
-				var ngApp = probe.ngApp(node);
+				// The first check attempts to detect the presence of an AngularJS module
+				// by checking for an instance of the AngularJS $injector service stored
+				// in the DOM node
+				if (nodeData.$injector) {
 
-				// An ngApp directive with a string value is the best way to
-				// identify the module, as it gives us module name and dependencies
-				if (typeof ngApp === typeof '') {
-					module = NGI.Module.instance(node, ngApp);
+					var module;
 
-				// Failing that, the next best thing is to identify it from a
-				// captured `angular.bootstrap` call, as it gives us the list of
-				// dependencies
-				} else {
-					// Probe the node for a captured manual bootstrap
-					var bsRequires = probe.bootstrappedNode(node);
+					// Probe the node for the ngApp directive
+					var ngApp = probe.ngApp(node);
 
-					if (!!bsRequires) {
-						module = NGI.Module.instance(node, bsRequires);
+					// An ngApp directive with a string value is the best way to
+					// identify the module, as it gives us module name and dependencies
+					if (typeof ngApp === typeof '') {
+						module = NGI.Module.instance(node, ngApp);
 
-					// The last alternative is an anonymous ngApp directive
+					// Failing that, the next best thing is to identify it from a
+					// captured `angular.bootstrap` call, as it gives us the list of
+					// dependencies
 					} else {
-						module = NGI.Module.instance(node);
+						// Probe the node for a captured manual bootstrap
+						var bsRequires = probe.bootstrappedNode(node);
+
+						if (!!bsRequires) {
+							module = NGI.Module.instance(node, bsRequires);
+
+						// The last alternative is an anonymous ngApp directive
+						} else {
+							module = NGI.Module.instance(node);
+						}
+					}
+
+					// `parentModule` is declared outside of this function, so we keep
+					// track of the current module being traversed
+					currentModule = module;
+
+					// Append the ngInspector
+					window.ngInspector.pane.treeView.appendChild(module.view.element);
+				}
+
+				// Next up, scopes
+				var $scope = nodeData.$scope;
+				if ($scope) {
+					var scope = NGI.Scope.instance(node, $scope, false);
+					if ($scope.$parent) {
+						var parentItem = NGI.Scope.get($scope.$parent.$id, 'Scope', node).view;
+						parentItem.addChild(scope.view);
+					} else {
+						currentModule.view.addChild(scope.view);
 					}
 				}
 
-				// `parentModule` is declared outside of this function, so we keep
-				// track of the current module being traversed
-				currentModule = module;
-
-				// Append the ngInspector
-				window.ngInspector.pane.treeView.appendChild(module.view.element);
-			}
-
-			// Next up, scopes
-			var $scope = nodeData['$scope'];
-			if ($scope) {
-				var scope = NGI.Scope.instance(node, $scope, false);
-				if ($scope.$parent) {
-					console.log($scope.$id, $scope.$parent.$id, $scope.$root.$id);
-					var parentItem = NGI.Scope.get($scope.$parent.$id, 'Scope', node).view;
-					parentItem.addChild(scope.view);
-				} else {
-					currentModule.view.addChild(scope.view);
+				// Then, isolate scopes
+				var $isolateScope = nodeData.$isolateScopeNoTemplate;
+				if ($isolateScope) {
+					var isolateScope = NGI.Scope.instance(node, $isolateScope, true);
+					if ($isolateScope.$parent) {
+						var parentItem = NGI.Scope.get($isolateScope.$parent.$id, 'Isolate Scope', node).view;
+						parentItem.addChild(isolateScope.view);
+					} else {
+						currentModule.view.view.addChild(isolateScope.view);
+					}
 				}
-			}
 
-			// Then, isolate scopes
-			var $isolateScope = nodeData['$isolateScopeNoTemplate'];
-			if ($isolateScope) {
-				var isolateScope = NGI.Scope.instance(node, $isolateScope, true);
-				if ($isolateScope.$parent) {
-					var parentItem = NGI.Scope.get($isolateScope.$parent.$id, 'Isolate Scope', node).view;
-					parentItem.addChild(isolateScope.view);
-				} else {
-					currentModule.view.view.addChild(isolateScope.view);
+				if (node.firstChild) {
+					var child = node.firstChild;
+					do {
+
+						// Increment the probed nodes counter for the reporting
+						probeQueue++;
+
+						// setTimeout is used to make the traversal asyncrhonous, keeping
+						// the browser UI responsive during traversal. This is an
+						// experimental feature - it might cause inconsistencies if the
+						// scopes are changed during the traversal
+
+						// traverse(child, currentModule);
+						setTimeout(
+							traverse.bind(this, child, currentModule)
+						); // 4ms is the spec minimum
+					} while (child = child.nextSibling);
 				}
+
 			}
-
-			if (node.firstChild) {
-				var child = node.firstChild;
-				do {
-
-					// Increment the probed nodes counter for the reporting
-					probeQueue++;
-
-					// setTimeout is used to make the traversal asyncrhonous, keeping
-					// the browser UI responsive during traversal. This is an
-					// experimental feature - it might cause inconsistencies if the
-					// scopes are changed during the traversal
-
-					traverse(child, currentModule);
-					// setTimeout(
-					// 	traverse.bind(this, child, currentModule),
-					// 	4); // 4ms is the spec minimum
-				} while (child = child.nextSibling);
+			probeQueue--;
+			//ngInspector.settings.showWarnings
+			if (--probeQueue === 0) {
+				console.timeEnd('ng-inspector DOM traversal');
 			}
-
+			
 		}
-		probeQueue--;
-		//ngInspector.settings.showWarnings
-		if (-probeQueue === 0) {
-			console.timeEnd('ng-inspector');
-		}
-		
 	}
 
-	// Starts the DOM traversal mechanism
-	this.performInspection = function() {
+	function traverseScope(ngScope, module) {
 
-		var ngInspector = window.ngInspector;
+		var scopeQueue = 1;
+		traverse(ngScope);
+
+		function traverse(ngScope) {
+			var rep = NGI.Scope.instance(ngScope);
+
+			if (ngScope.$parent) {
+				var parentItem = NGI.Scope.get(ngScope.$parent.$id).view;
+				parentItem.addChild(rep.view);
+			} else {
+				module.view.addChild(rep.view);
+			}
+
+			var child = ngScope.$$childHead;
+			if (child) {
+				do {
+					scopeQueue++;
+					setTimeout(traverse.bind(this, child));
+				} while (child = child.$$nextSibling);
+			}
+
+			if (--scopeQueue === 0) {
+				console.timeEnd('ng-inspector scope traversal');
+			}
+		}
+	}
+
+	function inspectModule(node, requires) {
+		var module = NGI.Module.instance(node, requires);
+		window.ngInspector.pane.treeView.appendChild(module.view.element);
+		var $node = window.angular.element(node);
+		var $rootScope = $node.data('$scope').$root;
+
+		console.time('ng-inspector scope traversal');
+		traverseScope($rootScope, module);
+	}
+
+	function findModuleNodes() {
+		var moduleNodes = [];
+		var els = document.querySelectorAll('.ng-scope');
+		els = Array.prototype.slice.apply(els, [0]);
+		els.push(document);
+		for (var i = 0; i < els.length; i++) {
+			var $el = angular.element(els[i]);
+			if ($el.data('$injector')) {
+				moduleNodes.push(els[i]);
+			}
+		};
+		return moduleNodes;
+	};
+
+	this.performInspection = function() {
 
 		// If angular is not present in the global scope, we stop the process
 		if (!('angular' in window)) {
@@ -348,15 +416,25 @@ NGI.InspectorAgent = function() {
 			return;
 		}
 
-		// If the showWarnings setting is enabled, a timer is instantiated to
-		// display the total running time
-		// if (ngInspector.settings.showWarnings)
-			console.time('ng-inspector');
-
 		window.ngInspector.pane.treeView.innerHTML = '';
 
-		probeQueue = 1;
-		traverse(document);
+		var attrs = ['ng\\:app', 'ng-app', 'x-ng-app', 'data-ng-app'];
+		
+		var moduleNodes = findModuleNodes();
+		for (var i = 0; i < attrs.length; i++) {
+			// Only the first ngApp is auto-bootstrapped
+			var node = document.querySelector('['+attrs[i]+']');
+			if (node) {
+				var requires = node.getAttribute(attrs[i]);
+				inspectModule(node, requires);
+			}
+		}
+
+
+		// Starts the DOM traversal mechanism
+		// if (ngInspector.settings.showWarnings)
+			console.time('ng-inspector DOM traversal');
+		// traverseDOM(document);
 
 	};
 };
@@ -500,9 +578,7 @@ NGI.InspectorPane = function() {
 
 NGI.TreeView = (function() {
 
-	function TreeViewItem(label, node) {
-
-		if (node === document) node = document.querySelector('html');
+	function TreeViewItem(label) {
 
 		this.element = document.createElement('div');
 
@@ -514,80 +590,57 @@ NGI.TreeView = (function() {
 		this.drawer.className = 'ngi-drawer';
 		this.element.appendChild(this.drawer);
 
-		this.label.addEventListener('click', function() {
-			console.log(node);
-			TreeView.flushNode(node);
-		});
-
 		this.addChild = function(childItem) {
 			this.drawer.appendChild(childItem.element);
 		};
 
 		this.destroy = function() {
-			TreeViewItem.flushNode(node);
 			this.element.parentNode.removeChild(this.element);
 		};
+
+		var treeViewItem = this;
+
+		this.label.addEventListener('click', function() {
+			console.log(treeViewItem.node);
+		});
 
 		// Highlight DOM elements the scope is attached to when hovering the item
 		// in the inspector
 		this.label.addEventListener('mouseover', function() {
-			if ( !window.ngInspector.pane.isResizing ) {
-				var target = node === document ? document.querySelector('html') : node;
-				target.classList.add('ngi-highlight');
+			if ( treeViewItem.node && !window.ngInspector.pane.isResizing ) {
+				treeViewItem.node.classList.add('ngi-highlight');
 			}
 		});
+
 		this.label.addEventListener('mouseout', function() {
-			var target = node === document ? document.querySelector('html') : node;
-			target.classList.remove('ngi-highlight');
+			if (treeViewItem.node) {
+				treeViewItem.node.classList.remove('ngi-highlight');
+			}
 		});
 	}
 
 	function TreeView() {}
 
-	var nodeMapping = [];
-
 	// Creates a new TreeViewInstance, with styling and metadata relevant for
 	// AngularJS modules
 	TreeView.moduleItem = function(label, node) {
-		var item = new TreeViewItem(label, node);
+		if (node === document) node = document.querySelector('html');
+		var item = new TreeViewItem(label);
+		item.node = node;
 		item.element.className = 'ngi-app';
-		nodeMapping.push({node:node, view:item.element});
 		return item;
 	};
 
 	// Creates a new TreeViewInstance, with styling and metadata relevant for
 	// AngularJS scopes
-	TreeView.scopeItem = function(label, node, depth, isIsolate) {
-		var item = new TreeViewItem(label, node);
+	TreeView.scopeItem = function(label, depth, isIsolate) {
+		var item = new TreeViewItem(label);
 		item.element.className = 'ngi-scope';
 		if (isIsolate) {
 			item.element.classList.add('ngi-isolate-scope');
 		}
 		item.label.className = 'ngi-depth-' + depth;
-		nodeMapping.push({node:node, view:item.element});
 		return item;
-	};
-
-	// Destroy all TreeViewItem instances that represent AngularJS objects
-	// attached to a DOM node or its subtree
-	TreeView.flushNode = function(node) {
-
-		// Since we'll be removing items from the nodeMapping array, the for loop
-		// is done backwards
-		for (var i = nodeMapping.length-1; i >= 0; i--) {
-			var item = nodeMapping[i];
-
-			// Node.contains returns true if the Node passed as an argument is
-			// a descendant in the DOM, or the element itself.
-			if (node.contains(item.node)) {
-
-				// Remove the TreeViewItem node from the DOM
-				item.view.parentNode.removeChild(item.view);
-
-				// Remove the item from the `nodeMapping` array
-				nodeMapping.splice(i, 1);
-			}
-		}
 	};
 
 	return TreeView;
@@ -704,7 +757,7 @@ NGI.Module.instance = function(node, name) {
 	}
 
 	// Names of dependencies
-	if (typeof name === typeof {} && name.length) {
+	if (name && typeof name === typeof {}) {
 		module.instantiateDeps(name);
 	}
 
@@ -719,19 +772,19 @@ NGI.Module.instance = function(node, name) {
 
 NGI.Scope = (function() {
 
-	function Scope(node, ngScope, isIsolate) {
+	function Scope(ngScope, isIsolate) {
 		// Calculate the scope depth in the tree to determine the intendation level
 		// in the TreeView
-		var depth = -1;
+		var depth = 0;
 		var reference = ngScope;
-		do { depth++; } while (reference = reference.$parent);
+		while (reference = reference.$parent) { depth++; };
 
 		// Instantiate and expose the TreeViewItem representing the scope
-		this.view = NGI.TreeView.scopeItem(ngScope.$id, node, depth, isIsolate);
+		var view = this.view = NGI.TreeView.scopeItem(ngScope.$id, depth, isIsolate);
 
 		// Destroy the TreeViewItem when the AngularJS scope is destroyed
 		ngScope.$on('$destroy', function() {
-			NGI.TreeView.flushNode(node);
+			view.destroy();
 		});
 
 		// Keturns the keys for the user defined models in the scope, excluding
@@ -757,7 +810,6 @@ NGI.Scope = (function() {
 		}
 
 		ngScope.$watch(function() {
-
 		});
 
 	}
@@ -768,21 +820,17 @@ NGI.Scope = (function() {
 
 	// Returns an instance of `NGI.Scope` representing the AngularJS scope with
 	// the id
-	Scope.get = function(id, kind, node) {
-		if (!scopeCache[id]) {
-			console.warn(kind, id, 'not found in the scope cache. Should be the parent of', id, node);
-			throw 'STAHP! CANT FIND SCOPE ' + id + '!';
-		}
+	Scope.get = function(id) {
 		return scopeCache[id];
 	};
 
 	// This is the method used by `NGI.InspectorAgent` to instantiate the
 	// `NGI.Scope` object
-	Scope.instance = function(node, ngScope, isIsolate) {
+	Scope.instance = function(ngScope, isIsolate) {
 		if (scopeCache[ngScope.$id]) {
 			return scopeCache[ngScope.$id];
 		}
-		var scope = new NGI.Scope(node, ngScope, isIsolate);
+		var scope = new NGI.Scope(ngScope, isIsolate);
 		scopeCache[ngScope.$id] = scope;
 		return scope;
 	};

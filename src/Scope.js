@@ -4,19 +4,19 @@
 
 NGI.Scope = (function() {
 
-	function Scope(node, ngScope, isIsolate) {
+	function Scope(ngScope, isIsolate) {
 		// Calculate the scope depth in the tree to determine the intendation level
 		// in the TreeView
-		var depth = -1;
+		var depth = 0;
 		var reference = ngScope;
-		do { depth++; } while (reference = reference.$parent);
+		while (reference = reference.$parent) { depth++; };
 
 		// Instantiate and expose the TreeViewItem representing the scope
-		this.view = NGI.TreeView.scopeItem(ngScope.$id, node, depth, isIsolate);
+		var view = this.view = NGI.TreeView.scopeItem(ngScope.$id, depth, isIsolate);
 
 		// Destroy the TreeViewItem when the AngularJS scope is destroyed
 		ngScope.$on('$destroy', function() {
-			NGI.TreeView.flushNode(node);
+			view.destroy();
 		});
 
 		// Keturns the keys for the user defined models in the scope, excluding
@@ -42,7 +42,6 @@ NGI.Scope = (function() {
 		}
 
 		ngScope.$watch(function() {
-
 		});
 
 	}
@@ -53,21 +52,17 @@ NGI.Scope = (function() {
 
 	// Returns an instance of `NGI.Scope` representing the AngularJS scope with
 	// the id
-	Scope.get = function(id, kind, node) {
-		if (!scopeCache[id]) {
-			console.warn(kind, id, 'not found in the scope cache. Should be the parent of', id, node);
-			throw 'STAHP! CANT FIND SCOPE ' + id + '!';
-		}
+	Scope.get = function(id) {
 		return scopeCache[id];
 	};
 
 	// This is the method used by `NGI.InspectorAgent` to instantiate the
 	// `NGI.Scope` object
-	Scope.instance = function(node, ngScope, isIsolate) {
+	Scope.instance = function(ngScope, isIsolate) {
 		if (scopeCache[ngScope.$id]) {
 			return scopeCache[ngScope.$id];
 		}
-		var scope = new NGI.Scope(node, ngScope, isIsolate);
+		var scope = new NGI.Scope(ngScope, isIsolate);
 		scopeCache[ngScope.$id] = scope;
 		return scope;
 	};
