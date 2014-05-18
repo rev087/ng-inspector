@@ -34,13 +34,17 @@ NGI.TreeView = (function() {
 		// in the inspector
 		this.label.addEventListener('mouseover', function() {
 			if ( treeViewItem.node && !window.ngInspector.pane.isResizing ) {
-				treeViewItem.node.classList.add('ngi-highlight');
+				var target = (treeViewItem.node === document) ?
+					document.querySelector('html') : treeViewItem.node;
+				target.classList.add('ngi-highlight');
 			}
 		});
 
 		this.label.addEventListener('mouseout', function() {
 			if (treeViewItem.node) {
-				treeViewItem.node.classList.remove('ngi-highlight');
+				var target = (treeViewItem.node === document) ?
+					document.querySelector('html') : treeViewItem.node;
+				target.classList.remove('ngi-highlight');
 			}
 		});
 	}

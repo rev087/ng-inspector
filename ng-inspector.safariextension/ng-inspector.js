@@ -16,8 +16,6 @@ NGI.Inspector = function() {
 		showWarnings: false
 	};
 
-	this.agent = new NGI.InspectorAgent();
-
 	this.pane = new NGI.InspectorPane();
 
 	// The actual toggling is done by the `NGI.InspectorPane`. Since the
@@ -29,20 +27,27 @@ NGI.Inspector = function() {
 	// settings only take place after a toggle is executed.
 	this.toggle = function(settings) {
 
+		// If angular is not present in the global scope, we stop the process
+		if (!('angular' in window)) {
+			alert('This page does not include AngularJS');
+			return;
+		}
+
 		// Passing the settings parameter is optional
 		this.settings.showWarnings = (settings && !!settings.showWarning);
 
 		// Send the command forward to the NGI.InspectorPane, retrieving the state
 		var visible = this.pane.toggle();
 		if (visible) {
-			this.agent.performInspection();
+			NGI.App.inspectApps();
+		} else {
+			NGI.App.stopObservers();
+			NGI.Scope.stopObservers();
 		}
 	}
 
-	// Debugging utlities, to be used in the console
-
-	// Retrieves the "breadcrumb" of a specific scope in the hierarchy
-	// usage: ngInspector.scope('002');
+	// Debugging utlity, to be used in the console. Retrieves the "breadcrumb" of
+	// a specific scope in the hierarchy usage: ngInspector.scope('002')
 	this.scope = function(id) {
 
 		function findRoot(el) {
@@ -84,321 +89,106 @@ NGI.Inspector = function() {
 		return dig(findRoot(document), []);
 	};
 
-	// Traverses the DOM looking for a Node assigned to a specific scope
-	// usage: ngInspector.scopeNode
-	this.scopeNode = function(id) {
-		function dig(el) {
-			var child = el.firstChild;
-			if (!child) return;
-			do {
-				var $el = angular.element(el);
-
-				if (Object.keys($el.data()).length > 0) {
-
-					var $scope = $el.data('$scope');
-					var $isolate = $el.data('$isolateScope');
-
-					if ($scope && $scope.$id == id) {
-						return $scope;
-					}
-					else if ($isolate && $isolate.$id == id) {
-						return $isolate;
-					}
-				}
-				var res = dig(child);
-				if (res) return res;
-			} while (child = child.nextSibling);
-		}
-		return dig(document);
-	};
-
-
-	// Traverses the DOM looking for a Node assigned to a specific scope
-	// usage: ngInspector.domScopes
-	this.domScopes = function(id) {
-		var scopes = {};
-		function dig(el) {
-			var child = el.firstChild;
-			if (!child) return;
-			do {
-				var $el = angular.element(el);
-
-				if (Object.keys($el.data()).length > 0) {
-
-					var $scope = $el.data('$scope');
-					var $isolate = $el.isolateScope();
-
-					if ($scope) {
-						scopes[$scope.$id] = $scope;
-					}
-					else if ($isolate) {
-						scopes[$isolate.$id] = $isolate;
-					}
-				}
-				var res = dig(child);
-				if (res) return res;
-			} while (child = child.nextSibling);
-		}
-		dig(document);
-		return Object.keys(scopes);
-	};
-
 };
 
-/* global NGI, console */
+/* global NGI */
 /* jshint strict: false */
 /* jshint expr: true */
 /* jshint boss: true */
 
-/**
- * As soon as instantiated, the `NGI.InspectorAgent` will wrap the `angular.bootstrap` method to capture any manual bootstraping of AngularJS Modules, performing the DOM traversal on the module subtree.
- * 
- * The `NGI.InspectorAgent` is responsible for traversing the DOM from a starting node and instantiating the classes in the NGI namespace that represent AngularJS objects. During the DOM traversal, the agent will look for data attached to the nodes by AngularJS, and perform the apropriate action:
- * 
- * .data() keys present      | action
- * --------------------      | ------
- * `$injector`               | instantiates `NGI.Module`
- * `$scope`                  | instantiates `NGI.Scope`, assign to `NGI.Module` instance
- * `$ngControllerController` | annotates a `NGI.Scope` instance
- * `$isolateScope`           | instantiates `NGI.Scope` (isolate), assign to `NGI.Scope`
- * 
- * Once the first `NGI.Module` is instantiated, additional lookups will be made for the declarative syntaxes of the directives that trigger scope creation defined in that module, exposed in the `NGI.Module` instance `.directives` property. See `NGI.Module` for the signature used to describe each directive.
- * 
- * 
- * property        | type    | description
- * --------        | ----    | -----------
- * `modules`       | `array` | 
- * 
- * The `bootstrapQueue` array is populated with objects representing the bootstrapped module, with the following signature:
- * 
- * 	{
- * 		node: Node,
- * 		requires: Array
- * 	}
- */
+// `NGi.InspectorAgent` is responsible for the page introspection (Scope and DOM
+// traversal), patching of the native `angular.bootstrap` method and
+// instantiation of the other NGI objects that represent AngularJS objects
 
-NGI.InspectorAgent = function() {
+NGI.InspectorAgent = (function() {
 
-	// Before the DOM traversal starts, an object representation of manually
-	// bootstrapped modules are stored here. See wrapBootstrap()
-	var bootstrapQueue = [];
+	var InspectorAgent = function() {}
 
-	// True once the wrapBootstrap() method runs for the first time
-	var didWrapBootstrap = false;
-
-	// `NGI.InspectorAgent` is instantiated in the `NGI.Inspector` constructor,
-	// which in turn is instantiated on window.load. If angular was included via
-	// a <script src=...> tag, the angular object should already be defined in
-	// the window scope, and we can wrapBootstrap() right away
-	if ('angular' in window) {
-		wrapBootstrap();
-	} else {
-		// RequireJS and similar loaders work by injecting <script> tags into the
-		// DOM. If the page uses such mechanism, the angular namespace might not
-		// yet be available by the time `NGI.InspectorAgent` is instantiated. By
-		// listening to the DOMNodeInserted event we can support this use case.
-		document.addEventListener('DOMNodeInserted', wrapBootstrap.bind(this));
-	}
-
-	// The manual AngularJS module bootstrap capturing mechanism, wraps the
-	// `angular.bootstrap` method
-	function wrapBootstrap() {
-
-		// Ensure that the angular object exists in the window scope and the
-		// `angular.bootstrap` method is wrapped only once
-		if (!window.angular || didWrapBootstrap) {
-			return;
-		} else {
-			didWrapBootstrap = true;
-		}
-
-		// Cache the original `angular.bootstrap` method
-		var _bootstrap = window.angular.bootstrap;
-
-		window.angular.bootstrap = function(element, modules) {
-
-			// Store an object representation of the module bootstrapping
-			bootstrapQueue.push({
-				node: element,
-				requires: modules
-			});
-
-			// Continue with angular's native bootstrap method
-			_bootstrap.apply(this, arguments);
-		};
-
-		// Once the `angular.bootstrap` method has been wrapped, we can stop
-		// listening for DOMNodeInserted events, used to wait until angular has
-		// been loaded by RequireJS or a similar mechanism
-		document.removeEventListener('DOMNodeInserted', wrapBootstrap.bind(this));
-	}
-
-	// Utility functions used in the DOM traversal to identify AngularJS objects
-	// attached to nodes
-	var probe = {
-
-		// Checks for the ngApp directive. Returns true if an anonymous ngApp
-		// directive is found, the string value for a named ngApp directive or
-		// false otherwise
-		'ngApp': (function() {
-			// var NG_APP_CLASS_REGEXP = /\sng[:\-]app(:\s*([\w\d_]+);?)?\s/;
-			var attrs = ['ng:app', 'ng-app', 'x-ng-app', 'data-ng-app'];
-			
-			return function(node) {
-				for (var i = 0; i < attrs.length; i++) {
-					if ('hasAttribute' in node && node.hasAttribute(attrs[i])) {
-						var value = node.getAttribute(attrs[i]);
-						return value ? value : true;
-					}
-				}
-			};
-		})(),
-
-		// Checks the node against the manually bootstrapped module signatures
-		// captured by the `angular.bootstrap` wrapper. Returns the requires
-		// array if a match is found, false otherwise
-		'bootstrappedNode': function(node) {
-			for (var i = 0; i < bootstrapQueue.length; i++) {
-				if (bootstrapQueue[i].node === node) {
-					return bootstrapQueue[i].requires;
-				}
-			}
-			return false;
-		}
-
-	};
-
-
-	function traverseDOM(node) {
+	function traverseDOM(app, node) {
 
 		// Counter for the node probings being scheduled with setTimeout
 		var probeQueue = 1;
-		traverse(node, []);
+		traverse(node, app);
 
 		// The recursive DOM traversal function. This is the meat of
 		// `NGI.InspectorAgent`, where AngularJS objects are identified in the DOM.
-		function traverse(node, currentModule) {
+		function traverse(node, app) {
 
-			// We can skip all nodeTypes except ELEMENT, COMMENT and DOCUMENT nodes
+
+			// We can skip all nodeTypes except ELEMENT and DOCUMENT nodes
 			if (node.nodeType === Node.ELEMENT_NODE ||
-				 node.nodeType === Node.COMMENT_NODE ||
 				 node.nodeType === Node.DOCUMENT_NODE) {
 
 				// Wrap the DOM node to get access to angular.element methods
 				var $node = window.angular.element(node);
 
 				var nodeData = $node.data();
-				// if (Object.keys(nodeData).length > 0)
-					// NGI.TreeView.flushNode(node);
-				// ---REMOVE---
-				// 	console.log(probeQueue, Object.keys(nodeData), node);
-				// ---REMOVE---
 
-				// The first check attempts to detect the presence of an AngularJS module
-				// by checking for an instance of the AngularJS $injector service stored
-				// in the DOM node
-				if (nodeData.$injector) {
+				// If there's no AngularJS metadata in the node .data() store, we
+				// just move on
+				if (Object.keys(nodeData).length > 0) {
 
-					var module;
-
-					// Probe the node for the ngApp directive
-					var ngApp = probe.ngApp(node);
-
-					// An ngApp directive with a string value is the best way to
-					// identify the module, as it gives us module name and dependencies
-					if (typeof ngApp === typeof '') {
-						module = NGI.Module.instance(node, ngApp);
-
-					// Failing that, the next best thing is to identify it from a
-					// captured `angular.bootstrap` call, as it gives us the list of
-					// dependencies
-					} else {
-						// Probe the node for a captured manual bootstrap
-						var bsRequires = probe.bootstrappedNode(node);
-
-						if (!!bsRequires) {
-							module = NGI.Module.instance(node, bsRequires);
-
-						// The last alternative is an anonymous ngApp directive
-						} else {
-							module = NGI.Module.instance(node);
+					// Match nodes with scopes attached to the relevant TreeViewItem
+					var $scope = nodeData.$scope;
+					if ($scope) {
+						var scopeMatch = NGI.Scope.get($scope.$id);
+						if (scopeMatch) {
+							scopeMatch.setNode(node);
+							app.probe(node, scopeMatch, false);
 						}
 					}
 
-					// `parentModule` is declared outside of this function, so we keep
-					// track of the current module being traversed
-					currentModule = module;
-
-					// Append the ngInspector
-					window.ngInspector.pane.treeView.appendChild(module.view.element);
-				}
-
-				// Next up, scopes
-				var $scope = nodeData.$scope;
-				if ($scope) {
-					var scope = NGI.Scope.instance(node, $scope, false);
-					if ($scope.$parent) {
-						var parentItem = NGI.Scope.get($scope.$parent.$id, 'Scope', node).view;
-						parentItem.addChild(scope.view);
-					} else {
-						currentModule.view.addChild(scope.view);
-					}
-				}
-
-				// Then, isolate scopes
-				var $isolateScope = nodeData.$isolateScopeNoTemplate;
-				if ($isolateScope) {
-					var isolateScope = NGI.Scope.instance(node, $isolateScope, true);
-					if ($isolateScope.$parent) {
-						var parentItem = NGI.Scope.get($isolateScope.$parent.$id, 'Isolate Scope', node).view;
-						parentItem.addChild(isolateScope.view);
-					} else {
-						currentModule.view.view.addChild(isolateScope.view);
+					// Match nodes with isolate scopes attached to the relevant
+					// TreeViewItem
+					if ($node.isolateScope) {
+						var $isolate = $node.isolateScope();
+						if ($isolate) {	
+							var isolateMatch = NGI.Scope.get($isolate.$id);
+							if (isolateMatch) {
+								isolateMatch.setNode(node);
+								app.probe(node, isolateMatch, true);
+							}
+						}
 					}
 				}
 
 				if (node.firstChild) {
 					var child = node.firstChild;
 					do {
-
 						// Increment the probed nodes counter for the reporting
 						probeQueue++;
 
 						// setTimeout is used to make the traversal asyncrhonous, keeping
-						// the browser UI responsive during traversal. This is an
-						// experimental feature - it might cause inconsistencies if the
-						// scopes are changed during the traversal
-
-						// traverse(child, currentModule);
+						// the browser UI responsive during traversal.
 						setTimeout(
-							traverse.bind(this, child, currentModule)
+							traverse.bind(this, child, app)
 						); // 4ms is the spec minimum
 					} while (child = child.nextSibling);
 				}
 
 			}
 			probeQueue--;
-			//ngInspector.settings.showWarnings
 			if (--probeQueue === 0) {
-				console.timeEnd('ng-inspector DOM traversal');
+				// Done
 			}
 			
 		}
 	}
 
-	function traverseScope(ngScope, module) {
+	function traverseScopes(ngScope, app, callback) {
 
 		var scopeQueue = 1;
 		traverse(ngScope);
 
 		function traverse(ngScope) {
-			var rep = NGI.Scope.instance(ngScope);
+			var rep = NGI.Scope.instance(app, ngScope);
+			rep.startObserver();
 
 			if (ngScope.$parent) {
-				var parentItem = NGI.Scope.get(ngScope.$parent.$id).view;
-				parentItem.addChild(rep.view);
+				var parent = NGI.Scope.get(ngScope.$parent.$id).view;
+				parent.addChild(rep.view);
 			} else {
-				module.view.addChild(rep.view);
+				app.view.addChild(rep.view);
 			}
 
 			var child = ngScope.$$childHead;
@@ -410,62 +200,40 @@ NGI.InspectorAgent = function() {
 			}
 
 			if (--scopeQueue === 0) {
-				console.timeEnd('ng-inspector scope traversal');
+				// Done
+				if (typeof callback === 'function') callback();
 			}
 		}
 	}
 
-	function inspectModule(node, requires) {
-		var module = NGI.Module.instance(node, requires);
-		window.ngInspector.pane.treeView.appendChild(module.view.element);
-		var $node = window.angular.element(node);
+	// Adds the TreeView item for the AngularJS application bootstrapped at
+	// the `node` argument.
+	InspectorAgent.inspectApp = function(app) {
+
+		window.ngInspector.pane.treeView.appendChild(app.view.element);
+
+		// With the root Node for the app, we retrieve the $rootScope
+		var $node = window.angular.element(app.node);
 		var $rootScope = $node.data('$scope').$root;
 
-		console.time('ng-inspector scope traversal');
-		traverseScope($rootScope, module);
-	}
-
-	function findModuleNodes() {
-		var moduleNodes = [];
-		var els = document.querySelectorAll('.ng-scope');
-		els = Array.prototype.slice.apply(els, [0]);
-		els.push(document);
-		for (var i = 0; i < els.length; i++) {
-			var $el = window.angular.element(els[i]);
-			if ($el.data('$injector')) {
-				moduleNodes.push(els[i]);
-			}
-		}
-		return moduleNodes;
-	}
-
-	this.performInspection = function() {
-
-		// If angular is not present in the global scope, we stop the process
-		if (!('angular' in window)) {
-			console.warn('This page does not include AngularJS.');
-			return;
-		}
-
-		window.ngInspector.pane.treeView.innerHTML = '';
-
-		var attrs = ['ng\\:app', 'ng-app', 'x-ng-app', 'data-ng-app'];
-		
-		var moduleNodes = findModuleNodes();
-		for (var m = 0; m < moduleNodes.length; m++) {
-			for (var i = 0; i < attrs.length; i++) {
-				var requires = moduleNodes[m].getAttribute(attrs[i]);
-				inspectModule(moduleNodes[m], requires);
-			}
-		};
-
-		// Starts the DOM traversal mechanism
-		// if (ngInspector.settings.showWarnings)
-			console.time('ng-inspector DOM traversal');
-		// traverseDOM(document);
-
+		// Then start the Scope traversal mechanism
+		traverseScopes($rootScope, app, function() {
+			// Once the Scope traversal is complete, the DOM traversal starts
+			// if (ngInspector.settings.showWarnings)
+			traverseDOM(app, app.node);
+		});
 	};
-};
+
+	InspectorAgent.inspectScope = function(app, scope) {
+		traverseScopes(scope, app);
+	};
+
+	InspectorAgent.inspectNode = function(app, node) {
+		traverseDOM(app, node);
+	};
+
+	return InspectorAgent;
+})();
 
 /* global NGI */
 /* jshint strict: false */
@@ -493,14 +261,29 @@ NGI.InspectorPane = function() {
 		pane.appendChild(view);
 	};
 
+	this.clear = function() {
+		while(this.treeView.lastChild) {
+			this.treeView.removeChild(this.treeView.lastChild);
+		}
+	};
+
+	this.contains = function(node) {
+		return this.treeView.contains(node);
+	};
+
 	// Toggle the inspector pane on and off. Returns a boolean representing the
 	// new visibility state.
 	this.toggle = function() {
 		if ( pane.parentNode ) {
 			document.body.removeChild(pane);
+			this.clear();
 			return false;
 		} else {
 			document.body.appendChild(pane);
+			document.addEventListener('mousemove', onMouseMove);
+			document.addEventListener('mousedown', onMouseDown);
+			document.addEventListener('mouseup', onMouseUp);
+			window.addEventListener('resize', onResize);
 			return true;
 		}
 	};
@@ -533,7 +316,7 @@ NGI.InspectorPane = function() {
 
 	// Listen for mousemove events in the page body, setting the canResize state
 	// if the mouse hovers close to the 
-	document.addEventListener('mousemove', function(event) {
+	function onMouseMove(event) {
 
 		// Don't do anything if the inspector is detached from the DOM
 		if (!pane.parentNode) return;
@@ -566,37 +349,38 @@ NGI.InspectorPane = function() {
 
 			pane.style.width = width + 'px';
 		}
-	});
+	}
 
 	// Listen to mousedown events in the page body, triggering the resize mode
 	// (isResizing) if the cursor is within the resize handle (canResize). The
 	// class added to the page body styles it to disable text selection while the
 	// user dragging the mouse to resize the pane. In Safari, the previous
 	// selection is restored once the class is removed
-	document.addEventListener('mousedown', function() {
+	function onMouseDown() {
 		if (inspectorPane.canResize) {
 			inspectorPane.isResizing = true;
 			document.body.classList.add('ngi-resizing');
 		}
-	});
+	}
+	
 
 	// Listen to mouseup events on the page, turning off the resize mode if one
 	// is underway. The inspector width is then persisted in the localStorage
-	document.addEventListener('mouseup', function() {
+	function onMouseUp() {
 		if (inspectorPane.isResizing) {
 			inspectorPane.isResizing = false;
 			document.body.classList.remove('ngi-resizing');
-			localStorage.setItem('ng-inspector-width', inspectorPane.element.offsetWidth);
+			localStorage.setItem('ng-inspector-width', pane.offsetWidth);
 		}
-	});
+	}
 
 	// If the user contracts the window, this makes sure the pane won't end up
 	// wider thant the viewport
-	window.addEventListener('resize', function() {
+	function onResize() {
 		if (pane.offsetWidth >= document.body.offsetWidth - 50) {
 			pane.style.width = (document.body.offsetWidth - 50) + 'px';
 		}
-	});
+	}
 
 };
 
@@ -636,13 +420,17 @@ NGI.TreeView = (function() {
 		// in the inspector
 		this.label.addEventListener('mouseover', function() {
 			if ( treeViewItem.node && !window.ngInspector.pane.isResizing ) {
-				treeViewItem.node.classList.add('ngi-highlight');
+				var target = (treeViewItem.node === document) ?
+					document.querySelector('html') : treeViewItem.node;
+				target.classList.add('ngi-highlight');
 			}
 		});
 
 		this.label.addEventListener('mouseout', function() {
 			if (treeViewItem.node) {
-				treeViewItem.node.classList.remove('ngi-highlight');
+				var target = (treeViewItem.node === document) ?
+					document.querySelector('html') : treeViewItem.node;
+				target.classList.remove('ngi-highlight');
 			}
 		});
 	}
@@ -677,143 +465,438 @@ NGI.TreeView = (function() {
 
 /* global NGI */
 /* jshint strict: false */
-/* jshint expr: true */
 
-/**
- * This class is instantiated during the DOM traversal performed by the `NGI.InspectorAgent`.
- * 
- * On instantiation, `NGI.Module` will attempt to retrieve the value of the ngApp directive in the DOM node the module was bootstrapped to, then use the name to retrieve the module instance with `angular.module(name)`, iterate through the `_invokeQueue` and populate the `directives` array with a simplified signature for all the directives defined in the module that create a scope.
- * 
- * For both named modules (via `ngApp` directive) and manually bootstraped modules captured by he wrapped `angular.bootstrap`, a list of dependencies is available, and the `dependencies` property will be populated with instances of `NGI.Dependency`. The dependencies `directive` array will be concatenated into the `NGI.Module` instance's own `directive` array.
- */
+NGI.Service = (function(window) {
 
-// Utility function that returns a string representation of a DOM Node similar
-// to CSS selectors to be shown in the UI
-function nodeRep(node) {
-	if (node === document) return 'document';
-
-	// tag
-	var rep = node.tagName.toLowerCase();
-
-	// #id
-	if (node.hasAttribute('id')) {
-		rep += '<small>#' + node.getAttribute('id') + '</small>';
+	var PREFIX_REGEXP = /^(x[\:\-_]|data[\:\-_])/i;
+	/**
+	 * Converts all accepted directives format into proper directive name.
+	 * All of these will become 'myDirective':
+	 *   my:Directive
+	 *   my-directive
+	 *   x-my-directive
+	 *   data-my:directive
+	 */
+	function directiveNormalize(name) {
+	  return camelCase(name.replace(PREFIX_REGEXP, ''));
 	}
 
-	// .class.list
-	var classList = node.className.split(/\s/);
-	for (var i = 0; i < classList.length; i++) {
-		rep += '<small>.' + classList[i] + '</small>';
+	var SPECIAL_CHARS_REGEXP = /([\:\-\_]+(.))/g;
+	var MOZ_HACK_REGEXP = /^moz([A-Z])/;
+
+	/**
+	 * Converts snake_case to camelCase.
+	 * Also there is special case for Moz prefix starting with upper case letter.
+	 * @param name Name to normalize
+	 */
+	function camelCase(name) {
+	  return name.
+	    replace(SPECIAL_CHARS_REGEXP, function(_, separator, letter, offset) {
+	      return offset ? letter.toUpperCase() : letter;
+	    }).
+	    replace(MOZ_HACK_REGEXP, 'Moz$1');
 	}
 
-	return rep;
-}
+	var CLASS_DIRECTIVE_REGEXP = /(([\d\w\-_]+)(?:\:([^;]+))?;?)/;
 
-/*
-	Ways a NGI.Module can be instantiated, and the properties they have available
-	- dependency from another module: name, dependencies, module, directives
-	- ngApp directive: name, module, node
-	- anonymous ngApp directive: 
-*/
+	function Service(app, module, invoke) {
+		this.provider = invoke[0];
+		this.type = invoke[1];
+		this.definition = invoke[2];
+		this.name = (typeof this.definition[0] === typeof '') ? this.definition[0] : null;
+		this.factory = this.definition[1];
+		
+		switch(this.provider) {
+			case '$compileProvider':
+				var dir = app.$injector.invoke(this.factory);
+				var restrict = dir.restrict || 'A';
+				var name = this.name;
 
-NGI.Module = function(node) {
+				app.registerProbe(function(node, scope, isIsolate) {
 
-	// Assigns the incremental ID to the instance, for debugging purposes
-	this.id = NGI.newID();
+					if (node === document) {
+						node = document.getElementsByTagName('html')[0];
+					}
 
-	// The DOM node with the ngApp directive or manually bootstrapped against
-	this.node = node;
+					// Test for Attribute Comment directives (with replace:true for the
+					// latter)
+					if (restrict.indexOf('A') > -1 ||
+						(dir.replace === true && restrict.indexOf('M') > -1)) {
+						for (var i = 0; i < node.attributes.length; i++) {
+							var normalized = directiveNormalize(node.attributes[i].name);
+							if (normalized === name) {
+								if (!isIsolate && dir.scope === true ||
+									isIsolate && typeof dir.scope === typeof {}) {
+									scope.annotate(name, Service.DIR);
+								}
+							}
+						};
+					}
 
-	// The AngularJS module name
-	this.name;
+					// Test for Element directives
+					if (restrict.indexOf('E') > -1) {
+						var normalized = directiveNormalize(node.tagName.toLowerCase());
+						if (normalized === name) {
+							if (!isIsolate && dir.scope === true ||
+								isIsolate && typeof dir.scope === typeof {}) {
+								scope.annotate(name, Service.DIR);
+							}
+						}
+					}
 
-	// Reference to the AngularJS Module instance
-	this.ngModule;
+					// Test for Class directives
+					if (restrict.indexOf('C') > -1) {
+						var matches = CLASS_DIRECTIVE_REGEXP.exec(node.className);
+						for (var i = 0; i < matches.length; i++) {
+							if (!matches[i]) continue;
+							var normalized = directiveNormalize(matches[i]);
+							if (normalized === name) {
+								if (!isIsolate && dir.scope === true ||
+									isIsolate && typeof dir.scope === typeof {}) {
+									scope.annotate(name, Service.DIR);
+								}
+							}
+						};
+					}
 
-	// The tree view item representing this AngularJS module. Only created if
-	// `node` is defined
-	this.view;
+				});
+				break;
+			case '$controllerProvider':
 
-	// An array with `NGI.Directive` instances representing directives that
-	// trigger scope creation defined in the module. Used by `NGI.InspectorAgent`
-	// to annotate scopes.
-	this.directives = [];
+				app.registerProbe(function(node, scope, isIsolate) {
 
-	// Array with `NGI.Module` instances
-	this.requires = [];
+					if (node === document) {
+						node = document.getElementsByTagName('html')[0];
+					}
 
-	// If the module has a DOM Node in the page, instantiate the TreeViewItem and
-	// inject into the inspector
-	if (node) {
-		var label = this.name ? this.name : nodeRep(node);
-		this.view = NGI.TreeView.moduleItem(label, node);
-	}
+					// Test for the presence of the ngController directive
+					for (var i = 0; i < node.attributes.length; i++) {
+						var normalized = directiveNormalize(node.attributes[i].name);
+						if (normalized === 'ngController') {
+							scope.annotate(node.attributes[i].value, Service.CTRL);
+						}
+					};
 
-	//
-	this.instantiateDeps = function(deps) {
-		if (!deps) return;
-		for (var i = 0; i < deps.length; i++) {
-			if (typeof deps[i] === typeof '') {
-				NGI.Module.instance(null, deps[i]);
-			}
+				});
+
+				break;
 		}
+	}
+
+	Service.CTRL = 1;
+	Service.DIR = 2;
+	Service.BUILTIN = 4;
+
+	Service.parseQueue = function(app, module) {
+		var arr = [];
+		var queue = module._invokeQueue;
+		for (var i = 0; i < queue.length; i++) {
+			arr.push(new Service(app, module, queue[i]));
+		};
+		return arr;
 	};
 
-};
+	return Service;
 
-
-// A cache with all NGI.Module instances
-var moduleCache = [];
-
-// Retrieves or create new instances of `NGI.Module`
-NGI.Module.instance = function(node, name) {
-
-	// Ensures only a single `NGI.Module` instance exists for each module node
-	for (var i = 0; i < moduleCache.length; i++) {
-		if (moduleCache[i].node === node) {
-			return moduleCache[i].module;
-		}
-	};
-
-	var module = new NGI.Module(node);
-
-	// Named modules
-	if (typeof name === typeof '') {
-		module.name = name;
-		module.ngModule = window.angular.module(name);
-		module.instantiateDeps(module.ngModule.requires);
-	}
-
-	// Names of dependencies
-	if (name && typeof name === typeof {}) {
-		module.instantiateDeps(name);
-	}
-
-	moduleCache.push({node:node, module:module});
-
-	return module;
-};
+})(window);
 
 /* global NGI */
+/* jshint strict: false */
+/* jshint expr: true */
+
+NGI.App = (function(window) {
+
+	function App(node, modules) {
+		var pane = document.getElementsByClassName('ngi-inspector')[0];
+		var app = this;
+		var observer = new MutationObserver(function(mutations) {
+			setTimeout(function() {
+				for (var i = 0; i < mutations.length; i++) {
+					var target = mutations[i].target;
+
+					// Avoid responding to mutations in the extension UI
+					if (!pane.contains(target)) {
+						for (var f = 0; f < mutations[i].addedNodes.length; f++) {
+							NGI.InspectorAgent.inspectNode(app, mutations[i].addedNodes[f]);
+						};
+					}
+				}
+			}, 4);
+		});
+		var observerConfig = { childList: true, subtree: true };
+
+		this.startObserver = function() {
+			observer.observe(node, observerConfig);
+		};
+
+		this.stopObserver = function() {
+			observer.disconnect();
+		};
+
+		this.node = node;
+
+		this.$injector = window.angular.element(node).injector();
+		
+		if (!modules) {
+			modules = [];
+		} else if (typeof modules === typeof '') {
+			modules = [modules];
+		}
+
+		var probes = [builtInProbe];
+		this.registerProbe = function(probe) {
+			probes.push(probe);
+		};
+
+		this.probe = function(node, scope, isIsolate) {
+			for (var i = 0; i < probes.length; i++) {
+				probes[i](node, scope, isIsolate);
+			};
+		};
+
+		// Attempt to retrieve the property of the ngApp directive in the node from
+		// one of the possible declarations to retrieve the AngularJS module defined
+		// as the main dependency for the app. An anonymous ngApp is a valid use
+		// case, so this is optional.
+		var attrs = ['ng\\:app', 'ng-app', 'x-ng-app', 'data-ng-app'];
+		var main;
+		if ('getAttribute' in node) {
+			for (var i = 0; i < attrs.length; i++) {
+				if (node.hasAttribute(attrs[i])) {
+					main = node.getAttribute(attrs[i]);
+					break;
+				}
+			}
+			if (main) {
+				modules.push(main);
+			}
+		}
+
+		// Register module dependencies
+		for (var i = 0; i < modules.length; i++) {
+			NGI.Module.register(this, modules[i]);
+		};
+
+		var label = main ? main : nodeRep(node);
+		this.view = NGI.TreeView.moduleItem(label, node);
+		window.ngInspector.pane.treeView.appendChild(this.view.element);
+
+		// Register default probes 
+	}
+
+	// This probe is registered by default in all apps, and probes nodes
+	// for AngularJS built-in directives that are not exposed in the _invokeQueue
+	// despite the 'ng' module being a default dependency
+	function builtInProbe(node, scope, isIsolate) {
+
+		if (node === document) {
+			node = document.getElementsByTagName('html')[0];
+		}
+
+		if (node && node.hasAttribute('ng-repeat')) {
+			scope.annotate('ngRepeat', NGI.Service.BUILTIN);
+		}
+
+		// Label ng-include scopes
+		if (node && node.hasAttribute('ng-include')) {
+			scope.annotate('ngInclude', NGI.Service.BUILTIN);
+		}
+
+		// Label ng-if scopes
+		if (node && node.hasAttribute('ng-if')) {
+			scope.annotate('ngIf', NGI.Service.BUILTIN);
+		}
+
+		// Label root scopes
+		if (scope.ngScope.$root.$id === scope.ngScope.$id) {
+			scope.annotate('$rootScope', NGI.Service.BUILTIN);
+		}
+
+		// Label ng-transclude scopes
+		if (node && node.parentNode && node.parentNode.hasAttribute &&
+			node.parentNode.hasAttribute('ng-transclude')) {
+			scope.annotate('ngTransclude', NGI.Service.BUILTIN);
+		}
+	}
+
+	var appCache = [];
+	App.bootstrap = function(node, modules) {
+		for (var i = 0; i < appCache.length; i++) {
+			if (appCache[i].node === node) {
+				return appCache[i];
+			}
+		};
+		appCache.push(new App(node, modules));
+	};
+
+	App.findApps = function () {
+		var els = document.querySelectorAll('.ng-scope');
+
+		// Clone els so we can include the document itself as a valid root node for
+		// the AngularJS app
+		els = Array.prototype.slice.apply(els, [0]);
+		els.push(document);
+
+		// Inspect each app
+		for (var i = 0; i < els.length; i++) {
+			var $el = window.angular.element(els[i]);
+			if ($el.data('$injector')) {
+				App.bootstrap(els[i]);
+			}
+		}
+	}
+
+	var didFindApps = false;
+
+	App.inspectApps = function() {
+		if (!didFindApps) {
+			App.findApps();
+			didFindApps = true;
+		}
+
+		for (var i = 0; i < appCache.length; i++) {
+			NGI.InspectorAgent.inspectApp(appCache[i]);
+		};
+
+		App.startObservers();
+	};
+
+	App.startObservers = function() {
+		for (var i = 0; i < appCache.length; i++) {
+			appCache[i].startObserver();
+		}
+
+	};
+
+	App.stopObservers = function() {
+		for (var i = 0; i < appCache.length; i++) {
+			appCache[i].stopObserver();
+		}
+	};
+
+	// Utility function that returns a string representation of a DOM Node similar
+	// to CSS selectors to be shown in the UI
+	function nodeRep(node) {
+		if (node === document) return 'document';
+
+		// tag
+		var rep = node.tagName.toLowerCase();
+
+		// #id
+		if (node.hasAttribute('id')) {
+			rep += '<small>#' + node.getAttribute('id') + '</small>';
+		}
+
+		// .class.list
+		var classList = node.className.split(/\s/);
+		for (var i = 0; i < classList.length; i++) {
+			rep += '<small>.' + classList[i] + '</small>';
+		}
+
+		return rep;
+	}
+
+	return App;
+
+})(window);
+
+/* global NGI */
+/* jshint strict: false */
+/* jshint expr: true */
+
+NGI.Module = (function() {
+
+	function Module(app, name) {
+
+		// The AngularJS module name
+		this.name = name;
+
+		// Array with `NGI.Module` instance references
+		this.requires = [];
+
+		// The AngularJS module instance
+		this.ngModule = angular.module(name);
+
+		// `NGI.Service` instances representing services defined in this module
+		this.services = NGI.Service.parseQueue(app, this.ngModule);
+	}
+
+	// A cache with all NGI.Module instances
+	var moduleCache = [];
+
+	Module.register = function(app, name) {
+		// Ensure only a single `NGI.Module` instance exists for each AngularJS
+		// module name
+		if (!moduleCache[name]) {
+			moduleCache[name] = new Module(app, name);
+
+			// Register the dependencies
+			var requires = moduleCache[name].ngModule.requires;
+			for (var i = 0; i < requires.length; i++) {
+				var dependency = Module.register(app, requires[i]);
+				moduleCache[name].requires.push(dependency);
+			};
+		}
+
+		return moduleCache[name];
+	};
+
+	return Module;
+
+})();
+
+/* global NGI, console */
 /* jshint strict: false */
 /* jshint boss: true */
 
 NGI.Scope = (function() {
 
-	function Scope(ngScope, isIsolate) {
+	function Scope(app, ngScope, isIsolate) {
+
+		var angular = window.angular;
+
+		this.app = app;
+		this.ngScope = ngScope;
+
 		// Calculate the scope depth in the tree to determine the intendation level
 		// in the TreeView
 		var depth = 0;
 		var reference = ngScope;
-		while (reference = reference.$parent) { depth++; };
+		while (reference = reference.$parent) { depth++; }
 
 		// Instantiate and expose the TreeViewItem representing the scope
 		var view = this.view = NGI.TreeView.scopeItem(ngScope.$id, depth, isIsolate);
+		if (isIsolate) this.view.element.classList.add('ngi-isolate-scope');
 
-		// Destroy the TreeViewItem when the AngularJS scope is destroyed
-		ngScope.$on('$destroy', function() {
-			view.destroy();
-		});
+		// Called when the `NGI.InspectorAgent` DOM traversal finds a Node match
+		// for the scope
+		this.setNode = function(node) {
+			this.node = this.view.node = node;
+		};
+
+		var annotations = [];
+		this.annotate = function(name, type) {
+			if (annotations.indexOf(name) < 0) {
+				annotations.push(name);
+			} else {
+				return;
+			}
+			var span = document.createElement('span');
+			span.className = 'ngi-annotation';
+			span.innerText = name;
+			switch(type) {
+				case NGI.Service.DIR:
+					span.classList.add('ngi-annotation-dir');
+					break;
+				case NGI.Service.BUILTIN:
+					span.classList.add('ngi-annotation-builtin');
+					break;
+				case NGI.Service.CTRL:
+					span.classList.add('ngi-annotation-ctrl');
+					break;
+			}
+			this.view.label.appendChild(span);
+		};
 
 		// Keturns the keys for the user defined models in the scope, excluding
 		// keys created by AngularJS or the `this` keyword
@@ -829,22 +912,70 @@ NGI.Scope = (function() {
 
 		// Returns an object representing the keys and values of the user defined
 		// models in the scope
-		function getModels() {
-			var models = {}, keys = modelKeys();
+		function models() {
+			var obj = {}, keys = modelKeys();
 			for (var i = 0; i < keys.length; i++) {
-				models[keys[i]] = ngScope[keys[i]];
+				obj[keys[i]] = ngScope[keys[i]];
 			}
-			return models;
+			return obj;
 		}
 
-		ngScope.$watch(function() {
-		});
+		function childScopeIds() {
+			if (!ngScope.$$childHead) return [];
+			var childKeys = [];
+			var childScope = ngScope.$$childHead;
+			do {
+				childKeys.push(childScope.$id);
+			} while (childScope = childScope.$$nextSibling);
+			return childKeys;
+		}
+
+		var oldChildIds = childScopeIds();
+
+		var destroyDeregister = angular.noop;
+		var watchDeregister = angular.noop;
+		var observerOn = false;
+
+		this.startObserver = function() {
+			if (observerOn === false) {
+				destroyDeregister = ngScope.$on('$destroy', function() {
+					view.destroy();
+				});
+				watchDeregister = ngScope.$watch(function() {
+					// Basic check for mutations in the direct child scope list
+					var newChildIds = childScopeIds();
+					if (!angular.equals(oldChildIds, newChildIds)) {
+						NGI.InspectorAgent.inspectScope(app, ngScope);
+					}
+					oldChildIds = newChildIds;
+				});
+				observerOn = true;
+			}
+		};
+
+		this.stopObserver = function() {
+			if (observerOn === true) {
+				if (typeof destroyDeregister === 'function') {
+					destroyDeregister.apply();
+				}
+				if (typeof watchDeregister === 'function') {
+					watchDeregister.apply();
+				}
+				observerOn = false;
+			}
+		};
 
 	}
 
 	// To easily retrieve an `NGI.Scope` instance by the scope id, we keep a
 	// cache of created instances
 	var scopeCache = {};
+
+	Scope.stopObservers = function() {
+		for (var i = 0; i < scopeCache.length; i++) {
+			scopeCache[i].stopObserver();
+		};
+	};
 
 	// Returns an instance of `NGI.Scope` representing the AngularJS scope with
 	// the id
@@ -854,11 +985,11 @@ NGI.Scope = (function() {
 
 	// This is the method used by `NGI.InspectorAgent` to instantiate the
 	// `NGI.Scope` object
-	Scope.instance = function(ngScope, isIsolate) {
+	Scope.instance = function(app, ngScope, isIsolate) {
 		if (scopeCache[ngScope.$id]) {
 			return scopeCache[ngScope.$id];
 		}
-		var scope = new NGI.Scope(ngScope, isIsolate);
+		var scope = new NGI.Scope(app, ngScope, isIsolate);
 		scopeCache[ngScope.$id] = scope;
 		return scope;
 	};
@@ -871,6 +1002,51 @@ window.addEventListener('load', function() {
 
 	// Instantiate the inspector
 	window.ngInspector = new NGI.Inspector();
+
+	// True once the wrapBootstrap() method runs for the first time
+	var didWrapBootstrap = false;
+
+	// If angular was included via <script src=...> tag, the angular object should
+	// already be present in the window scope, and we can wrapBootstrap() right
+	// away
+	if ('angular' in window) {
+		wrapBootstrap();
+	} else {
+		// RequireJS and similar loaders work by injecting <script> tags into the
+		// DOM. If the page uses such mechanism, the angular namespace might not
+		// yet be available by the time `NGI.InspectorAgent` is instantiated. By
+		// listening to the DOMNodeInserted event we can support this use case.
+		document.addEventListener('DOMNodeInserted', wrapBootstrap.bind(this));
+	}
+
+	// The manual AngularJS module bootstrap capturing mechanism, wraps the
+	// `angular.bootstrap` method
+	function wrapBootstrap() {
+
+		// Ensure that the angular object exists in the window scope and the
+		// `angular.bootstrap` method is wrapped only once
+		if (!window.angular || didWrapBootstrap) {
+			return;
+		}
+
+		// Cache the original `angular.bootstrap` method
+		var _bootstrap = window.angular.bootstrap;
+
+		window.angular.bootstrap = function(node, modules) {
+
+			// The dependencies are regitered by the `NGI.Module` object
+			NGI.App.bootstrap(node, modules);
+
+			// Continue with angular's native bootstrap method
+			_bootstrap.apply(this, arguments);
+		};
+
+		// Once the `angular.bootstrap` method has been wrapped, we can stop
+		// listening for DOMNodeInserted events, used to wait until angular has
+		// been loaded by RequireJS or a similar mechanism
+		document.removeEventListener('DOMNodeInserted', wrapBootstrap.bind(this));
+		didWrapBootstrap = true;
+	}
 
 });
 

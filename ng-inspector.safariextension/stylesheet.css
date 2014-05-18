@@ -126,19 +126,28 @@ body:not(.ngi-resizing) .ngi-inspector .ngi-scope.ngi-isolate-scope>label:hover 
 	background-image: url(icons/isolate-scope.png), linear-gradient(-179deg, #82BEEB 0%, #5290D7 100%);
 }
 
-.ngi-inspector .ngi-scope .ngi-assoc {
+.ngi-inspector .ngi-scope .ngi-annotation {
 	margin-left: 5px !important;
+	font-weight: normal;
+}
+.ngi-inspector .ngi-scope .ngi-annotation.ngi-annotation-dir {
 	padding: 2px 5px !important;
 	background: rgba(0, 0, 0, .3);
 	border-radius: 4px;
 	color: #F8F8F8;
 	text-shadow: none !important;
 }
-.ngi-inspector .ngi-scope .ngi-assoc.ngi-minor-assoc {
+.ngi-inspector .ngi-scope .ngi-annotation.ngi-annotation-ctrl {
+	padding: 2px 5px !important;
+	border: 1px solid rgba(0, 0, 0, .3);
+	border-radius: 4px;
+	color: rgba(0, 0, 0, .6);
+	text-shadow: none !important;
+}
+.ngi-inspector .ngi-scope .ngi-annotation.ngi-annotation-builtin {
 	padding: 0px !important;
 	background: transparent;
 	color: rgba(0, 0, 0, .4);
-	font-weight: normal;
 }
 
 .ngi-inspector .ngi-model > label {

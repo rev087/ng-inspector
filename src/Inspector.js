@@ -14,8 +14,6 @@ NGI.Inspector = function() {
 		showWarnings: false
 	};
 
-	this.agent = new NGI.InspectorAgent();
-
 	this.pane = new NGI.InspectorPane();
 
 	// The actual toggling is done by the `NGI.InspectorPane`. Since the
@@ -27,20 +25,27 @@ NGI.Inspector = function() {
 	// settings only take place after a toggle is executed.
 	this.toggle = function(settings) {
 
+		// If angular is not present in the global scope, we stop the process
+		if (!('angular' in window)) {
+			alert('This page does not include AngularJS');
+			return;
+		}
+
 		// Passing the settings parameter is optional
 		this.settings.showWarnings = (settings && !!settings.showWarning);
 
 		// Send the command forward to the NGI.InspectorPane, retrieving the state
 		var visible = this.pane.toggle();
 		if (visible) {
-			this.agent.performInspection();
+			NGI.App.inspectApps();
+		} else {
+			NGI.App.stopObservers();
+			NGI.Scope.stopObservers();
 		}
 	}
 
-	// Debugging utlities, to be used in the console
-
-	// Retrieves the "breadcrumb" of a specific scope in the hierarchy
-	// usage: ngInspector.scope('002');
+	// Debugging utlity, to be used in the console. Retrieves the "breadcrumb" of
+	// a specific scope in the hierarchy usage: ngInspector.scope('002')
 	this.scope = function(id) {
 
 		function findRoot(el) {
@@ -80,65 +85,6 @@ NGI.Inspector = function() {
 		}
 
 		return dig(findRoot(document), []);
-	};
-
-	// Traverses the DOM looking for a Node assigned to a specific scope
-	// usage: ngInspector.scopeNode
-	this.scopeNode = function(id) {
-		function dig(el) {
-			var child = el.firstChild;
-			if (!child) return;
-			do {
-				var $el = angular.element(el);
-
-				if (Object.keys($el.data()).length > 0) {
-
-					var $scope = $el.data('$scope');
-					var $isolate = $el.data('$isolateScope');
-
-					if ($scope && $scope.$id == id) {
-						return $scope;
-					}
-					else if ($isolate && $isolate.$id == id) {
-						return $isolate;
-					}
-				}
-				var res = dig(child);
-				if (res) return res;
-			} while (child = child.nextSibling);
-		}
-		return dig(document);
-	};
-
-
-	// Traverses the DOM looking for a Node assigned to a specific scope
-	// usage: ngInspector.domScopes
-	this.domScopes = function(id) {
-		var scopes = {};
-		function dig(el) {
-			var child = el.firstChild;
-			if (!child) return;
-			do {
-				var $el = angular.element(el);
-
-				if (Object.keys($el.data()).length > 0) {
-
-					var $scope = $el.data('$scope');
-					var $isolate = $el.isolateScope();
-
-					if ($scope) {
-						scopes[$scope.$id] = $scope;
-					}
-					else if ($isolate) {
-						scopes[$isolate.$id] = $isolate;
-					}
-				}
-				var res = dig(child);
-				if (res) return res;
-			} while (child = child.nextSibling);
-		}
-		dig(document);
-		return Object.keys(scopes);
 	};
 
 };

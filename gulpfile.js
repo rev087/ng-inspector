@@ -79,6 +79,8 @@ gulp.task('build', function() {
 		'src/InspectorAgent.js',
 		'src/InspectorPane.js',
 		'src/TreeView.js',
+		'src/Service.js',
+		'src/App.js',
 		'src/Module.js',
 		'src/Scope.js',
 		'src/bootstrap.js'

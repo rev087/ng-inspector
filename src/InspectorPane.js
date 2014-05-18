@@ -24,14 +24,29 @@ NGI.InspectorPane = function() {
 		pane.appendChild(view);
 	};
 
+	this.clear = function() {
+		while(this.treeView.lastChild) {
+			this.treeView.removeChild(this.treeView.lastChild);
+		}
+	};
+
+	this.contains = function(node) {
+		return this.treeView.contains(node);
+	};
+
 	// Toggle the inspector pane on and off. Returns a boolean representing the
 	// new visibility state.
 	this.toggle = function() {
 		if ( pane.parentNode ) {
 			document.body.removeChild(pane);
+			this.clear();
 			return false;
 		} else {
 			document.body.appendChild(pane);
+			document.addEventListener('mousemove', onMouseMove);
+			document.addEventListener('mousedown', onMouseDown);
+			document.addEventListener('mouseup', onMouseUp);
+			window.addEventListener('resize', onResize);
 			return true;
 		}
 	};
@@ -64,7 +79,7 @@ NGI.InspectorPane = function() {
 
 	// Listen for mousemove events in the page body, setting the canResize state
 	// if the mouse hovers close to the 
-	document.addEventListener('mousemove', function(event) {
+	function onMouseMove(event) {
 
 		// Don't do anything if the inspector is detached from the DOM
 		if (!pane.parentNode) return;
@@ -97,36 +112,37 @@ NGI.InspectorPane = function() {
 
 			pane.style.width = width + 'px';
 		}
-	});
+	}
 
 	// Listen to mousedown events in the page body, triggering the resize mode
 	// (isResizing) if the cursor is within the resize handle (canResize). The
 	// class added to the page body styles it to disable text selection while the
 	// user dragging the mouse to resize the pane. In Safari, the previous
 	// selection is restored once the class is removed
-	document.addEventListener('mousedown', function() {
+	function onMouseDown() {
 		if (inspectorPane.canResize) {
 			inspectorPane.isResizing = true;
 			document.body.classList.add('ngi-resizing');
 		}
-	});
+	}
+	
 
 	// Listen to mouseup events on the page, turning off the resize mode if one
 	// is underway. The inspector width is then persisted in the localStorage
-	document.addEventListener('mouseup', function() {
+	function onMouseUp() {
 		if (inspectorPane.isResizing) {
 			inspectorPane.isResizing = false;
 			document.body.classList.remove('ngi-resizing');
-			localStorage.setItem('ng-inspector-width', inspectorPane.element.offsetWidth);
+			localStorage.setItem('ng-inspector-width', pane.offsetWidth);
 		}
-	});
+	}
 
 	// If the user contracts the window, this makes sure the pane won't end up
 	// wider thant the viewport
-	window.addEventListener('resize', function() {
+	function onResize() {
 		if (pane.offsetWidth >= document.body.offsetWidth - 50) {
 			pane.style.width = (document.body.offsetWidth - 50) + 'px';
 		}
-	});
+	}
 
 };
