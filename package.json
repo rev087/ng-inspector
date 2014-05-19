@@ -29,6 +29,8 @@
     "semver": "~2.3.0",
     "colors": "~0.6.2",
     "plist": "~0.4.3",
-    "gulp-jshint": "~1.5.5"
+    "gulp-jshint": "~1.5.5",
+    "gulp-less": "~1.2.3",
+    "gulp-replace": "~0.3.0"
   }
 }

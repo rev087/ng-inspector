@@ -1,7 +1,8 @@
 var gulp = require('gulp');
 var concat = require('gulp-concat');
+var less = require('gulp-less');
+var replace = require('gulp-replace');
 var wrap = require('gulp-wrap');
-// var jshint = require('gulp-jshint');
 var semver = require('semver');
 var fs = require('fs');
 var colors = require('colors');
@@ -71,40 +72,54 @@ gulp.task('bump:major', function() { bump('major'); });
 gulp.task('bump:minor', function() { bump('minor'); });
 gulp.task('bump:patch', function() { bump('patch'); });
 
-gulp.task('build', function() {
+gulp.task('build:icons', function() {
+	return gulp.src(['src/icons/*.png'])
+		.pipe(gulp.dest('ng-inspector.safariextension/icons/'))
+		.pipe(gulp.dest('ng-inspector.chrome/icons/'));
+});
 
-	// Concatenate the /src/*.js files to ng-inspector.js
+gulp.task('build:js', function() {
 	return gulp.src([
-		'src/Inspector.js',
-		'src/InspectorAgent.js',
-		'src/InspectorPane.js',
-		'src/TreeView.js',
-		'src/Highlighter.js',
-		'src/Service.js',
-		'src/App.js',
-		'src/Module.js',
-		'src/Scope.js',
-		'src/Model.js',
-		'src/bootstrap.js'
+		'src/js/Inspector.js',
+		'src/js/InspectorAgent.js',
+		'src/js/InspectorPane.js',
+		'src/js/TreeView.js',
+		'src/js/Highlighter.js',
+		'src/js/Service.js',
+		'src/js/App.js',
+		'src/js/Module.js',
+		'src/js/Scope.js',
+		'src/js/Model.js',
+		'src/js/bootstrap.js'
 	])
-		// .pipe(jshint())
-		// .pipe(jshint.reporter('default'))
 		.pipe(concat('ng-inspector.js', {newLine:"\n\n"}))
 		.pipe(wrap("\"use strict\";\n(function(window) {\n<%= contents %>\n})(window);"), {variable:'data'})
-		.pipe(gulp.dest('ng-inspector.safariextension/'));
-
-	// Here would be a good place to build the archive. But it requires a custom
-	// build of the `xar` executable to extract certificates from a Safari-built
-	// .safariextz, then signing the .xar archive (renamed .safariextz).
-
-	// Steps to build from the command line:
-	// http://developer.streak.com/2013/01/how-to-build-safari-extension-using.html
-
+		.pipe(gulp.dest('ng-inspector.safariextension/'))
+		.pipe(gulp.dest('ng-inspector.chrome/'));
 });
+
+gulp.task('build:css', function() {
+	return gulp.src(['src/less/stylesheet.less'])
+		.pipe(less())
+		.pipe(gulp.dest('ng-inspector.safariextension/'))
+		.pipe(replace(/url\(/g, 'url(chrome-extension://__MSG_@@extension_id__/'))
+		.pipe(gulp.dest('ng-inspector.chrome/'));
+
+		// url(icons/scope.png")
+		// url(chrome-extension://__MSG_@@extension_id__/icons/scope.png")
+});
+
+// Here would be a good place to build the Safari archive. But it requires a
+// custom build of the `xar` executable to extract certificates from a
+// Safari-built .safariextz, then signing the .xar archive (renamed .safariextz)
+
+// Steps to build from the command line:
+// http://developer.streak.com/2013/01/how-to-build-safari-extension-using.html
 
 gulp.task('watch', function() {
-	gulp.watch('src/*.js', ['build']);
+	gulp.watch('src/icons/*.png', ['build:icons']);
+	gulp.watch('src/js/*.js', ['build:js']);
+	gulp.watch('src/less/*.less', ['build:css']);
 });
 
-
-gulp.task('default', ['build']);
+gulp.task('default', ['build:icons', 'build:js', 'build:css']);

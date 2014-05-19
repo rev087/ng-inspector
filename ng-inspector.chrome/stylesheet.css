@@ -69,7 +69,7 @@ body.ngi-resizing {
   transition: opacity .2s;
 }
 .ngi-inspector.ngi-processing {
-  background-image: url(processing.png);
+  background-image: url(chrome-extension://__MSG_@@extension_id__/processing.png);
   background-position: center center;
   background-repeat: no-repeat;
 }
@@ -105,19 +105,19 @@ body.ngi-resizing {
   display: block;
   line-height: 30px;
   padding: 0 5px 0 24px;
-  background: #f8f8f8 url(icons/scope.png) no-repeat 4px 7px;
+  background: #f8f8f8 url(chrome-extension://__MSG_@@extension_id__/icons/scope.png) no-repeat 4px 7px;
   border-top: 1px solid #E9E9E9;
   border-bottom: 1px solid #E9E9E9;
   cursor: pointer;
 }
 .ngi-inspector .ngi-scope.ngi-isolate-scope > label {
-  background: #f8f8f8 url(icons/isolate-scope.png) no-repeat 4px 7px;
+  background: #f8f8f8 url(chrome-extension://__MSG_@@extension_id__/icons/isolate-scope.png) no-repeat 4px 7px;
 }
 .ngi-inspector .ngi-app > .ngi-scope > label {
   border-top: 1px solid #F8F8F8;
 }
 body:not(.ngi-resizing) .ngi-inspector .ngi-scope > label:hover {
-  background-image: url(icons/scope.png), linear-gradient(-179deg, #82beeb 0%, #5290d7 100%);
+  background-image: url(chrome-extension://__MSG_@@extension_id__/icons/scope.png), linear-gradient(-179deg, #82beeb 0%, #5290d7 100%);
   background-position: 4px 7px, 0 0;
   text-shadow: -1px -1px 0 #5290d7, 1px 1px 0 #82beeb;
   color: white;
@@ -125,7 +125,7 @@ body:not(.ngi-resizing) .ngi-inspector .ngi-scope > label:hover {
   border-bottom: 1px solid #4881C6;
 }
 body:not(.ngi-resizing) .ngi-inspector .ngi-scope.ngi-isolate-scope > label:hover {
-  background-image: url(icons/isolate-scope.png), linear-gradient(-179deg, #82beeb 0%, #5290d7 100%);
+  background-image: url(chrome-extension://__MSG_@@extension_id__/icons/isolate-scope.png), linear-gradient(-179deg, #82beeb 0%, #5290d7 100%);
 }
 .ngi-inspector .ngi-scope .ngi-annotation {
   margin-left: 5px !important;
@@ -152,38 +152,38 @@ body:not(.ngi-resizing) .ngi-inspector .ngi-scope.ngi-isolate-scope > label:hove
 }
 .ngi-inspector .ngi-model > label {
   padding: 0 5px 0 24px;
-  background: #ffffff url(icons/model.png) no-repeat 4px 7px;
+  background: #ffffff url(chrome-extension://__MSG_@@extension_id__/icons/model.png) no-repeat 4px 7px;
   position: relative;
 }
 .ngi-inspector .ngi-model > label .ngi-value {
   font-weight: normal;
 }
 .ngi-inspector .ngi-model.ngi-model-string > label {
-  background-image: url(icons/string.png);
+  background-image: url(chrome-extension://__MSG_@@extension_id__/icons/string.png);
 }
 .ngi-inspector .ngi-model.ngi-model-function > label {
-  background-image: url(icons/function.png);
+  background-image: url(chrome-extension://__MSG_@@extension_id__/icons/function.png);
 }
 .ngi-inspector .ngi-model.ngi-model-object > label {
-  background-image: url(icons/object.png);
+  background-image: url(chrome-extension://__MSG_@@extension_id__/icons/object.png);
 }
 .ngi-inspector .ngi-model.ngi-model-array > label {
-  background-image: url(icons/array.png);
+  background-image: url(chrome-extension://__MSG_@@extension_id__/icons/array.png);
 }
 .ngi-inspector .ngi-model.ngi-model-boolean > label {
-  background-image: url(icons/boolean.png);
+  background-image: url(chrome-extension://__MSG_@@extension_id__/icons/boolean.png);
 }
 .ngi-inspector .ngi-model.ngi-model-number > label {
-  background-image: url(icons/number.png);
+  background-image: url(chrome-extension://__MSG_@@extension_id__/icons/number.png);
 }
 .ngi-inspector .ngi-model.ngi-model-element > label {
-  background-image: url(icons/element.png);
+  background-image: url(chrome-extension://__MSG_@@extension_id__/icons/element.png);
 }
 .ngi-inspector .ngi-model.ngi-model-undefined > label {
-  background-image: url(icons/undefined.png);
+  background-image: url(chrome-extension://__MSG_@@extension_id__/icons/undefined.png);
 }
 .ngi-inspector .ngi-model.ngi-model-null > label {
-  background-image: url(icons/null.png);
+  background-image: url(chrome-extension://__MSG_@@extension_id__/icons/null.png);
 }
 .ngi-inspector .ngi-model.ngi-model-string > label > .ngi-value {
   color: green;

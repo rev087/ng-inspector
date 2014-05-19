@@ -1,0 +1,26 @@
+{
+	"manifest_version": 2,
+
+	"name": "ng-inspector",
+	"description": "Inspector pane for AngularJS apps",
+	"version": "0.4.0",
+	"background": {
+		"scripts": ["background.js"],
+		"persistent": false
+	},
+	"permissions": ["tabs", "<all_urls>"],
+	"browser_action": {
+		"default_icon": "ng.png",
+		"default_title": "ng-inspector"
+	},
+	"content_scripts": [{
+		"matches": ["*://*/*"],
+		"css": ["stylesheet.css"],
+		"js": ["inject.js"]
+	}],
+	"web_accessible_resources": [
+		"ng-inspector.js",
+		"processing.png",
+		"icons/*"
+	]
+}

@@ -1,7 +1,7 @@
 /* global NGI, console */
 /* jshint strict: false */
 
-window.addEventListener('load', function() {
+function bootstrap() {
 
 	// Instantiate the inspector
 	window.ngInspector = new NGI.Inspector();
@@ -51,8 +51,15 @@ window.addEventListener('load', function() {
 		didWrapBootstrap = true;
 	}
 
-});
+}
 
+if (document.readyState === 'complete') {
+	bootstrap();
+} else {
+	window.addEventListener('load', bootstrap);
+}
+
+// In Safari, we use window messages
 window.addEventListener('message', function (event) {
 
 	// Ensure the message was sent by this origin
