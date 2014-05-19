@@ -9,6 +9,7 @@
 	position: absolute;
 	text-align: right;
 	z-index: 9999999999999 !important;
+	pointer-events: none;
 }
 .ngi-scope-highlight-box {
 	background: rgba(109, 169, 215, .2);
