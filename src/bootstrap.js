@@ -1,3 +1,6 @@
+/* global NGI, console */
+/* jshint strict: false */
+
 window.addEventListener('load', function() {
 
 	// Instantiate the inspector
@@ -61,7 +64,7 @@ window.addEventListener('message', function (event) {
 
 		// Fail if the inspector has not been initialized yet (before window.load)
 		if ( !window.ngInspector ) {
-			return console.error('The ng-inspector has not yet initialized');
+			return console.warn('The ng-inspector has not yet initialized');
 		}
 
 		window.ngInspector.toggle(event.data.settings);

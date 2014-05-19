@@ -22,7 +22,7 @@ NGI.Inspector = function() {
 	// messages. To save on the number of messages sent back and forth between
 	// this injected script and the browser extension, the browser settings are
 	// sent along with the toggle command. A side effect is that changes in the
-	// settings only take place after a toggle is executed.
+	// settings only take place after a toggle is triggered.
 	this.toggle = function(settings) {
 
 		// If angular is not present in the global scope, we stop the process

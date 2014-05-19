@@ -16,7 +16,7 @@ NGI.App = (function(window) {
 					if (!pane.contains(target)) {
 						for (var f = 0; f < mutations[i].addedNodes.length; f++) {
 							NGI.InspectorAgent.inspectNode(app, mutations[i].addedNodes[f]);
-						};
+						}
 					}
 				}
 			}, 4);
@@ -49,7 +49,7 @@ NGI.App = (function(window) {
 		this.probe = function(node, scope, isIsolate) {
 			for (var i = 0; i < probes.length; i++) {
 				probes[i](node, scope, isIsolate);
-			};
+			}
 		};
 
 		// Attempt to retrieve the property of the ngApp directive in the node from
@@ -71,49 +71,47 @@ NGI.App = (function(window) {
 		}
 
 		// Register module dependencies
-		for (var i = 0; i < modules.length; i++) {
-			NGI.Module.register(this, modules[i]);
-		};
+		for (var m = 0; m < modules.length; m++) {
+			NGI.Module.register(this, modules[m]);
+		}
 
 		var label = main ? main : nodeRep(node);
-		this.view = NGI.TreeView.moduleItem(label, node);
+		this.view = NGI.TreeView.appItem(label, node);
 		window.ngInspector.pane.treeView.appendChild(this.view.element);
-
-		// Register default probes 
 	}
 
 	// This probe is registered by default in all apps, and probes nodes
 	// for AngularJS built-in directives that are not exposed in the _invokeQueue
 	// despite the 'ng' module being a default dependency
-	function builtInProbe(node, scope, isIsolate) {
+	function builtInProbe(node, scope) {
 
 		if (node === document) {
 			node = document.getElementsByTagName('html')[0];
 		}
 
 		if (node && node.hasAttribute('ng-repeat')) {
-			scope.annotate('ngRepeat', NGI.Service.BUILTIN);
+			scope.view.addAnnotation('ngRepeat', NGI.Service.BUILTIN);
 		}
 
 		// Label ng-include scopes
 		if (node && node.hasAttribute('ng-include')) {
-			scope.annotate('ngInclude', NGI.Service.BUILTIN);
+			scope.view.addAnnotation('ngInclude', NGI.Service.BUILTIN);
 		}
 
 		// Label ng-if scopes
 		if (node && node.hasAttribute('ng-if')) {
-			scope.annotate('ngIf', NGI.Service.BUILTIN);
+			scope.view.addAnnotation('ngIf', NGI.Service.BUILTIN);
 		}
 
 		// Label root scopes
 		if (scope.ngScope.$root.$id === scope.ngScope.$id) {
-			scope.annotate('$rootScope', NGI.Service.BUILTIN);
+			scope.view.addAnnotation('$rootScope', NGI.Service.BUILTIN);
 		}
 
 		// Label ng-transclude scopes
 		if (node && node.parentNode && node.parentNode.hasAttribute &&
 			node.parentNode.hasAttribute('ng-transclude')) {
-			scope.annotate('ngTransclude', NGI.Service.BUILTIN);
+			scope.view.addAnnotation('ngTransclude', NGI.Service.BUILTIN);
 		}
 	}
 
@@ -123,7 +121,7 @@ NGI.App = (function(window) {
 			if (appCache[i].node === node) {
 				return appCache[i];
 			}
-		};
+		}
 		appCache.push(new App(node, modules));
 	};
 
@@ -142,7 +140,7 @@ NGI.App = (function(window) {
 				App.bootstrap(els[i]);
 			}
 		}
-	}
+	};
 
 	var didFindApps = false;
 
@@ -154,7 +152,7 @@ NGI.App = (function(window) {
 
 		for (var i = 0; i < appCache.length; i++) {
 			NGI.InspectorAgent.inspectApp(appCache[i]);
-		};
+		}
 
 		App.startObservers();
 	};

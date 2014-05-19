@@ -24,7 +24,7 @@ NGI.Inspector = function() {
 	// messages. To save on the number of messages sent back and forth between
 	// this injected script and the browser extension, the browser settings are
 	// sent along with the toggle command. A side effect is that changes in the
-	// settings only take place after a toggle is executed.
+	// settings only take place after a toggle is triggered.
 	this.toggle = function(settings) {
 
 		// If angular is not present in the global scope, we stop the process
@@ -97,23 +97,20 @@ NGI.Inspector = function() {
 /* jshint boss: true */
 
 // `NGi.InspectorAgent` is responsible for the page introspection (Scope and DOM
-// traversal), patching of the native `angular.bootstrap` method and
-// instantiation of the other NGI objects that represent AngularJS objects
+// traversal)
 
 NGI.InspectorAgent = (function() {
 
-	var InspectorAgent = function() {}
+	function InspectorAgent() {}
 
 	function traverseDOM(app, node) {
 
-		// Counter for the node probings being scheduled with setTimeout
-		var probeQueue = 1;
+		// Counter for the recursions being scheduled with setTimeout
+		var nodeQueue = 1;
 		traverse(node, app);
 
-		// The recursive DOM traversal function. This is the meat of
-		// `NGI.InspectorAgent`, where AngularJS objects are identified in the DOM.
+		// The recursive DOM traversal function
 		function traverse(node, app) {
-
 
 			// We can skip all nodeTypes except ELEMENT and DOCUMENT nodes
 			if (node.nodeType === Node.ELEMENT_NODE ||
@@ -155,8 +152,8 @@ NGI.InspectorAgent = (function() {
 				if (node.firstChild) {
 					var child = node.firstChild;
 					do {
-						// Increment the probed nodes counter for the reporting
-						probeQueue++;
+						// Increment the probed nodes counter, will be used for reporting
+						nodeQueue++;
 
 						// setTimeout is used to make the traversal asyncrhonous, keeping
 						// the browser UI responsive during traversal.
@@ -167,8 +164,8 @@ NGI.InspectorAgent = (function() {
 				}
 
 			}
-			probeQueue--;
-			if (--probeQueue === 0) {
+			nodeQueue--;
+			if (--nodeQueue === 0) {
 				// Done
 			}
 			
@@ -218,9 +215,10 @@ NGI.InspectorAgent = (function() {
 
 		// Then start the Scope traversal mechanism
 		traverseScopes($rootScope, app, function() {
+
 			// Once the Scope traversal is complete, the DOM traversal starts
-			// if (ngInspector.settings.showWarnings)
 			traverseDOM(app, app.node);
+			
 		});
 	};
 
@@ -241,8 +239,8 @@ NGI.InspectorAgent = (function() {
 /**
  * `NGI.InspectorPane` is responsible for the root element and basic interaction
  * with the pane (in practice, a <div>) injected in the page DOM, such as
- * toggling the pane on and off, handle mouse scrolling, resizing and child
- * views.
+ * toggling the pane on and off, handle mouse scrolling, resizing and first
+ * level of child views.
  */
 
 NGI.InspectorPane = function() {
@@ -267,6 +265,7 @@ NGI.InspectorPane = function() {
 		}
 	};
 
+	// Used to avoid traversing or inspecting the extension UI
 	this.contains = function(node) {
 		return this.treeView.contains(node);
 	};
@@ -277,6 +276,10 @@ NGI.InspectorPane = function() {
 		if ( pane.parentNode ) {
 			document.body.removeChild(pane);
 			this.clear();
+			document.removeEventListener('mousemove', onMouseMove);
+			document.removeEventListener('mousedown', onMouseDown);
+			document.removeEventListener('mouseup', onMouseUp);
+			window.removeEventListener('resize', onResize);
 			return false;
 		} else {
 			document.body.appendChild(pane);
@@ -354,8 +357,7 @@ NGI.InspectorPane = function() {
 	// Listen to mousedown events in the page body, triggering the resize mode
 	// (isResizing) if the cursor is within the resize handle (canResize). The
 	// class added to the page body styles it to disable text selection while the
-	// user dragging the mouse to resize the pane. In Safari, the previous
-	// selection is restored once the class is removed
+	// user dragging the mouse to resize the pane
 	function onMouseDown() {
 		if (inspectorPane.canResize) {
 			inspectorPane.isResizing = true;
@@ -387,6 +389,7 @@ NGI.InspectorPane = function() {
 /* global NGI, console */
 /* jshint strict: false */
 /* jshint expr: true */
+/* jshint boss: true */
 
 NGI.TreeView = (function() {
 
@@ -402,44 +405,86 @@ NGI.TreeView = (function() {
 		this.drawer.className = 'ngi-drawer';
 		this.element.appendChild(this.drawer);
 
-		this.addChild = function(childItem) {
-			this.drawer.appendChild(childItem.element);
+		this.length = null;
+
+		this.addChild = function(childItem, top) {
+			if (!!top) {
+				this.drawer.insertBefore(childItem.element, this.drawer.firstChild);
+			} else {
+				this.drawer.appendChild(childItem.element);
+			}
+		};
+
+		this.removeChildren = function(className) {
+			for (var i = this.drawer.childNodes.length - 1; i >= 0; i--) {
+				var child = this.drawer.childNodes[i];
+				if (child.classList.contains(className)) {
+					this.drawer.removeChild(child);
+				}
+			}
 		};
 
 		this.destroy = function() {
 			this.element.parentNode.removeChild(this.element);
 		};
 
-		var treeViewItem = this;
-
-		this.label.addEventListener('click', function() {
-			console.log(treeViewItem.node);
-		});
-
-		// Highlight DOM elements the scope is attached to when hovering the item
-		// in the inspector
-		this.label.addEventListener('mouseover', function() {
-			if ( treeViewItem.node && !window.ngInspector.pane.isResizing ) {
-				var target = (treeViewItem.node === document) ?
-					document.querySelector('html') : treeViewItem.node;
-				target.classList.add('ngi-highlight');
+		// Pill indicator
+		var indicator = false;
+		this.setIndicator = function(value) {
+			if (indicator && typeof value !== 'number' && typeof value !== 'string') {
+				indicator.parentNode.removeChild(indicator);
+			} else {
+				if (!indicator) {
+					indicator = document.createElement('span');
+					indicator.className = 'ngi-indicator';
+					indicator.innerHTML = value;
+					this.label.appendChild(indicator);
+				}
 			}
-		});
+		};
 
-		this.label.addEventListener('mouseout', function() {
-			if (treeViewItem.node) {
-				var target = (treeViewItem.node === document) ?
-					document.querySelector('html') : treeViewItem.node;
-				target.classList.remove('ngi-highlight');
+		// Annotations (controller names, custom and built-in directive names)
+		var annotations = [];
+		this.addAnnotation = function(name, type) {
+			if (annotations.indexOf(name) < 0) {
+				annotations.push(name);
+			} else {
+				return;
 			}
-		});
+			var span = document.createElement('span');
+			span.className = 'ngi-annotation';
+			span.innerText = name;
+			switch(type) {
+				case NGI.Service.DIR:
+					span.classList.add('ngi-annotation-dir');
+					break;
+				case NGI.Service.BUILTIN:
+					span.classList.add('ngi-annotation-builtin');
+					break;
+				case NGI.Service.CTRL:
+					span.classList.add('ngi-annotation-ctrl');
+					break;
+			}
+			this.label.appendChild(span);
+		};
+
+		// Model types
+		var type = null;
+		this.setType = function(newType) {
+			if (type) {
+				this.element.classList.remove(type);
+			}
+			this.element.classList.add(newType);
+			type = newType;
+		};
+
 	}
 
 	function TreeView() {}
 
-	// Creates a new TreeViewInstance, with styling and metadata relevant for
-	// AngularJS modules
-	TreeView.moduleItem = function(label, node) {
+	// Creates a TreeViewItem instance, with styling and metadata relevant for
+	// AngularJS apps
+	TreeView.appItem = function(label, node) {
 		if (node === document) node = document.querySelector('html');
 		var item = new TreeViewItem(label);
 		item.node = node;
@@ -447,7 +492,7 @@ NGI.TreeView = (function() {
 		return item;
 	};
 
-	// Creates a new TreeViewInstance, with styling and metadata relevant for
+	// Creates a TreeViewItem instance, with styling and metadata relevant for
 	// AngularJS scopes
 	TreeView.scopeItem = function(label, depth, isIsolate) {
 		var item = new TreeViewItem(label);
@@ -456,6 +501,42 @@ NGI.TreeView = (function() {
 			item.element.classList.add('ngi-isolate-scope');
 		}
 		item.label.className = 'ngi-depth-' + depth;
+
+		// Highlight DOM elements the scope is attached to when hovering the item
+		// in the inspector
+		item.label.addEventListener('mouseover', function() {
+			if ( item.node && !window.ngInspector.pane.isResizing ) {
+				var target = (item.node === document) ?
+					document.querySelector('html') : item.node;
+				// target.classList.add('ngi-highlight');
+				NGI.Highlighter.hl(target);
+			}
+		});
+		item.label.addEventListener('mouseout', function() {
+			if (item.node) {
+				NGI.Highlighter.clear();
+			}
+		});
+
+		// console.log the DOM Node this scope is attached to
+		item.label.addEventListener('click', function() {
+			console.log(item.node);
+		});
+
+		return item;
+	};
+
+	// Creates a TreeViewItem instance, with styling and metadata relevant for
+	// AngularJS models
+	TreeView.modelItem = function(key, value, depth) {
+		var item = new TreeViewItem(key + ':');
+		item.element.className = 'ngi-model';
+		item.label.className = 'ngi-depth-' + depth;
+
+		item.label.addEventListener('click', function() {
+			console.log(value);
+		});
+
 		return item;
 	};
 
@@ -465,8 +546,60 @@ NGI.TreeView = (function() {
 
 /* global NGI */
 /* jshint strict: false */
+/* jshint expr: true */
+/* jshint boss: true */
 
-NGI.Service = (function(window) {
+NGI.Highlighter = (function() {
+
+	function Highlighter() {}
+
+	function offsets(node) {
+		var vals = {
+			x: node.offsetLeft,
+			y: node.offsetTop,
+			w: node.offsetWidth,
+			h: node.offsetHeight
+		};
+		while (node = node.offsetParent) {
+			vals.x += node.offsetLeft;
+			vals.y += node.offsetTop;
+		}
+		return vals;
+	}
+
+	var hls = [];
+	Highlighter.hl = function(node, label) {
+		var box = document.createElement('div');
+		box.className = 'ngi-scope-highlight-box';
+		if (label) {
+			box.innerText = label;
+		}
+		var pos = offsets(node);
+		box.style.left = pos.x + 'px';
+		box.style.top = pos.y + 'px';
+		box.style.width = pos.w + 'px';
+		box.style.height = pos.h + 'px';
+		document.body.appendChild(box);
+		hls.push(box);
+		return box;
+	};
+
+	Highlighter.clear = function() {
+		var box;
+		while (box = hls.pop()) {
+			box.parentNode.removeChild(box);
+		}
+	};
+
+	return Highlighter;
+
+})();
+
+/* global NGI */
+/* jshint strict: false */
+/* jshint shadow: true */
+
+NGI.Service = (function() {
 
 	var PREFIX_REGEXP = /^(x[\:\-_]|data[\:\-_])/i;
 	/**
@@ -527,10 +660,10 @@ NGI.Service = (function(window) {
 							if (normalized === name) {
 								if (!isIsolate && dir.scope === true ||
 									isIsolate && typeof dir.scope === typeof {}) {
-									scope.annotate(name, Service.DIR);
+									scope.view.addAnnotation(name, Service.DIR);
 								}
 							}
-						};
+						}
 					}
 
 					// Test for Element directives
@@ -539,7 +672,7 @@ NGI.Service = (function(window) {
 						if (normalized === name) {
 							if (!isIsolate && dir.scope === true ||
 								isIsolate && typeof dir.scope === typeof {}) {
-								scope.annotate(name, Service.DIR);
+								scope.view.addAnnotation(name, Service.DIR);
 							}
 						}
 					}
@@ -553,17 +686,17 @@ NGI.Service = (function(window) {
 							if (normalized === name) {
 								if (!isIsolate && dir.scope === true ||
 									isIsolate && typeof dir.scope === typeof {}) {
-									scope.annotate(name, Service.DIR);
+									scope.view.addAnnotation(name, Service.DIR);
 								}
 							}
-						};
+						}
 					}
 
 				});
 				break;
 			case '$controllerProvider':
 
-				app.registerProbe(function(node, scope, isIsolate) {
+				app.registerProbe(function(node, scope) {
 
 					if (node === document) {
 						node = document.getElementsByTagName('html')[0];
@@ -573,9 +706,9 @@ NGI.Service = (function(window) {
 					for (var i = 0; i < node.attributes.length; i++) {
 						var normalized = directiveNormalize(node.attributes[i].name);
 						if (normalized === 'ngController') {
-							scope.annotate(node.attributes[i].value, Service.CTRL);
+							scope.view.addAnnotation(node.attributes[i].value, Service.CTRL);
 						}
-					};
+					}
 
 				});
 
@@ -592,13 +725,13 @@ NGI.Service = (function(window) {
 		var queue = module._invokeQueue;
 		for (var i = 0; i < queue.length; i++) {
 			arr.push(new Service(app, module, queue[i]));
-		};
+		}
 		return arr;
 	};
 
 	return Service;
 
-})(window);
+})();
 
 /* global NGI */
 /* jshint strict: false */
@@ -618,7 +751,7 @@ NGI.App = (function(window) {
 					if (!pane.contains(target)) {
 						for (var f = 0; f < mutations[i].addedNodes.length; f++) {
 							NGI.InspectorAgent.inspectNode(app, mutations[i].addedNodes[f]);
-						};
+						}
 					}
 				}
 			}, 4);
@@ -651,7 +784,7 @@ NGI.App = (function(window) {
 		this.probe = function(node, scope, isIsolate) {
 			for (var i = 0; i < probes.length; i++) {
 				probes[i](node, scope, isIsolate);
-			};
+			}
 		};
 
 		// Attempt to retrieve the property of the ngApp directive in the node from
@@ -673,49 +806,47 @@ NGI.App = (function(window) {
 		}
 
 		// Register module dependencies
-		for (var i = 0; i < modules.length; i++) {
-			NGI.Module.register(this, modules[i]);
-		};
+		for (var m = 0; m < modules.length; m++) {
+			NGI.Module.register(this, modules[m]);
+		}
 
 		var label = main ? main : nodeRep(node);
-		this.view = NGI.TreeView.moduleItem(label, node);
+		this.view = NGI.TreeView.appItem(label, node);
 		window.ngInspector.pane.treeView.appendChild(this.view.element);
-
-		// Register default probes 
 	}
 
 	// This probe is registered by default in all apps, and probes nodes
 	// for AngularJS built-in directives that are not exposed in the _invokeQueue
 	// despite the 'ng' module being a default dependency
-	function builtInProbe(node, scope, isIsolate) {
+	function builtInProbe(node, scope) {
 
 		if (node === document) {
 			node = document.getElementsByTagName('html')[0];
 		}
 
 		if (node && node.hasAttribute('ng-repeat')) {
-			scope.annotate('ngRepeat', NGI.Service.BUILTIN);
+			scope.view.addAnnotation('ngRepeat', NGI.Service.BUILTIN);
 		}
 
 		// Label ng-include scopes
 		if (node && node.hasAttribute('ng-include')) {
-			scope.annotate('ngInclude', NGI.Service.BUILTIN);
+			scope.view.addAnnotation('ngInclude', NGI.Service.BUILTIN);
 		}
 
 		// Label ng-if scopes
 		if (node && node.hasAttribute('ng-if')) {
-			scope.annotate('ngIf', NGI.Service.BUILTIN);
+			scope.view.addAnnotation('ngIf', NGI.Service.BUILTIN);
 		}
 
 		// Label root scopes
 		if (scope.ngScope.$root.$id === scope.ngScope.$id) {
-			scope.annotate('$rootScope', NGI.Service.BUILTIN);
+			scope.view.addAnnotation('$rootScope', NGI.Service.BUILTIN);
 		}
 
 		// Label ng-transclude scopes
 		if (node && node.parentNode && node.parentNode.hasAttribute &&
 			node.parentNode.hasAttribute('ng-transclude')) {
-			scope.annotate('ngTransclude', NGI.Service.BUILTIN);
+			scope.view.addAnnotation('ngTransclude', NGI.Service.BUILTIN);
 		}
 	}
 
@@ -725,7 +856,7 @@ NGI.App = (function(window) {
 			if (appCache[i].node === node) {
 				return appCache[i];
 			}
-		};
+		}
 		appCache.push(new App(node, modules));
 	};
 
@@ -744,7 +875,7 @@ NGI.App = (function(window) {
 				App.bootstrap(els[i]);
 			}
 		}
-	}
+	};
 
 	var didFindApps = false;
 
@@ -756,7 +887,7 @@ NGI.App = (function(window) {
 
 		for (var i = 0; i < appCache.length; i++) {
 			NGI.InspectorAgent.inspectApp(appCache[i]);
-		};
+		}
 
 		App.startObservers();
 	};
@@ -815,7 +946,7 @@ NGI.Module = (function() {
 		this.requires = [];
 
 		// The AngularJS module instance
-		this.ngModule = angular.module(name);
+		this.ngModule = window.angular.module(name);
 
 		// `NGI.Service` instances representing services defined in this module
 		this.services = NGI.Service.parseQueue(app, this.ngModule);
@@ -835,7 +966,7 @@ NGI.Module = (function() {
 			for (var i = 0; i < requires.length; i++) {
 				var dependency = Module.register(app, requires[i]);
 				moduleCache[name].requires.push(dependency);
-			};
+			}
 		}
 
 		return moduleCache[name];
@@ -845,7 +976,7 @@ NGI.Module = (function() {
 
 })();
 
-/* global NGI, console */
+/* global NGI */
 /* jshint strict: false */
 /* jshint boss: true */
 
@@ -872,30 +1003,6 @@ NGI.Scope = (function() {
 		// for the scope
 		this.setNode = function(node) {
 			this.node = this.view.node = node;
-		};
-
-		var annotations = [];
-		this.annotate = function(name, type) {
-			if (annotations.indexOf(name) < 0) {
-				annotations.push(name);
-			} else {
-				return;
-			}
-			var span = document.createElement('span');
-			span.className = 'ngi-annotation';
-			span.innerText = name;
-			switch(type) {
-				case NGI.Service.DIR:
-					span.classList.add('ngi-annotation-dir');
-					break;
-				case NGI.Service.BUILTIN:
-					span.classList.add('ngi-annotation-builtin');
-					break;
-				case NGI.Service.CTRL:
-					span.classList.add('ngi-annotation-ctrl');
-					break;
-			}
-			this.view.label.appendChild(span);
 		};
 
 		// Keturns the keys for the user defined models in the scope, excluding
@@ -930,7 +1037,19 @@ NGI.Scope = (function() {
 			return childKeys;
 		}
 
+		var scopeModel = this;
+		function updateModels(models) {
+			view.removeChildren('ngi-model');
+			var keys = Object.keys(models);
+			for (var i = keys.length - 1; i >= 0; i--) {
+				var model = NGI.Model.instance(keys[i], models[keys[i]], depth+1);
+				scopeModel.view.addChild(model.view, true);
+			}
+		}
+
 		var oldChildIds = childScopeIds();
+		var oldModels = models();
+		updateModels(oldModels);
 
 		var destroyDeregister = angular.noop;
 		var watchDeregister = angular.noop;
@@ -942,12 +1061,20 @@ NGI.Scope = (function() {
 					view.destroy();
 				});
 				watchDeregister = ngScope.$watch(function() {
-					// Basic check for mutations in the direct child scope list
+
+					// Scopes: basic check for mutations in the direct child scope list
 					var newChildIds = childScopeIds();
 					if (!angular.equals(oldChildIds, newChildIds)) {
 						NGI.InspectorAgent.inspectScope(app, ngScope);
 					}
 					oldChildIds = newChildIds;
+
+					// Models
+					var newModels = models();
+					if (!angular.equals(oldModels, newModels)) {
+						updateModels(newModels);
+					}
+					oldModels = newModels;
 				});
 				observerOn = true;
 			}
@@ -971,10 +1098,12 @@ NGI.Scope = (function() {
 	// cache of created instances
 	var scopeCache = {};
 
+	// Expose stopObservers to stop observers from all scopes in `scopeCache` when
+	// the inspector pane is toggled off
 	Scope.stopObservers = function() {
 		for (var i = 0; i < scopeCache.length; i++) {
 			scopeCache[i].stopObserver();
-		};
+		}
 	};
 
 	// Returns an instance of `NGI.Scope` representing the AngularJS scope with
@@ -997,6 +1126,110 @@ NGI.Scope = (function() {
 	return Scope;
 
 })();
+
+/* global NGI */
+/* jshint strict: false */
+
+NGI.Model = (function() {
+
+	function Model(key, value, depth) {
+
+		var angular = window.angular;
+
+		this.view = NGI.TreeView.modelItem(key, value, depth);
+
+		var valSpan = document.createElement('span');
+		valSpan.className = 'ngi-value';
+
+		// String
+		if (angular.isString(value)) {
+			this.view.setType('ngi-model-string');
+			if (value.trim().length > 25) {
+				valSpan.innerText = '"' + value.trim().substr(0, 25) + ' (...)"';
+				this.view.setIndicator(value.length);
+			}
+			else {
+				valSpan.innerText = '"' + value.trim() + '"';
+			}
+		}
+
+		// Function
+		else if (angular.isFunction(value)) {
+			this.view.setType('ngi-model-function');
+			var args = angular.injector().annotate(value).join(', ');
+			valSpan.innerText = 'function(' + args + ') {...}';
+		}
+
+		// Array
+		else if (angular.isArray(value)) {
+			this.view.setType('ngi-model-array');
+			var length = value.length;
+			if (length === 0) {
+				valSpan.innerText = '[]';
+			}
+			else {
+				valSpan.innerText = '[...]';
+				this.view.setIndicator(length);
+			}	
+		}
+
+		// Object
+		else if (angular.isObject(value)) {
+			this.view.setType('ngi-model-object');
+			var length = Object.keys(value).length;
+			if (length === 0) {
+				valSpan.innerText = '{}';
+			}
+			else {
+				valSpan.innerText = '{...}';
+				this.view.setIndicator(length);
+			}
+		}
+
+		// Boolean
+		else if (typeof value === 'boolean') {
+			this.view.setType('ngi-model-boolean');
+			valSpan.innerText = value;
+		}
+
+		// Number
+		else if (angular.isNumber(value)) {
+			this.view.setType('ngi-model-number');
+			valSpan.innerText = value;
+		}
+
+		// DOM Element
+		else if (angular.isElement(value)) {
+			this.view.setType('ngi-model-element');
+			valSpan.innerText = '<' + value.tagName + '>';
+		}
+
+		// NULL
+		else if (value === null) {
+			this.view.setType('ngi-model-null');
+			valSpan.innerText = 'null';
+		}
+
+		// Undefined
+		else {
+			this.view.setType('ngi-model-undefined');
+			valSpan.innerText = 'undefined';
+		}
+
+		this.view.label.appendChild(document.createTextNode(' '));
+		this.view.label.appendChild(valSpan);
+	}
+
+	Model.instance = function(scope, key, value, depth) {
+		return new Model(scope, key, value, depth);
+	};
+
+	return Model;
+
+})();
+
+/* global NGI, console */
+/* jshint strict: false */
 
 window.addEventListener('load', function() {
 
@@ -1061,7 +1294,7 @@ window.addEventListener('message', function (event) {
 
 		// Fail if the inspector has not been initialized yet (before window.load)
 		if ( !window.ngInspector ) {
-			return console.error('The ng-inspector has not yet initialized');
+			return console.warn('The ng-inspector has not yet initialized');
 		}
 
 		window.ngInspector.toggle(event.data.settings);

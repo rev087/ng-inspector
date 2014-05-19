@@ -13,7 +13,7 @@ NGI.Module = (function() {
 		this.requires = [];
 
 		// The AngularJS module instance
-		this.ngModule = angular.module(name);
+		this.ngModule = window.angular.module(name);
 
 		// `NGI.Service` instances representing services defined in this module
 		this.services = NGI.Service.parseQueue(app, this.ngModule);
@@ -33,7 +33,7 @@ NGI.Module = (function() {
 			for (var i = 0; i < requires.length; i++) {
 				var dependency = Module.register(app, requires[i]);
 				moduleCache[name].requires.push(dependency);
-			};
+			}
 		}
 
 		return moduleCache[name];

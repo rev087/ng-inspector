@@ -79,10 +79,12 @@ gulp.task('build', function() {
 		'src/InspectorAgent.js',
 		'src/InspectorPane.js',
 		'src/TreeView.js',
+		'src/Highlighter.js',
 		'src/Service.js',
 		'src/App.js',
 		'src/Module.js',
 		'src/Scope.js',
+		'src/Model.js',
 		'src/bootstrap.js'
 	])
 		// .pipe(jshint())

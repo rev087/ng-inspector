@@ -4,23 +4,20 @@
 /* jshint boss: true */
 
 // `NGi.InspectorAgent` is responsible for the page introspection (Scope and DOM
-// traversal), patching of the native `angular.bootstrap` method and
-// instantiation of the other NGI objects that represent AngularJS objects
+// traversal)
 
 NGI.InspectorAgent = (function() {
 
-	var InspectorAgent = function() {}
+	function InspectorAgent() {}
 
 	function traverseDOM(app, node) {
 
-		// Counter for the node probings being scheduled with setTimeout
-		var probeQueue = 1;
+		// Counter for the recursions being scheduled with setTimeout
+		var nodeQueue = 1;
 		traverse(node, app);
 
-		// The recursive DOM traversal function. This is the meat of
-		// `NGI.InspectorAgent`, where AngularJS objects are identified in the DOM.
+		// The recursive DOM traversal function
 		function traverse(node, app) {
-
 
 			// We can skip all nodeTypes except ELEMENT and DOCUMENT nodes
 			if (node.nodeType === Node.ELEMENT_NODE ||
@@ -62,8 +59,8 @@ NGI.InspectorAgent = (function() {
 				if (node.firstChild) {
 					var child = node.firstChild;
 					do {
-						// Increment the probed nodes counter for the reporting
-						probeQueue++;
+						// Increment the probed nodes counter, will be used for reporting
+						nodeQueue++;
 
 						// setTimeout is used to make the traversal asyncrhonous, keeping
 						// the browser UI responsive during traversal.
@@ -74,8 +71,8 @@ NGI.InspectorAgent = (function() {
 				}
 
 			}
-			probeQueue--;
-			if (--probeQueue === 0) {
+			nodeQueue--;
+			if (--nodeQueue === 0) {
 				// Done
 			}
 			
@@ -125,9 +122,10 @@ NGI.InspectorAgent = (function() {
 
 		// Then start the Scope traversal mechanism
 		traverseScopes($rootScope, app, function() {
+
 			// Once the Scope traversal is complete, the DOM traversal starts
-			// if (ngInspector.settings.showWarnings)
 			traverseDOM(app, app.node);
+			
 		});
 	};
 

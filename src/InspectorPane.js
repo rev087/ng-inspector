@@ -4,8 +4,8 @@
 /**
  * `NGI.InspectorPane` is responsible for the root element and basic interaction
  * with the pane (in practice, a <div>) injected in the page DOM, such as
- * toggling the pane on and off, handle mouse scrolling, resizing and child
- * views.
+ * toggling the pane on and off, handle mouse scrolling, resizing and first
+ * level of child views.
  */
 
 NGI.InspectorPane = function() {
@@ -30,6 +30,7 @@ NGI.InspectorPane = function() {
 		}
 	};
 
+	// Used to avoid traversing or inspecting the extension UI
 	this.contains = function(node) {
 		return this.treeView.contains(node);
 	};
@@ -40,6 +41,10 @@ NGI.InspectorPane = function() {
 		if ( pane.parentNode ) {
 			document.body.removeChild(pane);
 			this.clear();
+			document.removeEventListener('mousemove', onMouseMove);
+			document.removeEventListener('mousedown', onMouseDown);
+			document.removeEventListener('mouseup', onMouseUp);
+			window.removeEventListener('resize', onResize);
 			return false;
 		} else {
 			document.body.appendChild(pane);
@@ -117,8 +122,7 @@ NGI.InspectorPane = function() {
 	// Listen to mousedown events in the page body, triggering the resize mode
 	// (isResizing) if the cursor is within the resize handle (canResize). The
 	// class added to the page body styles it to disable text selection while the
-	// user dragging the mouse to resize the pane. In Safari, the previous
-	// selection is restored once the class is removed
+	// user dragging the mouse to resize the pane
 	function onMouseDown() {
 		if (inspectorPane.canResize) {
 			inspectorPane.isResizing = true;

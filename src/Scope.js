@@ -1,4 +1,4 @@
-/* global NGI, console */
+/* global NGI */
 /* jshint strict: false */
 /* jshint boss: true */
 
@@ -25,30 +25,6 @@ NGI.Scope = (function() {
 		// for the scope
 		this.setNode = function(node) {
 			this.node = this.view.node = node;
-		};
-
-		var annotations = [];
-		this.annotate = function(name, type) {
-			if (annotations.indexOf(name) < 0) {
-				annotations.push(name);
-			} else {
-				return;
-			}
-			var span = document.createElement('span');
-			span.className = 'ngi-annotation';
-			span.innerText = name;
-			switch(type) {
-				case NGI.Service.DIR:
-					span.classList.add('ngi-annotation-dir');
-					break;
-				case NGI.Service.BUILTIN:
-					span.classList.add('ngi-annotation-builtin');
-					break;
-				case NGI.Service.CTRL:
-					span.classList.add('ngi-annotation-ctrl');
-					break;
-			}
-			this.view.label.appendChild(span);
 		};
 
 		// Keturns the keys for the user defined models in the scope, excluding
@@ -83,7 +59,19 @@ NGI.Scope = (function() {
 			return childKeys;
 		}
 
+		var scopeModel = this;
+		function updateModels(models) {
+			view.removeChildren('ngi-model');
+			var keys = Object.keys(models);
+			for (var i = keys.length - 1; i >= 0; i--) {
+				var model = NGI.Model.instance(keys[i], models[keys[i]], depth+1);
+				scopeModel.view.addChild(model.view, true);
+			}
+		}
+
 		var oldChildIds = childScopeIds();
+		var oldModels = models();
+		updateModels(oldModels);
 
 		var destroyDeregister = angular.noop;
 		var watchDeregister = angular.noop;
@@ -95,12 +83,20 @@ NGI.Scope = (function() {
 					view.destroy();
 				});
 				watchDeregister = ngScope.$watch(function() {
-					// Basic check for mutations in the direct child scope list
+
+					// Scopes: basic check for mutations in the direct child scope list
 					var newChildIds = childScopeIds();
 					if (!angular.equals(oldChildIds, newChildIds)) {
 						NGI.InspectorAgent.inspectScope(app, ngScope);
 					}
 					oldChildIds = newChildIds;
+
+					// Models
+					var newModels = models();
+					if (!angular.equals(oldModels, newModels)) {
+						updateModels(newModels);
+					}
+					oldModels = newModels;
 				});
 				observerOn = true;
 			}
@@ -124,10 +120,12 @@ NGI.Scope = (function() {
 	// cache of created instances
 	var scopeCache = {};
 
+	// Expose stopObservers to stop observers from all scopes in `scopeCache` when
+	// the inspector pane is toggled off
 	Scope.stopObservers = function() {
 		for (var i = 0; i < scopeCache.length; i++) {
 			scopeCache[i].stopObserver();
-		};
+		}
 	};
 
 	// Returns an instance of `NGI.Scope` representing the AngularJS scope with

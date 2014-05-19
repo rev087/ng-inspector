@@ -1,7 +1,8 @@
 /* global NGI */
 /* jshint strict: false */
+/* jshint shadow: true */
 
-NGI.Service = (function(window) {
+NGI.Service = (function() {
 
 	var PREFIX_REGEXP = /^(x[\:\-_]|data[\:\-_])/i;
 	/**
@@ -62,10 +63,10 @@ NGI.Service = (function(window) {
 							if (normalized === name) {
 								if (!isIsolate && dir.scope === true ||
 									isIsolate && typeof dir.scope === typeof {}) {
-									scope.annotate(name, Service.DIR);
+									scope.view.addAnnotation(name, Service.DIR);
 								}
 							}
-						};
+						}
 					}
 
 					// Test for Element directives
@@ -74,7 +75,7 @@ NGI.Service = (function(window) {
 						if (normalized === name) {
 							if (!isIsolate && dir.scope === true ||
 								isIsolate && typeof dir.scope === typeof {}) {
-								scope.annotate(name, Service.DIR);
+								scope.view.addAnnotation(name, Service.DIR);
 							}
 						}
 					}
@@ -88,17 +89,17 @@ NGI.Service = (function(window) {
 							if (normalized === name) {
 								if (!isIsolate && dir.scope === true ||
 									isIsolate && typeof dir.scope === typeof {}) {
-									scope.annotate(name, Service.DIR);
+									scope.view.addAnnotation(name, Service.DIR);
 								}
 							}
-						};
+						}
 					}
 
 				});
 				break;
 			case '$controllerProvider':
 
-				app.registerProbe(function(node, scope, isIsolate) {
+				app.registerProbe(function(node, scope) {
 
 					if (node === document) {
 						node = document.getElementsByTagName('html')[0];
@@ -108,9 +109,9 @@ NGI.Service = (function(window) {
 					for (var i = 0; i < node.attributes.length; i++) {
 						var normalized = directiveNormalize(node.attributes[i].name);
 						if (normalized === 'ngController') {
-							scope.annotate(node.attributes[i].value, Service.CTRL);
+							scope.view.addAnnotation(node.attributes[i].value, Service.CTRL);
 						}
-					};
+					}
 
 				});
 
@@ -127,10 +128,10 @@ NGI.Service = (function(window) {
 		var queue = module._invokeQueue;
 		for (var i = 0; i < queue.length; i++) {
 			arr.push(new Service(app, module, queue[i]));
-		};
+		}
 		return arr;
 	};
 
 	return Service;
 
-})(window);
+})();

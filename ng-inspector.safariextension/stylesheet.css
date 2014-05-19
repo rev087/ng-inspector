@@ -1,3 +1,27 @@
+/* Highlights */
+.ngi-scope-highlight-box,
+.ngi-binding-highlight-box {
+	border-radius: 2px;
+	padding: 0px;
+	font: sans-serif 14px;
+	line-height: 14px;
+	text-indent: 3px;
+	position: absolute;
+	text-align: right;
+	z-index: 9999999999999 !important;
+}
+.ngi-scope-highlight-box {
+	background: rgba(109, 169, 215, .2);
+	border: 1px solid rgba(109, 169, 215, .5);
+	color: rgba(109, 169, 215, 1);
+	/*box-shadow: 0px 0px 5px rgba(109, 169, 215, .3) !important;*/
+}
+.ngi-binding-highlight-box {
+	background: rgba(204, 43, 40, .2);
+	border: 1px solid rgba(204, 43, 40, .5);
+	color: rgba(204, 43, 40, 1);
+}
+
 .ngi-highlight,
 .ngi-highlight .ng-scope,
 .ngi-highlight .ng-isolate-scope {
@@ -155,6 +179,9 @@ body:not(.ngi-resizing) .ngi-inspector .ngi-scope.ngi-isolate-scope>label:hover 
 	background: #fff url(icons/model.png) no-repeat 4px 7px;
 	position: relative;
 }
+.ngi-inspector .ngi-model > label .ngi-value {
+	font-weight: normal;
+}
 .ngi-inspector .ngi-model.ngi-model-string > label { background-image: url(icons/string.png); }
 .ngi-inspector .ngi-model.ngi-model-function > label { background-image: url(icons/function.png); }
 .ngi-inspector .ngi-model.ngi-model-object > label { background-image: url(icons/object.png); }
@@ -168,6 +195,10 @@ body:not(.ngi-resizing) .ngi-inspector .ngi-scope.ngi-isolate-scope>label:hover 
 .ngi-inspector .ngi-model.ngi-model-string > label > .ngi-value { color: green; }
 .ngi-inspector .ngi-model.ngi-model-boolean > label > .ngi-value { color: blue }
 .ngi-inspector .ngi-model.ngi-model-number > label > .ngi-value { color: red; }
+.ngi-inspector .ngi-model.ngi-model-function > label > .ngi-value,
+.ngi-inspector .ngi-model.ngi-model-object > label > .ngi-value,
+.ngi-inspector .ngi-model.ngi-model-array > label > .ngi-value,
+.ngi-inspector .ngi-model.ngi-model-element > label > .ngi-value { color: black; }
 .ngi-inspector .ngi-model.ngi-model-null > label > .ngi-value,
 .ngi-inspector .ngi-model.ngi-model-undefined > label > .ngi-value { color: gray; }
 
@@ -182,7 +213,7 @@ body:not(.ngi-resizing) .ngi-inspector .ngi-model > label:hover {
 	padding: 0 .5em !important;
 }
 
-.ngi-inspector label .ngi-length {
+.ngi-inspector label .ngi-indicator {
 	background: #bbb;
 	color: white ;
 	border-radius: 9px;
