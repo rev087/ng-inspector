@@ -1,3 +1,27 @@
+/* Highlights */
+.ngi-scope-highlight-box,
+.ngi-binding-highlight-box {
+	border-radius: 2px;
+	padding: 0px;
+	font: sans-serif 14px;
+	line-height: 14px;
+	text-indent: 3px;
+	position: absolute;
+	text-align: right;
+	z-index: 9999999999999 !important;
+}
+.ngi-scope-highlight-box {
+	background: rgba(109, 169, 215, .2);
+	border: 1px solid rgba(109, 169, 215, .5);
+	color: rgba(109, 169, 215, 1);
+	/*box-shadow: 0px 0px 5px rgba(109, 169, 215, .3) !important;*/
+}
+.ngi-binding-highlight-box {
+	background: rgba(204, 43, 40, .2);
+	border: 1px solid rgba(204, 43, 40, .5);
+	color: rgba(204, 43, 40, 1);
+}
+
 .ngi-highlight,
 .ngi-highlight .ng-scope,
 .ngi-highlight .ng-isolate-scope {
@@ -85,6 +109,10 @@ body.ngi-resizing {
 	margin-top: -1px;
 }
 
+.ngi-inspector .ngi-app>label>small {
+	color: #999;
+}
+
 .ngi-inspector .ngi-scope {
 	background: #fff;
 }
@@ -122,25 +150,37 @@ body:not(.ngi-resizing) .ngi-inspector .ngi-scope.ngi-isolate-scope>label:hover 
 	background-image: url(icons/isolate-scope.png), linear-gradient(-179deg, #82BEEB 0%, #5290D7 100%);
 }
 
-.ngi-inspector .ngi-scope .ngi-assoc {
+.ngi-inspector .ngi-scope .ngi-annotation {
 	margin-left: 5px !important;
+	font-weight: normal;
+}
+.ngi-inspector .ngi-scope .ngi-annotation.ngi-annotation-dir {
 	padding: 2px 5px !important;
 	background: rgba(0, 0, 0, .3);
 	border-radius: 4px;
 	color: #F8F8F8;
 	text-shadow: none !important;
 }
-.ngi-inspector .ngi-scope .ngi-assoc.ngi-minor-assoc {
+.ngi-inspector .ngi-scope .ngi-annotation.ngi-annotation-ctrl {
+	padding: 2px 5px !important;
+	border: 1px solid rgba(0, 0, 0, .3);
+	border-radius: 4px;
+	color: rgba(0, 0, 0, .6);
+	text-shadow: none !important;
+}
+.ngi-inspector .ngi-scope .ngi-annotation.ngi-annotation-builtin {
 	padding: 0px !important;
 	background: transparent;
 	color: rgba(0, 0, 0, .4);
-	font-weight: normal;
 }
 
 .ngi-inspector .ngi-model > label {
 	padding: 0 5px 0 24px;
 	background: #fff url(icons/model.png) no-repeat 4px 7px;
 	position: relative;
+}
+.ngi-inspector .ngi-model > label .ngi-value {
+	font-weight: normal;
 }
 .ngi-inspector .ngi-model.ngi-model-string > label { background-image: url(icons/string.png); }
 .ngi-inspector .ngi-model.ngi-model-function > label { background-image: url(icons/function.png); }
@@ -155,6 +195,10 @@ body:not(.ngi-resizing) .ngi-inspector .ngi-scope.ngi-isolate-scope>label:hover 
 .ngi-inspector .ngi-model.ngi-model-string > label > .ngi-value { color: green; }
 .ngi-inspector .ngi-model.ngi-model-boolean > label > .ngi-value { color: blue }
 .ngi-inspector .ngi-model.ngi-model-number > label > .ngi-value { color: red; }
+.ngi-inspector .ngi-model.ngi-model-function > label > .ngi-value,
+.ngi-inspector .ngi-model.ngi-model-object > label > .ngi-value,
+.ngi-inspector .ngi-model.ngi-model-array > label > .ngi-value,
+.ngi-inspector .ngi-model.ngi-model-element > label > .ngi-value { color: black; }
 .ngi-inspector .ngi-model.ngi-model-null > label > .ngi-value,
 .ngi-inspector .ngi-model.ngi-model-undefined > label > .ngi-value { color: gray; }
 
@@ -169,7 +213,7 @@ body:not(.ngi-resizing) .ngi-inspector .ngi-model > label:hover {
 	padding: 0 .5em !important;
 }
 
-.ngi-inspector label .ngi-length {
+.ngi-inspector label .ngi-indicator {
 	background: #bbb;
 	color: white ;
 	border-radius: 9px;

@@ -14,8 +14,7 @@ In the long term, I'd like to offer at least a larger subset of the features ava
 
 ## Credits
 
-Thanks for caitp, wafflejock and zomg at #angularjs for helping me figure out a lot of
-AngularJS edge cases.
+Thanks for caitp, Stephen, wafflejock and zomg at #angularjs for helping me figure out a lot of AngularJS concepts and edge cases.
 
 ## License
 
