@@ -245,6 +245,10 @@ NGI.InspectorAgent = (function() {
 
 NGI.InspectorPane = function() {
 
+	// The width of the pane can be resized by the user, and is persisted via
+	// localStorage
+	var inspectorWidth = localStorage.getItem('ng-inspector-width') || 300;
+
 	// Create the root DOM node for the inspector pane
 	var pane = document.createElement('div');
 	pane.className = 'ngi-inspector';
@@ -304,10 +308,6 @@ NGI.InspectorPane = function() {
 		}
 	});
 
-	// The width of the pane can be resized by the user, and is persisted via
-	// localStorage
-	var inspectorWidth = localStorage.getItem('ng-inspector-width') || 300;
-
 	// States for the inspector pane resizing functionality
 	this.isResizing = false;
 	this.canResize = false;
@@ -341,11 +341,11 @@ NGI.InspectorPane = function() {
 		// based on the cursor position
 		if (inspectorPane.isResizing) {
 
-			var width = (document.width - event.clientX);
+			var width = (window.innerWidth - event.clientX);
 
 			// Enforce minimum and maximum limits
-			if (width >= document.body.offsetWidth - 50) {
-				width = document.body.offsetWidth - 50;
+			if (width >= window.innerWidth - 50) {
+				width = window.innerWidth - 50;
 			} else if (width <= 100) {
 				width = 100;
 			}
