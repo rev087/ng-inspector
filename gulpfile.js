@@ -33,8 +33,8 @@ function bump(release) {
 		var pkg = require('./package.json');
 		var old = pkg.version;
 		pkg.version = 'v' + semver.inc(pkg.version, release);
-		var jsonStr = JSON.stringify(pkg, null, 2);
-		fs.writeFileSync('package.json', jsonStr);
+		var pkgStr = JSON.stringify(pkg, null, 2);
+		fs.writeFileSync('package.json', pkgStr);
 
 		// Bump the version in Info.plist
 		var info = plist.parseFileSync('ng-inspector.safariextension/Info.plist');
@@ -42,6 +42,12 @@ function bump(release) {
 		info.CFBundleVersion = pkg.version;
 		var plistStr = plist.build(info).toString();
 		fs.writeFileSync('ng-inspector.safariextension/Info.plist', plistStr);
+
+		// Bump the version in manifest.json
+		var manifest = require('./ng-inspector.chrome/manifest.json');
+		manifest.version = pkg.version;
+		var manifestStr = JSON.stringify(manifest, null, 2);
+		fs.writeFileSync('./ng-inspector.chrome/manifest.json', manifestStr);
 
 		// Git add
 		run('git', ['add', 'package.json', 'ng-inspector.safariextension/Info.plist'], function() {
