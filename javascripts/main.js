@@ -8,9 +8,10 @@ $(function() {
 			var latest = res.data[0],
 				downloadURL = latest.assets[0].url,
 				version = latest.name,
-				dlButton = $('<li><a href="ng-inspector.safariextz">Download <strong>'+version+'</strong></a></li>');
-				// dlButton = $('<li><a href="'+downloadURL+'">Download <strong>'+version+'</strong></a></li>');
-			$('.dl-list').prepend(dlButton);
+				safariButton = $('<li><a href="ng-inspector.safariextz">'+version+'<strong>for Safari</strong></a></li>'),
+				chromeButton = $('<li><a href="ng-inspector.chrome.crx">'+version+'<strong>for Chrome</strong></a></li>');
+			$('.dl-list').prepend(safariButton);
+			$('.dl-list').prepend(chromeButton);
 		}
 	});
 
