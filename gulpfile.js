@@ -45,10 +45,10 @@ function bump(release) {
 
 		// Bump the version in manifest.json
 		var manifest = require('./ng-inspector.chrome/manifest.json');
-		manifest.version = pkg.version;
+		manifest.version = semver.inc(manifest.version, release);
 		var manifestStr = JSON.stringify(manifest, null, 2);
 		fs.writeFileSync('./ng-inspector.chrome/manifest.json', manifestStr);
-
+		
 		// Git add
 		run('git', ['add', 'package.json', 'ng-inspector.safariextension/Info.plist'], function() {
 
