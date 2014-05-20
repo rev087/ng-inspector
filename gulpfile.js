@@ -104,9 +104,6 @@ gulp.task('build:css', function() {
 		.pipe(gulp.dest('ng-inspector.safariextension/'))
 		.pipe(replace(/url\(/g, 'url(chrome-extension://__MSG_@@extension_id__/'))
 		.pipe(gulp.dest('ng-inspector.chrome/'));
-
-		// url(icons/scope.png")
-		// url(chrome-extension://__MSG_@@extension_id__/icons/scope.png")
 });
 
 // Here would be a good place to build the Safari archive. But it requires a
