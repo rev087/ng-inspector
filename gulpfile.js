@@ -50,7 +50,7 @@ function bump(release) {
 		fs.writeFileSync('./ng-inspector.chrome/manifest.json', manifestStr);
 
 		// Git add
-		run('git', ['add', 'package.json', 'ng-inspector.safariextension/Info.plist'], function() {
+		run('git', ['add', 'package.json', 'ng-inspector.safariextension/Info.plist', 'ng-inspector.chrome/manifest.json'], function() {
 
 			// Git commit
 			var commitMsg = 'Prepare for ' + pkg.version;
