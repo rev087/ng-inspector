@@ -13,8 +13,16 @@
     "tabs",
     "<all_urls>"
   ],
+  "icons": {
+  	"16": "icon16.png",
+		"48": "icon48.png",
+		"128": "icon128.png"
+	},
   "browser_action": {
-    "default_icon": "ng.png",
+    "default_icon": {
+      "19": "btn19.png",
+      "38": "btn38.png"
+    },
     "default_title": "ng-inspector"
   },
   "content_scripts": [

@@ -5,9 +5,9 @@
 	<key>app</key>
 	<string>com.bohemiancoding.sketch3</string>
 	<key>build</key>
-	<integer>7597</integer>
+	<integer>7799</integer>
 	<key>commit</key>
-	<string>463d76bf23dc890960e184011f80b3dacac572b9</string>
+	<string>e645bc992e78ea0d8f54ab21bcdc83987015d34b</string>
 	<key>fonts</key>
 	<array>
 		<string>Lato-Bold</string>
@@ -19,7 +19,7 @@
 		<string>Lato-Light</string>
 	</array>
 	<key>length</key>
-	<integer>345832</integer>
+	<integer>580341</integer>
 	<key>version</key>
 	<integer>36</integer>
 </dict>
