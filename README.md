@@ -10,7 +10,13 @@ The extension adds a button next to the address bar with the AngularJS logo that
 
 ## Installing
 
-Head to the Releases and download the latest build for your browser, then drag the file to the browser window to install.
+### Chrome
+
+Install it from the [Chrome Web Store](https://chrome.google.com/webstore/detail/ng-inspector/aadgmnobpdmgmigaicncghmmoeflnamj)
+
+### Safari
+
+Download the latest build from [ng-inspector.org](http://ng-inspector.org), then double click the `ng-inspector.safariextz` file to install.
 
 ## Credits
 
