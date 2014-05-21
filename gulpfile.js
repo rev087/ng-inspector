@@ -49,8 +49,6 @@ function bump(release) {
 		var manifestStr = JSON.stringify(manifest, null, 2);
 		fs.writeFileSync('./ng-inspector.chrome/manifest.json', manifestStr);
 
-		return;
-
 		// Git add
 		run('git', ['add', 'package.json', 'ng-inspector.safariextension/Info.plist'], function() {
 
