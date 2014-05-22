@@ -33,7 +33,7 @@ NGI.App = (function(window) {
 
 		this.node = node;
 
-		this.$injector = window.angular.element(node).injector();
+		this.$injector = window.angular.element(node).data('$injector');
 		
 		if (!modules) {
 			modules = [];
