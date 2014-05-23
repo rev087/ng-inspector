@@ -740,7 +740,7 @@ NGI.Service = (function() {
 NGI.App = (function(window) {
 
 	function App(node, modules) {
-		var pane = document.getElementsByClassName('ngi-inspector')[0];
+		var pane = window.ngInspector.pane;
 		var app = this;
 		var observer = new MutationObserver(function(mutations) {
 			setTimeout(function() {
@@ -750,7 +750,10 @@ NGI.App = (function(window) {
 					// Avoid responding to mutations in the extension UI
 					if (!pane.contains(target)) {
 						for (var f = 0; f < mutations[i].addedNodes.length; f++) {
-							NGI.InspectorAgent.inspectNode(app, mutations[i].addedNodes[f]);
+							var addedNode = mutations[i].addedNodes[f];
+							if (!addedNode.classList.contains('ngi-hl')) {
+								NGI.InspectorAgent.inspectNode(app, addedNode);
+							}
 						}
 					}
 				}
