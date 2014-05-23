@@ -16,7 +16,7 @@ NGI.App = (function(window) {
 					if (!pane.contains(target)) {
 						for (var f = 0; f < mutations[i].addedNodes.length; f++) {
 							var addedNode = mutations[i].addedNodes[f];
-							if (!addedNode.classList.contains('ngi-hl')) {
+							if (addedNode.classList && !addedNode.classList.contains('ngi-hl')) {
 								NGI.InspectorAgent.inspectNode(app, addedNode);
 							}
 						}
