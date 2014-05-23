@@ -1,12 +1,8 @@
-var script = document.createElement('script');
-document.body.appendChild(script);
-
 if (window.top === window) {
 	
 	// Inject the bridge script
 	var inspectorScript = document.createElement('script');
 	inspectorScript.type = 'text/javascript';
-	// inspectorScript.src = 'chrome-extension://' + extension_id + '/ng-inspector.js';
 	inspectorScript.src = chrome.extension.getURL('/ng-inspector.js');
 	document.head.appendChild(inspectorScript);
 
