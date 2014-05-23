@@ -8,6 +8,7 @@
   text-align: right;
   z-index: 9999999999999 !important;
   pointer-events: none;
+  min-height: 5px;
 }
 .ngi-hl.ngi-hl-scope {
   background: rgba(126, 183, 253, 0.3);
