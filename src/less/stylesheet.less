@@ -1,7 +1,5 @@
 /* Highlights */
-.ngi-scope-highlight-box,
-.ngi-binding-highlight-box {
-	border-radius: 2px;
+.ngi-hl {
 	padding: 0px;
 	font: sans-serif 14px;
 	line-height: 14px;
@@ -10,45 +8,29 @@
 	text-align: right;
 	z-index: 9999999999999 !important;
 	pointer-events: none;
-}
-.ngi-scope-highlight-box {
-	background: rgba(109, 169, 215, .2);
-	border: 1px solid rgba(109, 169, 215, .5);
-	color: rgba(109, 169, 215, 1);
-	/*box-shadow: 0px 0px 5px rgba(109, 169, 215, .3) !important;*/
-}
-.ngi-binding-highlight-box {
-	background: rgba(204, 43, 40, .2);
-	border: 1px solid rgba(204, 43, 40, .5);
-	color: rgba(204, 43, 40, 1);
-}
-
-.ngi-highlight,
-.ngi-highlight .ng-scope,
-.ngi-highlight .ng-isolate-scope {
-	border: 1px solid #53A0FD !important;
-	box-shadow: inset 0px 0px 4px #53A0FD !important;
-}
-.ngi-highlight .ng-dirty,
-.ngi-highlight .ng-pristine,
-.ngi-highlight .ng-binding {
-	border: 1px solid red !important;
-	box-shadow: inset 0px 0px 4px red !important;
+	
+	&.ngi-hl-scope {
+		background: rgba(126, 183, 253, .3);
+		border: 1px solid rgba(126, 183, 253, .7);
+		color: rgba(109, 169, 215, 1);
+	}
+	
+	&.ngi-hl-binding {
+		background: rgba(217, 83, 79, .3);
+		border: 1px solid rgba(217, 83, 79, .7);
+		color: rgba(204, 43, 40, 1);
+	}
 }
 
-body.ngi-resize {
-	cursor: col-resize !important;
-}
-body.ngi-resizing {
-	-webkit-user-select: none;
-	user-select: none;
-	cursor: col-resize !important;
-}
-
-.ngi-inspector * {
-	margin: 0 !important;
-	padding: 0;
-	font-size: 13px !important;
+body {
+	&.ngi-resize {
+		cursor: col-resize !important;
+	}
+	&.ngi-resizing {
+		-webkit-user-select: none;
+		user-select: none;
+		cursor: col-resize !important;
+	}
 }
 
 .ngi-inspector {
@@ -75,6 +57,13 @@ body.ngi-resizing {
 
 	/* Animate the clickthrough fade-out */
 	transition: opacity .2s;
+
+
+	& * {
+		margin: 0 !important;
+		padding: 0;
+		font-size: 13px !important;
+	}
 }
 
 .ngi-inspector.ngi-processing {

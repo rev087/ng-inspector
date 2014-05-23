@@ -1,7 +1,5 @@
 /* Highlights */
-.ngi-scope-highlight-box,
-.ngi-binding-highlight-box {
-  border-radius: 2px;
+.ngi-hl {
   padding: 0px;
   font: sans-serif 14px;
   line-height: 14px;
@@ -11,28 +9,15 @@
   z-index: 9999999999999 !important;
   pointer-events: none;
 }
-.ngi-scope-highlight-box {
-  background: rgba(109, 169, 215, 0.2);
-  border: 1px solid rgba(109, 169, 215, 0.5);
+.ngi-hl.ngi-hl-scope {
+  background: rgba(126, 183, 253, 0.3);
+  border: 1px solid rgba(126, 183, 253, 0.7);
   color: #6da9d7;
-  /*box-shadow: 0px 0px 5px rgba(109, 169, 215, .3) !important;*/
 }
-.ngi-binding-highlight-box {
-  background: rgba(204, 43, 40, 0.2);
-  border: 1px solid rgba(204, 43, 40, 0.5);
+.ngi-hl.ngi-hl-binding {
+  background: rgba(217, 83, 79, 0.3);
+  border: 1px solid rgba(217, 83, 79, 0.7);
   color: #cc2b28;
-}
-.ngi-highlight,
-.ngi-highlight .ng-scope,
-.ngi-highlight .ng-isolate-scope {
-  border: 1px solid #53A0FD !important;
-  box-shadow: inset 0px 0px 4px #53A0FD !important;
-}
-.ngi-highlight .ng-dirty,
-.ngi-highlight .ng-pristine,
-.ngi-highlight .ng-binding {
-  border: 1px solid red !important;
-  box-shadow: inset 0px 0px 4px red !important;
 }
 body.ngi-resize {
   cursor: col-resize !important;
@@ -41,11 +26,6 @@ body.ngi-resizing {
   -webkit-user-select: none;
   user-select: none;
   cursor: col-resize !important;
-}
-.ngi-inspector * {
-  margin: 0 !important;
-  padding: 0;
-  font-size: 13px !important;
 }
 .ngi-inspector {
   /* Dimensions and Positioning */
@@ -67,6 +47,11 @@ body.ngi-resizing {
   user-select: none;
   /* Animate the clickthrough fade-out */
   transition: opacity .2s;
+}
+.ngi-inspector * {
+  margin: 0 !important;
+  padding: 0;
+  font-size: 13px !important;
 }
 .ngi-inspector.ngi-processing {
   background-image: url(chrome-extension://__MSG_@@extension_id__/processing.png);

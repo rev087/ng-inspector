@@ -24,7 +24,7 @@ NGI.Highlighter = (function() {
 	var hls = [];
 	Highlighter.hl = function(node, label) {
 		var box = document.createElement('div');
-		box.className = 'ngi-scope-highlight-box';
+		box.className = 'ngi-hl ngi-hl-scope';
 		if (label) {
 			box.innerText = label;
 		}

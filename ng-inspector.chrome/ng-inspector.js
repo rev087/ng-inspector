@@ -570,7 +570,7 @@ NGI.Highlighter = (function() {
 	var hls = [];
 	Highlighter.hl = function(node, label) {
 		var box = document.createElement('div');
-		box.className = 'ngi-scope-highlight-box';
+		box.className = 'ngi-hl ngi-hl-scope';
 		if (label) {
 			box.innerText = label;
 		}
@@ -740,7 +740,7 @@ NGI.Service = (function() {
 NGI.App = (function(window) {
 
 	function App(node, modules) {
-		var pane = document.getElementsByClassName('ngi-inspector')[0];
+		var pane = window.ngInspector.pane;
 		var app = this;
 		var observer = new MutationObserver(function(mutations) {
 			setTimeout(function() {
@@ -750,7 +750,10 @@ NGI.App = (function(window) {
 					// Avoid responding to mutations in the extension UI
 					if (!pane.contains(target)) {
 						for (var f = 0; f < mutations[i].addedNodes.length; f++) {
-							NGI.InspectorAgent.inspectNode(app, mutations[i].addedNodes[f]);
+							var addedNode = mutations[i].addedNodes[f];
+							// if (!addedNode.classList.contains('ngi-highlight')) {
+								NGI.InspectorAgent.inspectNode(app, addedNode);
+							// }
 						}
 					}
 				}
@@ -1267,11 +1270,11 @@ function bootstrap() {
 
 		window.angular.bootstrap = function(node, modules) {
 
-			// The dependencies are regitered by the `NGI.Module` object
-			NGI.App.bootstrap(node, modules);
-
 			// Continue with angular's native bootstrap method
 			_bootstrap.apply(this, arguments);
+
+			// The dependencies are regitered by the `NGI.Module` object
+			NGI.App.bootstrap(node, modules);
 		};
 
 		// Once the `angular.bootstrap` method has been wrapped, we can stop
