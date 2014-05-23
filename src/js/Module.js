@@ -25,7 +25,7 @@ NGI.Module = (function() {
 	Module.register = function(app, name) {
 		// Ensure only a single `NGI.Module` instance exists for each AngularJS
 		// module name
-		if (!moduleCache[name]) {
+		if (typeof name === typeof '' && !moduleCache[name]) {
 			moduleCache[name] = new Module(app, name);
 
 			// Register the dependencies
