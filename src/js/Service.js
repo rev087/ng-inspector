@@ -83,13 +83,15 @@ NGI.Service = (function() {
 					// Test for Class directives
 					if (restrict.indexOf('C') > -1) {
 						var matches = CLASS_DIRECTIVE_REGEXP.exec(node.className);
-						for (var i = 0; i < matches.length; i++) {
-							if (!matches[i]) continue;
-							var normalized = directiveNormalize(matches[i]);
-							if (normalized === name) {
-								if (!isIsolate && dir.scope === true ||
-									isIsolate && typeof dir.scope === typeof {}) {
-									scope.view.addAnnotation(name, Service.DIR);
+						if (matches) {
+							for (var i = 0; i < matches.length; i++) {
+								if (!matches[i]) continue;
+								var normalized = directiveNormalize(matches[i]);
+								if (normalized === name) {
+									if (!isIsolate && dir.scope === true ||
+										isIsolate && typeof dir.scope === typeof {}) {
+										scope.view.addAnnotation(name, Service.DIR);
+									}
 								}
 							}
 						}
