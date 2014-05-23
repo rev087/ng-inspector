@@ -274,10 +274,13 @@ NGI.InspectorPane = function() {
 		return this.treeView.contains(node);
 	};
 
+	this.visible = false;
+
 	// Toggle the inspector pane on and off. Returns a boolean representing the
 	// new visibility state.
 	this.toggle = function() {
 		if ( pane.parentNode ) {
+			this.visible = false;
 			document.body.removeChild(pane);
 			this.clear();
 			document.removeEventListener('mousemove', onMouseMove);
@@ -286,6 +289,7 @@ NGI.InspectorPane = function() {
 			window.removeEventListener('resize', onResize);
 			return false;
 		} else {
+			this.visible = true;
 			document.body.appendChild(pane);
 			document.addEventListener('mousemove', onMouseMove);
 			document.addEventListener('mousedown', onMouseDown);
@@ -862,7 +866,12 @@ NGI.App = (function(window) {
 				return appCache[i];
 			}
 		}
-		appCache.push(new App(node, modules));
+		var newApp = new App(node, modules);
+		if (window.ngInspector.pane.visible) {
+			NGI.InspectorAgent.inspectApp(newApp);
+			newApp.startObserver();
+		}
+		appCache.push(newApp);
 	};
 
 	App.findApps = function () {
@@ -892,9 +901,8 @@ NGI.App = (function(window) {
 
 		for (var i = 0; i < appCache.length; i++) {
 			NGI.InspectorAgent.inspectApp(appCache[i]);
+			appCache[i].startObserver();
 		}
-
-		App.startObservers();
 	};
 
 	App.startObservers = function() {

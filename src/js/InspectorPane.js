@@ -39,10 +39,13 @@ NGI.InspectorPane = function() {
 		return this.treeView.contains(node);
 	};
 
+	this.visible = false;
+
 	// Toggle the inspector pane on and off. Returns a boolean representing the
 	// new visibility state.
 	this.toggle = function() {
 		if ( pane.parentNode ) {
+			this.visible = false;
 			document.body.removeChild(pane);
 			this.clear();
 			document.removeEventListener('mousemove', onMouseMove);
@@ -51,6 +54,7 @@ NGI.InspectorPane = function() {
 			window.removeEventListener('resize', onResize);
 			return false;
 		} else {
+			this.visible = true;
 			document.body.appendChild(pane);
 			document.addEventListener('mousemove', onMouseMove);
 			document.addEventListener('mousedown', onMouseDown);

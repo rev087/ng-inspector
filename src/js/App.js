@@ -125,7 +125,12 @@ NGI.App = (function(window) {
 				return appCache[i];
 			}
 		}
-		appCache.push(new App(node, modules));
+		var newApp = new App(node, modules);
+		if (window.ngInspector.pane.visible) {
+			NGI.InspectorAgent.inspectApp(newApp);
+			newApp.startObserver();
+		}
+		appCache.push(newApp);
 	};
 
 	App.findApps = function () {
@@ -155,9 +160,8 @@ NGI.App = (function(window) {
 
 		for (var i = 0; i < appCache.length; i++) {
 			NGI.InspectorAgent.inspectApp(appCache[i]);
+			appCache[i].startObserver();
 		}
-
-		App.startObservers();
 	};
 
 	App.startObservers = function() {
