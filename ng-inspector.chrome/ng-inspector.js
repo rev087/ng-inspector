@@ -178,14 +178,14 @@ NGI.InspectorAgent = (function() {
 		traverse(ngScope);
 
 		function traverse(ngScope) {
-			var rep = NGI.Scope.instance(app, ngScope);
-			rep.startObserver();
+			var scopeRep = NGI.Scope.instance(app, ngScope);
+			scopeRep.startObserver();
 
 			if (ngScope.$parent) {
 				var parent = NGI.Scope.get(ngScope.$parent.$id).view;
-				parent.addChild(rep.view);
+				parent.addChild(scopeRep.view);
 			} else {
-				app.view.addChild(rep.view);
+				app.view.addChild(scopeRep.view);
 			}
 
 			var child = ngScope.$$childHead;
