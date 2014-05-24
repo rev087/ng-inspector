@@ -5,15 +5,19 @@ $(function() {
 		dataType: "jsonp",
 		success: function(res) {
 			console.log(res.data);
-			var latest = res.data[0],
-				downloadURL = latest.assets[0].url,
-				version = latest.name,
-				safariButton = $('<li><a href="ng-inspector.safariextz">'+version+'<strong>for Safari</strong></a></li>'),
-				chromeButton = $('<li><a href="https://chrome.google.com/webstore/detail/ng-inspector/aadgmnobpdmgmigaicncghmmoeflnamj">'+version+'<strong>for Chrome</strong></a></li>');
-			$('.dl-list').prepend(safariButton);
-			$('.dl-list').prepend(chromeButton);
+			var latest = res.data[0];
+			$('.version').text(latest.name);
 		}
 	});
+
+var isSafari = /Safari/.test(navigator.userAgent) && /Apple Computer/.test(navigator.vendor);
+if (isSafari) $('.screenshot.safari').css('display', 'initial');
+
+// var isChrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
+
+else $('.screenshot.chrome').css('display', 'initial');
+
+
 
 
 });

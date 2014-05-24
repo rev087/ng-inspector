@@ -4,69 +4,127 @@
 		<meta charset="utf-8">
 		<meta http-equiv="X-UA-Compatible" content="chrome=1">
 		<title>ng-inspector for AngularJS</title>
-
 		<link rel="stylesheet" href="stylesheets/styles.css">
-		<link rel="stylesheet" href="stylesheets/pygment_trac.css">
-		<script src="javascripts/scale.fix.js"></script>
 		<script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js"></script>
 		<script src="javascripts/main.js"></script>
-		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes">
+		<script>document.write('<script src="http://' + (location.host || 'localhost').split(':')[0] + ':35729/livereload.js?snipver=1"></' + 'script>')</script>
 
 		<!--[if lt IE 9]>
 		<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
 		<![endif]-->
 	</head>
 	<body>
-		<div class="wrapper">
-			<header>
+
+		<main>
+
+			<header id="intro">
+				<img src="images/ng-inspector.png" alt="ng-inspector">
 				<h1>ng-inspector</h1>
-				<p>A browser extension to inspect AngularJS apps</p>
-				<p class="view"><a href="https://github.com/rev087/ng-inspector">View the Project on GitHub <small>rev087/ng-inspector</small></a></p>
-				<ul class="dl-list">
-					<li><a href="https://github.com/rev087/ng-inspector">View On <strong>GitHub</strong></a></li>
-				</ul>
+				<p class="slogan">The AngularJS inspector pane for your browser</p>
 			</header>
-			<section>
-				<h1>
-				<a name="ng-inspector" class="anchor" href="#ng-inspector"><span class="octicon octicon-link"></span></a>ng-inspector</h1>
 
-				<p><strong>ng-inspector</strong> is a browser extension for Chrome and Safari that displays an inspector panel showing the AngularJS scope hierarchy in the current page in real time, as well as which controllers or directives are associated with which scope.</p>
+			<section id="screenshot">
+					
+				<div class="screenshot safari">
+					<img
+						class="browser"
+						src="images/screenshot-safari.png"
+						alt="ng-inspector running in the Safari browser">
+					<img class="separator" src="images/separator.png" alt="">
+				</div>
 
-				<p>Hovering over a scope in the inspector will highlight with a blue border the DOM element that scope is attached to, as well as any bindings with a red border. Clicking on a model will console.log that model's contents.</p>
+				<div class="screenshot chrome">
+					<img
+						class="browser"
+						src="images/screenshot-chrome.png"
+						alt="ng-inspector running in the Chrome browser">
+					<img class="separator" src="images/separator.png" alt="">
+				</div>
 
-				<p>The extension adds a toolbar icon with the AngularJS logo that toggles the pane on and off.</p>
-
-				<p><img src="screenshot.png?raw=true" alt="screenshot"></p>
-
-				<h2><a name="installing" class="anchor" href="#installing"><span class="octicon octicon-link"></span></a>Installing</h2>
-
-				<h3><a name="chrome" class="anchor" href="#chrome"><span class="octicon octicon-link"></span></a>Chrome</h3>
-				<p>Install it from the <a href="https://chrome.google.com/webstore/detail/ng-inspector/aadgmnobpdmgmigaicncghmmoeflnamj">Chrome Web Store</a>.</p>
-
-				<h3><a name="safari" class="anchor" href="#safari"><span class="octicon octicon-link"></span></a>Safari</h3>
-				<p>Download the latest build from the buttons above, then double click the <code>ng-inspector.safariextz</code> file to install.</p>
-
-				<h2>
-				<a name="credits" class="anchor" href="#credits"><span class="octicon octicon-link"></span></a>Credits</h2>
-
-				<p>Thanks for caitp, wafflejock and zomg at #angularjs for helping me figure out a lot of
-				AngularJS edge cases.</p>
-
-				<h2>
-				<a name="license" class="anchor" href="#license"><span class="octicon octicon-link"></span></a>License</h2>
-
-				<p>The MIT License (MIT)  </p>
-
-				<p>See LICENSE.md for details.</p>
 			</section>
-		</div>
-		<footer>
-			<p>Project maintained by <a href="https://github.com/rev087">rev087</a></p>
-			<p>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></p>
-		</footer>
-		<!--[if !IE]><script>fixScale(document);</script><![endif]-->
+
+			<section id="features">
+				<h1>Features</h1>
+	
+				<ul>
+					<li>
+						<span class="feature-icon feature-scopes"></span>
+						<h2>Scopes</h2>
+						<p>
+							See whole scope hierarchy in your AngularJS application.
+						</p>
+					</li>
+					<li>
+						<span class="feature-icon feature-dom"></span>
+						<h2>DOM</h2>
+						<p>
+							Mouse-over the scopes in the inspector to highlight associated DOM
+							Nodes.
+						</p>
+					</li>
+					<li>
+						<span class="feature-icon feature-ctrl-direc"></span>
+						<h2>Controllers, directives…</h2>
+						<p>
+							ng-inspector identifies the Controllers and Directives that
+							triggered the creation of each scope.
+						</p>
+					</li>
+					<li>
+						<span class="feature-icon feature-models"></span>
+						<h2>Models</h2>
+						<p>
+							See all the scope’s models, their types and values. Click the
+							model to console.log() it’s values.
+						</p>
+					</li>
+					<li>
+						<span class="feature-icon feature-real-time"></span>
+						<h2>Real time</h2>
+						<p>
+							As you interact with your application, ng-inspector updates in
+							real time.
+						</p>
+					</li>
+				</ul>
+			</section>
+
+			<section id="download">
+
+				<h1>Download</h1>
+				<p class="version"></p>
+				
+				<a
+					href="ng-inspector.safariextz"
+					class="download-btn safari">
+					<span class="dl-icon safari"></span>
+					<p>Free Download<br>for Safari</p>
+				</a>
+				<a
+					href="https://chrome.google.com/webstore/detail/ng-inspector/aadgmnobpdmgmigaicncghmmoeflnamj"
+					class="download-btn chrome">
+					<span class="dl-icon chrome"></span>
+					<p>Free Download<br>for Chrome</p>
+				</a>
+				<a
+					href="https://github.com/rev087/ng-inspector"
+					class="download-btn github">
+					<span class="dl-icon github"></span>
+					<p>Fork the project<br>on GitHub</p>
+				</a>
+
+			</section>
+
+			<footer>
+				<span class="meta">The MIT License.</span>
+				<span class="meta">Hosted on GitHub pages.</span>
+			</footer>
+
+		</main>
 
 		<script>
+		/*
 			(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
 			(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
 			m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
@@ -74,6 +132,7 @@
 
 			ga('create', 'UA-50854090-1', 'ng-inspector.org');
 			ga('send', 'pageview');
+			*/
 
 		</script>
 		
