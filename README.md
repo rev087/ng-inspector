@@ -26,4 +26,4 @@ Thanks for caitp, Stephen, wafflejock and zomg at #angularjs for helping me figu
 
 The MIT License (MIT)  
 
-See LICENSE.md for details.
+See [LICENSE.md](LICENSE.md) for details.
