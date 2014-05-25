@@ -20,7 +20,7 @@ Download the latest build from [ng-inspector.org](http://ng-inspector.org), then
 
 ## Credits
 
-Thanks for caitp, Stephen, wafflejock and zomg at #angularjs for helping me figure out a lot of AngularJS concepts and edge cases.
+Thanks for @caitp, Stephen, wafflejock and zomg at #angularjs for helping me figure out many of AngularJS concepts and edge cases, @jcummins and @commandtab for going out of their way to share great bug reports. 
 
 ## License
 
