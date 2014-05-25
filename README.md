@@ -1,4 +1,4 @@
-# ng-inspector
+![logo](logo.png?raw=true)
 
 __ng-inspector__ is a browser extension for Chrome and Safari that displays an inspector panel showing the AngularJS scope hierarchy in the current page in real time, as well as which controllers or directives are associated with which scope.
 
