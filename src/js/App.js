@@ -133,28 +133,11 @@ NGI.App = (function(window) {
 		appCache.push(newApp);
 	};
 
-	App.findApps = function () {
-		var els = document.querySelectorAll('.ng-scope');
-
-		// Clone els so we can include the document itself as a valid root node for
-		// the AngularJS app
-		els = Array.prototype.slice.apply(els, [0]);
-		els.push(document);
-
-		// Inspect each app
-		for (var i = 0; i < els.length; i++) {
-			var $el = window.angular.element(els[i]);
-			if ($el.data('$injector')) {
-				App.bootstrap(els[i]);
-			}
-		}
-	};
-
 	var didFindApps = false;
 
 	App.inspectApps = function() {
 		if (!didFindApps) {
-			App.findApps();
+			NGI.InspectorAgent.findApps();
 			didFindApps = true;
 		}
 

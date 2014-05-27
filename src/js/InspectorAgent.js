@@ -64,9 +64,7 @@ NGI.InspectorAgent = (function() {
 
 						// setTimeout is used to make the traversal asyncrhonous, keeping
 						// the browser UI responsive during traversal.
-						setTimeout(
-							traverse.bind(this, child, app)
-						); // 4ms is the spec minimum
+						setTimeout(traverse.bind(this, child, app));
 					} while (child = child.nextSibling);
 				}
 
@@ -135,6 +133,40 @@ NGI.InspectorAgent = (function() {
 
 	InspectorAgent.inspectNode = function(app, node) {
 		traverseDOM(app, node);
+	};
+
+	InspectorAgent.findApps = function () {
+
+		var nodeQueue = 1;
+
+		// DOM Traversal to find AngularJS App root elements. Traversal is
+		// interrupted when an App is found (traversal inside the App is done by the
+		// InspectorAgent.inspectApp method)
+		function traverse(node) {
+
+			if (node.nodeType === Node.ELEMENT_NODE ||
+				 node.nodeType === Node.DOCUMENT_NODE) {
+
+				var $node = window.angular.element(node);
+
+				if ($node.data('$injector')) {
+					NGI.App.bootstrap(node);
+				} else if (node.firstChild) {
+					var child = node.firstChild;
+					do {
+						nodeQueue++;
+						setTimeout(traverse.bind(this, child), 4);
+					} while (child = child.nextSibling);
+				}
+
+				nodeQueue--;
+				if (--nodeQueue === 0) {
+					// Done
+				}
+			}
+		}
+
+		traverse(document);
 	};
 
 	return InspectorAgent;
