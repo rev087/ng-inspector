@@ -1,78 +1,78 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
-<dict>
-	<key>Author</key>
-	<string>Bruno Daniel</string>
-	<key>Builder Version</key>
-	<string>9537.75.14</string>
-	<key>CFBundleDisplayName</key>
-	<string>ng-inspector for AngularJS</string>
-	<key>CFBundleIdentifier</key>
-	<string>com.rev087.ng-inspector</string>
-	<key>CFBundleInfoDictionaryVersion</key>
-	<string>6.0</string>
-	<key>CFBundleShortVersionString</key>
-	<string>v0.4.5</string>
-	<key>CFBundleVersion</key>
-	<string>v0.4.5</string>
-	<key>Chrome</key>
-	<dict>
-		<key>Database Quota</key>
-		<real>1048576</real>
-		<key>Global Page</key>
-		<string>global.html</string>
-		<key>Toolbar Items</key>
-		<array>
-			<dict>
-				<key>Command</key>
-				<string>toggle-popover</string>
-				<key>Identifier</key>
-				<string>ng-inspector-toolbar-item</string>
-				<key>Image</key>
-				<string>ng.png</string>
-				<key>Label</key>
-				<string>ng-inspector</string>
-				<key>Palette Label</key>
-				<string>ng-inspector</string>
-				<key>Popover</key>
-				<string></string>
-				<key>Tool Tip</key>
-				<string>Toggle ng-inspector</string>
-			</dict>
-		</array>
-	</dict>
-	<key>Content</key>
-	<dict>
-		<key>Scripts</key>
-		<dict>
-			<key>End</key>
-			<array>
-				<string>inject-end.js</string>
-			</array>
-		</dict>
-		<key>Stylesheets</key>
-		<array>
-			<string>stylesheet.css</string>
-		</array>
-	</dict>
-	<key>Description</key>
-	<string>Inspect the AngularJS scope hierarchy in a page.</string>
-	<key>ExtensionInfoDictionaryVersion</key>
-	<string>1.0</string>
-	<key>Permissions</key>
-	<dict>
-		<key>Website Access</key>
-		<dict>
-			<key>Include Secure Pages</key>
-			<true/>
-			<key>Level</key>
-			<string>All</string>
-		</dict>
-	</dict>
-	<key>Update Manifest URL</key>
-	<string>http://rev087.github.io/ng-inspector/update-manifest.plist</string>
-	<key>Website</key>
-	<string>https://github.com/rev087/ng-inspector</string>
-</dict>
+  <dict>
+    <key>Author</key>
+    <string>Bruno Daniel</string>
+    <key>Builder Version</key>
+    <string>9537.75.14</string>
+    <key>CFBundleDisplayName</key>
+    <string>ng-inspector for AngularJS</string>
+    <key>CFBundleIdentifier</key>
+    <string>com.rev087.ng-inspector</string>
+    <key>CFBundleInfoDictionaryVersion</key>
+    <string>6.0</string>
+    <key>CFBundleShortVersionString</key>
+    <string>v0.4.6</string>
+    <key>CFBundleVersion</key>
+    <string>v0.4.6</string>
+    <key>Chrome</key>
+    <dict>
+      <key>Database Quota</key>
+      <integer>1048576</integer>
+      <key>Global Page</key>
+      <string>global.html</string>
+      <key>Toolbar Items</key>
+      <array>
+        <dict>
+          <key>Command</key>
+          <string>toggle-popover</string>
+          <key>Identifier</key>
+          <string>ng-inspector-toolbar-item</string>
+          <key>Image</key>
+          <string>ng.png</string>
+          <key>Label</key>
+          <string>ng-inspector</string>
+          <key>Palette Label</key>
+          <string>ng-inspector</string>
+          <key>Popover</key>
+          <string></string>
+          <key>Tool Tip</key>
+          <string>Toggle ng-inspector</string>
+        </dict>
+      </array>
+    </dict>
+    <key>Content</key>
+    <dict>
+      <key>Scripts</key>
+      <dict>
+        <key>End</key>
+        <array>
+          <string>inject-end.js</string>
+        </array>
+      </dict>
+      <key>Stylesheets</key>
+      <array>
+        <string>stylesheet.css</string>
+      </array>
+    </dict>
+    <key>Description</key>
+    <string>Inspect the AngularJS scope hierarchy in a page.</string>
+    <key>ExtensionInfoDictionaryVersion</key>
+    <string>1.0</string>
+    <key>Permissions</key>
+    <dict>
+      <key>Website Access</key>
+      <dict>
+        <key>Include Secure Pages</key>
+        <true/>
+        <key>Level</key>
+        <string>All</string>
+      </dict>
+    </dict>
+    <key>Update Manifest URL</key>
+    <string>http://rev087.github.io/ng-inspector/update-manifest.plist</string>
+    <key>Website</key>
+    <string>https://github.com/rev087/ng-inspector</string>
+  </dict>
 </plist>
