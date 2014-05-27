@@ -12,13 +12,13 @@
 }
 .ngi-hl.ngi-hl-scope {
   background: rgba(126, 183, 253, 0.3);
-  border: 1px solid rgba(126, 183, 253, 0.7);
-  color: #6da9d7;
+  border: 1px solid rgba(126, 183, 253, 0.7) !important;
+  color: #6da9d7 !important;
 }
 .ngi-hl.ngi-hl-binding {
   background: rgba(217, 83, 79, 0.3);
-  border: 1px solid rgba(217, 83, 79, 0.7);
-  color: #cc2b28;
+  border: 1px solid rgba(217, 83, 79, 0.7) !important;
+  color: #cc2b28 !important;
 }
 body.ngi-resize {
   cursor: col-resize !important;
@@ -35,11 +35,11 @@ body.ngi-resizing {
   right: 0;
   height: 100vh;
   width: 300px;
-  z-index: 999999999999 !important;
+  z-index: 999999999999;
   /* Styling */
-  background: #D8D8D8;
-  border-left: 1px solid #B0B0B0;
-  font-family: 'Helvetica Neue', sans-serif;
+  background: #D8D8D8 !important;
+  border-left: 1px solid #B0B0B0 !important;
+  font-family: 'Helvetica Neue', sans-serif !important;
   /* Scrolling */
   overflow-y: auto;
   overflow-x: hidden;
@@ -51,7 +51,7 @@ body.ngi-resizing {
 }
 .ngi-inspector * {
   margin: 0 !important;
-  padding: 0;
+  padding: 0 !important;
   font-size: 13px !important;
 }
 .ngi-inspector.ngi-processing {
@@ -67,21 +67,21 @@ body.ngi-resizing {
 .ngi-inspector .ngi-app > label {
   box-sizing: border-box;
   display: block;
-  font-weight: bold;
+  font-weight: bold !important;
   padding: 0 .5em;
   line-height: 30px;
-  border-top: 1px solid #B0B0B0;
-  border-bottom: 1px solid #B0B0B0;
+  border-top: 1px solid #B0B0B0 !important;
+  border-bottom: 1px solid #B0B0B0 !important;
   background-image: linear-gradient(-179deg, #f4f4f4 0%, #ededed 97%);
 }
 .ngi-inspector .ngi-app:first-child > label {
-  border-top: 0;
+  border-top: 0 !important;
 }
 .ngi-inspector .ngi-app:not(:first-child) {
   margin-top: -1px;
 }
 .ngi-inspector .ngi-app > label > small {
-  color: #999;
+  color: #999 !important;
 }
 .ngi-inspector .ngi-scope {
   background: #fff;
@@ -92,8 +92,8 @@ body.ngi-resizing {
   line-height: 30px;
   padding: 0 5px 0 24px;
   background: #f8f8f8 url(chrome-extension://__MSG_@@extension_id__/icons/scope.png) no-repeat 4px 7px;
-  border-top: 1px solid #E9E9E9;
-  border-bottom: 1px solid #E9E9E9;
+  border-top: 1px solid #E9E9E9 !important;
+  border-bottom: 1px solid #E9E9E9 !important;
   cursor: pointer;
 }
 .ngi-inspector .ngi-scope.ngi-isolate-scope > label {
@@ -106,35 +106,35 @@ body:not(.ngi-resizing) .ngi-inspector .ngi-scope > label:hover {
   background-image: url(chrome-extension://__MSG_@@extension_id__/icons/scope.png), linear-gradient(-179deg, #82beeb 0%, #5290d7 100%);
   background-position: 4px 7px, 0 0;
   text-shadow: -1px -1px 0 #5290d7, 1px 1px 0 #82beeb;
-  color: white;
-  border-top: 1px solid #6EA9E1;
-  border-bottom: 1px solid #4881C6;
+  color: white !important;
+  border-top: 1px solid #6EA9E1  !important;
+  border-bottom: 1px solid #4881C6  !important;
 }
 body:not(.ngi-resizing) .ngi-inspector .ngi-scope.ngi-isolate-scope > label:hover {
   background-image: url(chrome-extension://__MSG_@@extension_id__/icons/isolate-scope.png), linear-gradient(-179deg, #82beeb 0%, #5290d7 100%);
 }
 .ngi-inspector .ngi-scope .ngi-annotation {
   margin-left: 5px !important;
-  font-weight: normal;
+  font-weight: normal !important;
 }
 .ngi-inspector .ngi-scope .ngi-annotation.ngi-annotation-dir {
   padding: 2px 5px !important;
   background: rgba(0, 0, 0, 0.3);
   border-radius: 4px;
-  color: #F8F8F8;
+  color: #F8F8F8 !important;
   text-shadow: none !important;
 }
 .ngi-inspector .ngi-scope .ngi-annotation.ngi-annotation-ctrl {
   padding: 2px 5px !important;
-  border: 1px solid rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(0, 0, 0, 0.3) !important;
   border-radius: 4px;
-  color: rgba(0, 0, 0, 0.6);
+  color: rgba(0, 0, 0, 0.6) !important;
   text-shadow: none !important;
 }
 .ngi-inspector .ngi-scope .ngi-annotation.ngi-annotation-builtin {
   padding: 0px !important;
   background: transparent;
-  color: rgba(0, 0, 0, 0.4);
+  color: rgba(0, 0, 0, 0.4) !important;
 }
 .ngi-inspector .ngi-model > label {
   padding: 0 5px 0 24px;
@@ -142,7 +142,7 @@ body:not(.ngi-resizing) .ngi-inspector .ngi-scope.ngi-isolate-scope > label:hove
   position: relative;
 }
 .ngi-inspector .ngi-model > label .ngi-value {
-  font-weight: normal;
+  font-weight: normal !important;
 }
 .ngi-inspector .ngi-model.ngi-model-string > label {
   background-image: url(chrome-extension://__MSG_@@extension_id__/icons/string.png);
@@ -172,27 +172,27 @@ body:not(.ngi-resizing) .ngi-inspector .ngi-scope.ngi-isolate-scope > label:hove
   background-image: url(chrome-extension://__MSG_@@extension_id__/icons/null.png);
 }
 .ngi-inspector .ngi-model.ngi-model-string > label > .ngi-value {
-  color: green;
+  color: green !important;
 }
 .ngi-inspector .ngi-model.ngi-model-boolean > label > .ngi-value {
-  color: #0000ff;
+  color: blue !important;
 }
 .ngi-inspector .ngi-model.ngi-model-number > label > .ngi-value {
-  color: red;
+  color: red !important;
 }
 .ngi-inspector .ngi-model.ngi-model-function > label > .ngi-value,
 .ngi-inspector .ngi-model.ngi-model-object > label > .ngi-value,
 .ngi-inspector .ngi-model.ngi-model-array > label > .ngi-value,
 .ngi-inspector .ngi-model.ngi-model-element > label > .ngi-value {
-  color: black;
+  color: black !important;
 }
 .ngi-inspector .ngi-model.ngi-model-null > label > .ngi-value,
 .ngi-inspector .ngi-model.ngi-model-undefined > label > .ngi-value {
-  color: gray;
+  color: gray !important;
 }
 body:not(.ngi-resizing) .ngi-inspector .ngi-model > label:hover {
   cursor: pointer;
-  color: #53A0FD;
+  color: #53A0FD !important;
 }
 .ngi-inspector label {
   display: block !important;
@@ -201,7 +201,7 @@ body:not(.ngi-resizing) .ngi-inspector .ngi-model > label:hover {
 }
 .ngi-inspector label .ngi-indicator {
   background: #bbb;
-  color: white ;
+  color: white !important;
   border-radius: 9px;
   padding: 0 .5em !important;
   position: absolute;
@@ -217,9 +217,6 @@ body:not(.ngi-resizing) .ngi-inspector .ngi-model > label:hover {
 }
 .ngi-inspector label img {
   vertical-align: -3px;
-}
-.ngi-inspector label b {
-  font-weight: bold;
 }
 .ngi-inspector .ngi-depth-0 {
   padding-left: 25px !important;
