@@ -4,7 +4,6 @@ $(function() {
 	$.ajax(releasesURL, {
 		dataType: "jsonp",
 		success: function(res) {
-			console.log(res.data);
 			var latest = res.data[0];
 			$('.version').text(latest.name);
 		}
