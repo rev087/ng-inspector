@@ -69,6 +69,14 @@ header {
 	-webkit-transform: translateX(-50%);
 }
 
+/* Description */
+
+#description {
+	max-width: 80%;
+	margin: -25px auto 0 auto;
+	position: relative;
+}
+
 /* Features */
 
 #features {
@@ -77,7 +85,7 @@ header {
 }
 
 #features h1 {
-	margin: 25px 0 75px 0;
+	margin: 75px 0 75px 0;
 }
 
 #features ul {
