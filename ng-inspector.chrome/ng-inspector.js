@@ -331,8 +331,6 @@ NGI.InspectorPane = function() {
 		}
 	};
 
-	var inspectorPane = this;
-
 	// Prevent scrolling the page when the scrolling inside the inspector pane
 	// reaches the top and bottom limits
 	pane.addEventListener('mousewheel', function(event) {
@@ -345,8 +343,8 @@ NGI.InspectorPane = function() {
 	});
 
 	// States for the inspector pane resizing functionality
-	this.isResizing = false;
-	this.canResize = false;
+	var isResizing = false;
+	var canResize = false;
 
 	// Defines how many pixels to the left and right of the border of the pane
 	// are considered within the resize handle
@@ -366,16 +364,16 @@ NGI.InspectorPane = function() {
 		// the page body is used for styling the cursor to `col-resize`
 		if (pane.offsetLeft - LEFT_RESIZE_HANDLE_PAD <= event.clientX &&
 			event.clientX <= pane.offsetLeft + RIGHT_RESIZE_HANDLE_PAD) {
-			inspectorPane.canResize = true;
+			canResize = true;
 			document.body.classList.add('ngi-resize');
 		} else {
-			inspectorPane.canResize = false;
+			canResize = false;
 			document.body.classList.remove('ngi-resize');
 		}
 		
 		// If the user is currently performing a resize, the width is adjusted
 		// based on the cursor position
-		if (inspectorPane.isResizing) {
+		if (isResizing) {
 
 			var width = (window.innerWidth - event.clientX);
 
@@ -395,8 +393,8 @@ NGI.InspectorPane = function() {
 	// class added to the page body styles it to disable text selection while the
 	// user dragging the mouse to resize the pane
 	function onMouseDown() {
-		if (inspectorPane.canResize) {
-			inspectorPane.isResizing = true;
+		if (canResize) {
+			isResizing = true;
 			document.body.classList.add('ngi-resizing');
 		}
 	}
@@ -405,8 +403,8 @@ NGI.InspectorPane = function() {
 	// Listen to mouseup events on the page, turning off the resize mode if one
 	// is underway. The inspector width is then persisted in the localStorage
 	function onMouseUp() {
-		if (inspectorPane.isResizing) {
-			inspectorPane.isResizing = false;
+		if (isResizing) {
+			isResizing = false;
 			document.body.classList.remove('ngi-resizing');
 			localStorage.setItem('ng-inspector-width', pane.offsetWidth);
 		}
