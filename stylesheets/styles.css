@@ -48,6 +48,10 @@ header {
 	text-align: center;
 }
 
+header h1 {
+	color: #444;
+}
+
 .slogan {
 	color: #777;
 	font-size: 34px;
