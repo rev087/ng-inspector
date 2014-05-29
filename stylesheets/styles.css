@@ -138,18 +138,21 @@ header {
 	position: relative;
 	margin: 0 30px;
 }
-.download-btn:hover {
-	background: #f0f0f4;
-}
 
 .download-btn p {
-	font-size: 20px;
+	font-size: 18px;
 	font-weight: 400;
 	line-height: 25px;
 	position: absolute;
 	right: 20px;
 	text-align: right;
 	top: 15px;
+}
+
+.download-btn small {
+	font-size: 14px;
+	font-weight: 300;
+	display: block;
 }
 
 .dl-icon {
@@ -169,10 +172,19 @@ header {
 footer {
 	font-size: 16px;
 	font-weight: 300;
-	margin-top: 200px;
+	margin-top: 150px;
 	padding-bottom: 1em;
 }
 
 .meta {
-	margin: 0 50px;
+	margin: 0 25px;
+}
+
+.meta a {
+	color: inherit;
+	text-decoration: none;
+	font-weight: 400;
+}
+.meta a:hover {
+	text-decoration: underline;
 }
