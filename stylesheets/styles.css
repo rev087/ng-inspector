@@ -1,4 +1,4 @@
-@import url(http://fonts.googleapis.com/css?family=Lato:300,400);
+@import url(http://fonts.googleapis.com/css?family=Lato:100,300,400);
 
 body {
 	background-color: #fff;
@@ -13,13 +13,14 @@ main {
 }
 
 h1 {
-	font-size: 58px;
+	font-size: 48px;
 	font-weight: 300;
 	margin: 0;
+	color: #4480ED;
 }
 
 h2 {
-	font-size: 24px;
+	font-size: 22px;
 	font-weight: 400;
 	margin: 0;
 }
@@ -48,8 +49,8 @@ header {
 }
 
 .slogan {
-	color: #666;
-	font-size: 36px;
+	color: #777;
+	font-size: 34px;
 	font-weight: 300;
 	margin-top: 60px;
 }
@@ -72,9 +73,11 @@ header {
 /* Description */
 
 #description {
-	max-width: 80%;
-	margin: -25px auto 0 auto;
+	max-width: 750px;
+	margin: 0 auto 0 auto;
 	position: relative;
+	box-sizing: border-box;
+	padding: 0 40px;
 }
 
 /* Features */
@@ -85,7 +88,7 @@ header {
 }
 
 #features h1 {
-	margin: 75px 0 75px 0;
+	margin: 75px 0 55px 0;
 }
 
 #features ul {
@@ -94,25 +97,49 @@ header {
 
 #features li {
 	position: relative;
-	min-height: 60px;
-	padding-left: 80px;
-	margin-bottom: 30px;
+	margin: 0 40px;
+	width: 295px;
+	display: block;
+	height: 200px;
+	float: left;
+}
+
+@media (max-width: 749px) {
+	#features li {
+		width: auto;
+		height: auto;
+		margin-bottom: 35px;
+	}
+	.feature-icon {
+		margin: 0 auto 4px auto;
+	}
+	h2 {
+		text-align: center;
+	}
+}
+
+#features li:last-child {
+	height: auto;
+}
+
+#features ul:after {
+	content: '';
+	display: block;
+	clear: both;
 }
 
 .feature-icon {
-	width: 60px;
-	height: 60px;
+	width: 48px;
+	height: 48px;
 	display: block;
 	background: url(../images/feature-icons.png) no-repeat;
-	position: absolute;
-	left: 0;
-	top: -5px;
+	margin-bottom: 4px;
 }
 .feature-scopes { background-position: 0 0; }
-.feature-dom { background-position: 0 -60px; }
-.feature-ctrl-direc { background-position: 0 -120px; }
-.feature-models { background-position: 0 -180px; }
-.feature-real-time { background-position: 0 -240px; }
+.feature-dom { background-position: 0 -48px; }
+.feature-ctrl-direc { background-position: 0 -96px; }
+.feature-models { background-position: 0 -144px; }
+.feature-real-time { background-position: 0 -192px; }
 
 /* Download */
 
@@ -121,38 +148,44 @@ header {
 }
 
 .version {
-	font-size: 20px;
-	font-weight: 400;
-	margin: 0 0 75px 0;
+	font-size: 18px;
+	font-weight: 300;
+	margin: 0 0 50px 0;
 }
 
-.download-btn {
+.dl-btn {
 	display: inline-block;
 	zoom: 1;
 	width: 275px;
 	height: 85px;
-	border: 2px solid #444;
+	border: 2px solid #eeeeef;
 	border-radius: 8px;
 	color: #444;
 	text-decoration: none;
 	position: relative;
 	margin: 0 30px;
+	transition: border-color .3s;
+}
+.dl-btn:hover {
+	border-color: #ccccce;
 }
 
-.download-btn p {
+.dl-btn p {
 	font-size: 18px;
 	font-weight: 400;
 	line-height: 25px;
 	position: absolute;
 	right: 20px;
 	text-align: right;
-	top: 15px;
+	top: 50%;
+	margin-top: -21px;
 }
 
-.download-btn small {
+.dl-btn small {
 	font-size: 14px;
 	font-weight: 300;
 	display: block;
+	line-height: 18px;
 }
 
 .dl-icon {
@@ -162,10 +195,23 @@ header {
 	height: 80px;
 	position: absolute;
 	left: 15px;
+	opacity: .4;
+	transition: opacity .3s;
 }
-.dl-icon.safari { background-position: 0 0; }
+.dl-btn:hover .dl-icon {
+	opacity: .9;
+}
+.dl-icon.safari { background-position: 0 0; top: 2px; }
 .dl-icon.chrome { background-position: 0 -80px; }
 .dl-icon.github { background-position: 0 -160px; }
+
+
+@media (max-width: 1025px) {
+	.dl-btn {
+		display: block;
+		margin: 15px auto 15px auto;
+	}
+}
 
 /* Footer */
 
