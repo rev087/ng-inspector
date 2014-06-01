@@ -59,11 +59,6 @@ body.ngi-resizing {
   background-position: center center;
   background-repeat: no-repeat;
 }
-/* Clickthrough */
-.ngi-inspector.ngi-clickthrough {
-  pointer-events: none;
-  opacity: .2;
-}
 .ngi-inspector .ngi-app > label {
   box-sizing: border-box;
   display: block;
