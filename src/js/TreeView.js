@@ -133,6 +133,12 @@ NGI.TreeView = (function() {
 		// console.log the DOM Node this scope is attached to
 		item.label.addEventListener('click', function() {
 			console.log(item.node);
+			item.drawer.isVisible = !item.drawer.isVisible;
+			if (item.drawer.isVisible){
+		 		item.drawer.style.display = 'block';
+			} else {
+				item.drawer.style.dispay = 'none';
+			}
 		});
 
 		return item;
