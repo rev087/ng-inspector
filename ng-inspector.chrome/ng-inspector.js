@@ -277,6 +277,8 @@ NGI.InspectorAgent = (function() {
 
 NGI.InspectorPane = function() {
 
+  var inspectorPane = this;
+
 	// The width of the pane can be resized by the user, and is persisted via
 	// localStorage
 	var inspectorWidth = localStorage.getItem('ng-inspector-width') || 300;
@@ -311,8 +313,10 @@ NGI.InspectorPane = function() {
 	// Toggle the inspector pane on and off. Returns a boolean representing the
 	// new visibility state.
 	this.toggle = function() {
+    this.visible = !pane.parentNode;
+    resizeClientView();
+
 		if ( pane.parentNode ) {
-			this.visible = false;
 			document.body.removeChild(pane);
 			this.clear();
 			document.removeEventListener('mousemove', onMouseMove);
@@ -321,7 +325,6 @@ NGI.InspectorPane = function() {
 			window.removeEventListener('resize', onResize);
 			return false;
 		} else {
-			this.visible = true;
 			document.body.appendChild(pane);
 			document.addEventListener('mousemove', onMouseMove);
 			document.addEventListener('mousedown', onMouseDown);
@@ -350,6 +353,11 @@ NGI.InspectorPane = function() {
 	// are considered within the resize handle
 	var LEFT_RESIZE_HANDLE_PAD = 3;
 	var RIGHT_RESIZE_HANDLE_PAD = 2;
+
+  function resizeClientView() {
+    var root = document.getElementsByTagName('html')[0];
+    root.style.marginRight = inspectorPane.visible ? pane.style.width : 0;
+  }
 
 	// Listen for mousemove events in the page body, setting the canResize state
 	// if the mouse hovers close to the 
@@ -385,6 +393,7 @@ NGI.InspectorPane = function() {
 			}
 
 			pane.style.width = width + 'px';
+      resizeClientView();
 		}
 	}
 
@@ -415,6 +424,7 @@ NGI.InspectorPane = function() {
 	function onResize() {
 		if (pane.offsetWidth >= document.body.offsetWidth - 50) {
 			pane.style.width = (document.body.offsetWidth - 50) + 'px';
+      resizeClientView();
 		}
 	}
 
