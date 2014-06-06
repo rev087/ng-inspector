@@ -4,7 +4,12 @@
   "description": "A Safari extension to inspect AngularJS applications",
   "main": "ng-inspector.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "pretest": "npm run update-webdriver",
+    "test": "./node_modules/.bin/protractor test/protractor.conf.js",
+
+    "update-webdriver": "./node_modules/.bin/webdriver-manager update",
+
+    "scenarios": "./node_modules/.bin/http-server test/e2e/scenarios/ -p 8000"
   },
   "repository": {
     "type": "git",
@@ -31,6 +36,8 @@
     "plist": "~0.4.3",
     "gulp-jshint": "~1.5.5",
     "gulp-less": "~1.2.3",
-    "gulp-replace": "~0.3.0"
+    "gulp-replace": "~0.3.0",
+    "protractor": "~0.24.0",
+    "http-server": "~0.6.1"
   }
 }
