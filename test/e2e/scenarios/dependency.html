@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Dependency</title>
+	<script src="lib/angular.min.js"></script>
+	<script src="lib/ng-inspector.js"></script>
+	<style>@import url(lib/stylesheet.css);</style>
+	<script>
+			
+		angular.module('aDependency', [])
+			.directive('sayHi', function() {
+				return {
+					scope: true,
+					link: function(scope, elem) {
+						elem.text('Hi');
+					}
+				};
+			});
+
+		angular.module('MyApp', ['aDependency']);
+
+	</script>
+</head>
+<body ng-app="MyApp">
+
+	<div say-hi>Hello</div>	
+
+	<button type="button" onclick="window.ngInspector.toggle()" id="ngInspectorToggle">ngInspector</button>
+
+</body>
+</html>
