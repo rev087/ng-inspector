@@ -4,7 +4,6 @@
   "description": "A Safari extension to inspect AngularJS applications",
   "main": "ng-inspector.js",
   "scripts": {
-    "pretest": "npm run update-webdriver",
     "test": "./node_modules/.bin/protractor test/protractor.conf.js",
 
     "update-webdriver": "./node_modules/.bin/webdriver-manager update",
