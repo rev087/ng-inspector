@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Collapse and Expand TreeView items</title>
+	<script src="lib/angular.min.js"></script>
+	<script src="lib/ng-inspector.js"></script>
+	<style>@import url(lib/stylesheet.css);</style>
+	<script>
+		angular.module('MyApp', [])
+			.controller('MyCtrl', function($scope) {
+				$scope.browsers = ['Chrome', 'Safari', 'Firefox'];
+				$scope.person = {
+					name: 'John Doe',
+					age: 30,
+					friends: [
+						{name: 'Joe', age: 28},
+						{name: 'Jane', age: 31}
+					]
+				};
+			});
+	</script>
+</head>
+<body ng-app="MyApp">
+
+	<div ng-controller="MyCtrl">
+
+		<ul>
+			<li nng-repeat="browser in browsers">{{browser}}</li>
+		</ul>
+
+		<p>This scenario tests the expand/collapse functionality for scopes, array models and object models.</p>
+
+	</div>
+
+	<button type="button" onclick="window.ngInspector.toggle()" id="ngInspectorToggle">ngInspector</button>
+</body>
+</html>
