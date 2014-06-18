@@ -68,8 +68,17 @@ body.ngi-resizing {
   width: 16px;
   height: 16px;
 }
-.ngi-caret.ngi-collapsed {
+.ngi-collapsed .ngi-caret {
   background-position: 0 0;
+}
+.ngi-collapsed .ngi-drawer {
+  display: none;
+}
+.ngi-expanded > label > .ngi-value {
+  display: none;
+}
+.ngi-expanded > label > .ngi-indicator {
+  display: none;
 }
 .ngi-inspector .ngi-app > label {
   box-sizing: border-box;

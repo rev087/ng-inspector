@@ -5,9 +5,23 @@ NGI.Model = (function() {
 
 	function Model(key, value, depth) {
 
-		var angular = window.angular;
-
 		this.view = NGI.TreeView.modelItem(key, value, depth);
+
+		this.arrayChildren = function() {
+			this.view.makeCollapsible(true);
+			for (var i = 0; i < value.length; i++) {
+				var childModel = NGI.Model.instance(i, value[i], depth+1);
+				this.view.addChild(childModel.view);
+			}
+		};
+
+		this.objectChildren = function() {
+			this.view.makeCollapsible(true);
+			for (var k in value) {
+				var childModel = NGI.Model.instance(k, value[k], depth+1);
+				this.view.addChild(childModel.view);
+			}
+		};
 
 		var valSpan = document.createElement('span');
 		valSpan.className = 'ngi-value';
@@ -33,6 +47,7 @@ NGI.Model = (function() {
 
 		// Array
 		else if (angular.isArray(value)) {
+			this.arrayChildren();
 			this.view.setType('ngi-model-array');
 			var length = value.length;
 			if (length === 0) {
@@ -55,6 +70,7 @@ NGI.Model = (function() {
 				valSpan.innerText = '{...}';
 				this.view.setIndicator(length);
 			}
+			this.objectChildren();
 		}
 
 		// Boolean

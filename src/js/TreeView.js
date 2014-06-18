@@ -19,25 +19,31 @@ NGI.TreeView = (function() {
 
 		this.length = null;
 
-		this.makeCollapsible = function() {
-
+		this.makeCollapsible = function(initialState) {
 			var caret = document.createElement('span');
 			caret.className = 'ngi-caret';
 			this.label.appendChild(caret);
 
-			var collapsed = false;
+			var collapsed = initialState || false;
+
+			this.setCollapsed = function(state) {
+				collapsed = state;
+				if (collapsed) {
+					this.element.classList.add('ngi-collapsed');
+					this.element.classList.remove('ngi-expanded');
+				} else {
+					this.element.classList.remove('ngi-collapsed');
+					this.element.classList.add('ngi-expanded');
+				}
+			};
+
+			this.setCollapsed(collapsed);
 
 			this.toggle = function(e) {
 				e.stopPropagation();
-				collapsed = !collapsed;
-				if (collapsed) {
-					this.drawer.style.display = 'none';
-					caret.classList.add('ngi-collapsed');
-				} else {
-					this.drawer.style.display = 'block';
-					caret.classList.remove('ngi-collapsed');
-				}
+				this.setCollapsed(!collapsed);
 			};
+
 			caret.addEventListener('click', this.toggle.bind(this));
 		}
 
