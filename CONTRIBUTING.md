@@ -1,5 +1,7 @@
 # Contributing
 
+More tests are always welcome. Pull requests containing new features _must_ include tests for these features.
+
 ## Installing development dependencies
 
 Run `npm install` (npm comes bundled with [node.js](http://nodejs.org)) to install all the development dependencies to build and test the project.
@@ -9,6 +11,7 @@ Run `npm install` (npm comes bundled with [node.js](http://nodejs.org)) to insta
 JavaScript source is located at `/src`, and uses [gulp](http://gulpjs.com) to build for Chrome at `/ng-inspector.chrome` and Safari at `/ng-inspector.safariextension`.
 
 ### Gulp Tasks:
+
 - `default`: runs all the build tasks
 - `build:icons`: copies the icons over to each browser folders
 - `build:css`: compiles the less files over to each browser folders
@@ -17,6 +20,6 @@ JavaScript source is located at `/src`, and uses [gulp](http://gulpjs.com) to bu
 
 ## Testing
 
-ng-inspector uses [Protractor](https://github.com/angular/protractor) for end to end tests in Chrome. First, start the scenarios server with `npm scenarios` and run `npm test` to run the tests.
+ng-inspector uses [Protractor](https://github.com/angular/protractor) for end to end tests in Chrome. First, execute `npm run update-webdriver` to let Protractor download or update the required Chrome webdriver. Then start the scenarios server with `npm run scenarios` and finally `npm test` to run the tests.
 
 Scenarios are small angular applications written to test various AngularJS use cases, and are located at `/test/e2e/scenarios/`. Each scenario should have one spec file containing the tests themselves, and they are located at `/test/e2e/specs/`.
