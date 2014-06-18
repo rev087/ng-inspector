@@ -441,6 +441,34 @@ NGI.TreeView = (function() {
 
 		this.length = null;
 
+		this.makeCollapsible = function(initialState) {
+			var caret = document.createElement('span');
+			caret.className = 'ngi-caret';
+			this.label.appendChild(caret);
+
+			var collapsed = initialState || false;
+
+			this.setCollapsed = function(state) {
+				collapsed = state;
+				if (collapsed) {
+					this.element.classList.add('ngi-collapsed');
+					this.element.classList.remove('ngi-expanded');
+				} else {
+					this.element.classList.remove('ngi-collapsed');
+					this.element.classList.add('ngi-expanded');
+				}
+			};
+
+			this.setCollapsed(collapsed);
+
+			this.toggle = function(e) {
+				e.stopPropagation();
+				this.setCollapsed(!collapsed);
+			};
+
+			caret.addEventListener('click', this.toggle.bind(this));
+		}
+
 		this.addChild = function(childItem, top) {
 			if (!!top) {
 				this.drawer.insertBefore(childItem.element, this.drawer.firstChild);
@@ -530,6 +558,7 @@ NGI.TreeView = (function() {
 	// AngularJS scopes
 	TreeView.scopeItem = function(label, depth, isIsolate) {
 		var item = new TreeViewItem(label);
+		item.makeCollapsible();
 		item.element.className = 'ngi-scope';
 		if (isIsolate) {
 			item.element.classList.add('ngi-isolate-scope');
@@ -538,8 +567,9 @@ NGI.TreeView = (function() {
 
 		// Highlight DOM elements the scope is attached to when hovering the item
 		// in the inspector
-		item.label.addEventListener('mouseover', function() {
-			if ( item.node && !window.ngInspector.pane.isResizing ) {
+		item.label.addEventListener('mouseover', function(event) {
+			var isCaret = event.target && event.target.classList.contains('ngi-caret');
+			if ( item.node && !window.ngInspector.pane.isResizing && !isCaret) {
 				var target = (item.node === document) ?
 					document.querySelector('html') : item.node;
 				// target.classList.add('ngi-highlight');
@@ -1160,9 +1190,23 @@ NGI.Model = (function() {
 
 	function Model(key, value, depth) {
 
-		var angular = window.angular;
-
 		this.view = NGI.TreeView.modelItem(key, value, depth);
+
+		this.arrayChildren = function() {
+			this.view.makeCollapsible(true);
+			for (var i = 0; i < value.length; i++) {
+				var childModel = NGI.Model.instance(i, value[i], depth+1);
+				this.view.addChild(childModel.view);
+			}
+		};
+
+		this.objectChildren = function() {
+			this.view.makeCollapsible(true);
+			for (var k in value) {
+				var childModel = NGI.Model.instance(k, value[k], depth+1);
+				this.view.addChild(childModel.view);
+			}
+		};
 
 		var valSpan = document.createElement('span');
 		valSpan.className = 'ngi-value';
@@ -1188,6 +1232,7 @@ NGI.Model = (function() {
 
 		// Array
 		else if (angular.isArray(value)) {
+			this.arrayChildren();
 			this.view.setType('ngi-model-array');
 			var length = value.length;
 			if (length === 0) {
@@ -1210,6 +1255,7 @@ NGI.Model = (function() {
 				valSpan.innerText = '{...}';
 				this.view.setIndicator(length);
 			}
+			this.objectChildren();
 		}
 
 		// Boolean
