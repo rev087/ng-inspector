@@ -40,43 +40,51 @@ NGI.ModelMixin = (function() {
 
 	function ModelMixin() {}
 
-	ModelMixin.prototype.values = {};
-	ModelMixin.prototype.keys = [];
+	ModelMixin.update = function(values, depth) {
 
-	ModelMixin.prototype.update = function(values, depth) {
+		if (typeof this.modelObjs === 'undefined') this.modelObjs = {};
+		if (typeof this.modelKeys === 'undefined') this.modelKeys = [];
+
 		var newKeys = getKeys(values),
-				diff = arrayDiff(this.keys, newKeys),
+				diff = arrayDiff(this.modelKeys, newKeys),
 				i, key;
 
-		this.keys = newKeys;
+		// Removed keys
+		for (i = 0; i < diff.removed.length; i++) {
+			var key = diff.removed[i];
+			this.modelObjs[key].view.destroy();
+			delete this.modelObjs[key];
+		}
 		
 		// New keys
 		for (i = 0; i < diff.added.length; i++) {
 			key = diff.added[i];
-			this.values[key] = NGI.Model.instance(key, values[key], depth + 1);
+			this.modelObjs[key] = NGI.Model.instance(key, values[key], depth + 1);
 			var insertAtTop = this instanceof NGI.Scope;
-			this.view.addChild(this.values[key].view, insertAtTop);
+			this.view.addChild(this.modelObjs[key].view, insertAtTop);
 		}
 
 		// Updated keys
 		for (i = 0; i < diff.existing.length; i++) {
 			key = diff.existing[i];
-			this.values[key].setValue(values[key]);
+			if (!this.modelObjs[key]) {
+				var inst = this instanceof NGI.Scope ? 'Scope' : this instanceof NGI.Model ? 'Model' : 'UNKNOWN INSTANCE';
+				continue;
+			}
+			this.modelObjs[key].setValue(values[key]);
 		}
 
-		// Removed keys
-		for (i = 0; i < diff.removed.length; i++) {
-			var key = diff.removed[i];
-			this.values[key].view.destroy();
-			delete this.values[key];
-		}
+		this.modelKeys = newKeys;
 	};
 
 	ModelMixin.extend = function(obj) {
-		var prop;
-		for (prop in ModelMixin.prototype) {
-			obj[prop] = ModelMixin.prototype[prop];
-		}
+		obj.update = ModelMixin.update.bind(obj);
+		// var prop;
+		// for (prop in ModelMixin) {
+		// 	if (prop !== 'extend') {
+		// 		obj[prop] = ModelMixin[prop];
+		// 	}
+		// }
 	};
 
 	return ModelMixin;

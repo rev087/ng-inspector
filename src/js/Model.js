@@ -5,6 +5,9 @@ NGI.Model = (function() {
 
 	function Model(key, value, depth) {
 
+		this.key = key;
+		this.value = value;
+
 		this.view = NGI.TreeView.modelItem(key, value, depth);
 
 		var valSpan = document.createElement('span');
@@ -14,7 +17,7 @@ NGI.Model = (function() {
 
 		this.setValue = function(newValue) {
 
-			value = newValue;
+			this.value = value = newValue;
 
 			// String
 			if (angular.isString(value)) {
@@ -40,7 +43,7 @@ NGI.Model = (function() {
 				this.view.setType('ngi-model-array');
 				var length = value.length;
 				if (length === 0) {
-					valSpan.innerText = '[]';
+					valSpan.innerText = '[ ]';
 				}
 				else {
 					valSpan.innerText = '[...]';
@@ -55,7 +58,7 @@ NGI.Model = (function() {
 				this.view.setType('ngi-model-object');
 				var length = Object.keys(value).length;
 				if (length === 0) {
-					valSpan.innerText = '{}';
+					valSpan.innerText = '{ }';
 				}
 				else {
 					valSpan.innerText = '{...}';
