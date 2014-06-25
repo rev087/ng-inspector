@@ -82,9 +82,9 @@ body {
 	width: 16px;
 	height: 16px;
 
-	.ngi-collapsed & {
-		background-position: 0 0;
-	}
+	.ngi-collapsed & { background-position: 0 0; }
+	.ngi-scope.ngi-expanded > label:hover > & { background-position: 16px 16px; }
+	.ngi-scope.ngi-collapsed > label:hover > & { background-position: 16px 0; }
 }
 
 .ngi-collapsed .ngi-drawer { display: none; }
@@ -149,8 +149,6 @@ body:not(.ngi-resizing) .ngi-inspector .ngi-scope>label:hover {
 	color: white !important;
 	border-top: 1px solid #6EA9E1  !important;
 	border-bottom: 1px solid #4881C6  !important;
-	.ngi-caret { background-position: 16px 16px; }
-	.ngi-caret.ngi-collapsed { background-position: 16px 0; }
 }
 body:not(.ngi-resizing) .ngi-inspector .ngi-scope.ngi-isolate-scope>label:hover {
 	background-image: url(icons/isolate-scope.png), linear-gradient(-179deg, #82BEEB 0%, #5290D7 100%);

@@ -27,28 +27,6 @@ NGI.Scope = (function() {
 			this.node = this.view.node = node;
 		};
 
-		// Keturns the keys for the user defined models in the scope, excluding
-		// keys created by AngularJS or the `this` keyword
-		function modelKeys() {
-			var keys = [];
-			for (var key in ngScope) {
-				if (ngScope.hasOwnProperty(key) && !/^\$/.test(key) && key !== 'this') {
-					keys.push(key);
-				}
-			}
-			return keys;
-		}
-
-		// Returns an object representing the keys and values of the user defined
-		// models in the scope
-		function models() {
-			var obj = {}, keys = modelKeys();
-			for (var i = 0; i < keys.length; i++) {
-				obj[keys[i]] = ngScope[keys[i]];
-			}
-			return obj;
-		}
-
 		function childScopeIds() {
 			if (!ngScope.$$childHead) return [];
 			var childKeys = [];
@@ -59,26 +37,18 @@ NGI.Scope = (function() {
 			return childKeys;
 		}
 
-		var scopeModel = this;
-		function updateModels(models) {
-			view.removeChildren('ngi-model');
-			var keys = Object.keys(models);
-			for (var i = keys.length - 1; i >= 0; i--) {
-				var model = NGI.Model.instance(keys[i], models[keys[i]], depth+1);
-				scopeModel.view.addChild(model.view, true);
-			}
-		}
-
 		var oldChildIds = childScopeIds();
-		var oldModels = models();
-		updateModels(oldModels);
 
 		var destroyDeregister = angular.noop;
 		var watchDeregister = angular.noop;
 		var observerOn = false;
 
+		NGI.ModelMixin.extend(this);
+		this.update(ngScope, depth);
+
 		this.startObserver = function() {
 			if (observerOn === false) {
+				var scopeObj = this;
 				destroyDeregister = ngScope.$on('$destroy', function() {
 					view.destroy();
 				});
@@ -92,11 +62,8 @@ NGI.Scope = (function() {
 					oldChildIds = newChildIds;
 
 					// Models
-					var newModels = models();
-					if (!angular.equals(oldModels, newModels)) {
-						updateModels(newModels);
-					}
-					oldModels = newModels;
+					scopeObj.update(ngScope, depth);
+
 				});
 				observerOn = true;
 			}

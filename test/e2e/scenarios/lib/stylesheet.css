@@ -73,6 +73,12 @@ body.ngi-resizing {
 .ngi-collapsed .ngi-caret {
   background-position: 0 0;
 }
+.ngi-scope.ngi-expanded > label:hover > .ngi-caret {
+  background-position: 16px 16px;
+}
+.ngi-scope.ngi-collapsed > label:hover > .ngi-caret {
+  background-position: 16px 0;
+}
 .ngi-collapsed .ngi-drawer {
   display: none;
 }
@@ -131,12 +137,6 @@ body:not(.ngi-resizing) .ngi-inspector .ngi-scope > label:hover {
   color: white !important;
   border-top: 1px solid #6EA9E1  !important;
   border-bottom: 1px solid #4881C6  !important;
-}
-body:not(.ngi-resizing) .ngi-inspector .ngi-scope > label:hover .ngi-caret {
-  background-position: 16px 16px;
-}
-body:not(.ngi-resizing) .ngi-inspector .ngi-scope > label:hover .ngi-caret.ngi-collapsed {
-  background-position: 16px 0;
 }
 body:not(.ngi-resizing) .ngi-inspector .ngi-scope.ngi-isolate-scope > label:hover {
   /* background-image: url(chrome-extension://__MSG_@@extension_id__/icons/isolate-scope.png), linear-gradient(-179deg, #82beeb 0%, #5290d7 100%); */

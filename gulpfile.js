@@ -94,6 +94,7 @@ gulp.task('build:js', function() {
 		'src/js/Service.js',
 		'src/js/App.js',
 		'src/js/Module.js',
+		'src/js/ModelMixin.js',
 		'src/js/Scope.js',
 		'src/js/Model.js',
 		'src/js/bootstrap.js'

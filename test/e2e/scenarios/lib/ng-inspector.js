@@ -48,7 +48,7 @@ NGI.Inspector = function() {
 
 	// Debugging utlity, to be used in the console. Retrieves the "breadcrumb" of
 	// a specific scope in the hierarchy usage: ngInspector.scope('002')
-	this.scope = function(id) {
+	window.$scopeId = function(id) {
 
 		function findRoot(el) {
 			var child = el.firstChild;
@@ -439,34 +439,38 @@ NGI.TreeView = (function() {
 		this.drawer.className = 'ngi-drawer';
 		this.element.appendChild(this.drawer);
 
+		this.caret = document.createElement('span');
+		this.caret.className = 'ngi-caret';
+
 		this.length = null;
 
-		this.makeCollapsible = function(initialState) {
-			var caret = document.createElement('span');
-			caret.className = 'ngi-caret';
-			this.label.appendChild(caret);
+		var collapsed = false;
+		this.setCollapsed = function(newState) {
+			if (collapsed = newState) {
+				this.element.classList.add('ngi-collapsed');
+				this.element.classList.remove('ngi-expanded');
+			} else {
+				this.element.classList.remove('ngi-collapsed');
+				this.element.classList.add('ngi-expanded');
+			}
+		};
+		this.toggle = function(e) {
+			e.stopPropagation();
+			this.setCollapsed(!collapsed);
+		};
+		this.caret.addEventListener('click', this.toggle.bind(this));
 
-			var collapsed = initialState || false;
-
-			this.setCollapsed = function(state) {
-				collapsed = state;
-				if (collapsed) {
-					this.element.classList.add('ngi-collapsed');
-					this.element.classList.remove('ngi-expanded');
-				} else {
-					this.element.classList.remove('ngi-collapsed');
-					this.element.classList.add('ngi-expanded');
-				}
-			};
-
-			this.setCollapsed(collapsed);
-
-			this.toggle = function(e) {
-				e.stopPropagation();
-				this.setCollapsed(!collapsed);
-			};
-
-			caret.addEventListener('click', this.toggle.bind(this));
+		var isCollapsible = false;
+		this.makeCollapsible = function(collapsibleState, initialState) {
+			if (isCollapsible == collapsibleState) {
+				return;
+			}
+			if (isCollapsible = collapsibleState) {
+				this.label.appendChild(this.caret);
+				this.setCollapsed(initialState || false);
+			} else {
+				this.label.removeChild(this.caret);
+			}
 		}
 
 		this.addChild = function(childItem, top) {
@@ -558,8 +562,8 @@ NGI.TreeView = (function() {
 	// AngularJS scopes
 	TreeView.scopeItem = function(label, depth, isIsolate) {
 		var item = new TreeViewItem(label);
-		item.makeCollapsible();
 		item.element.className = 'ngi-scope';
+		item.makeCollapsible(true, false);
 		if (isIsolate) {
 			item.element.classList.add('ngi-isolate-scope');
 		}
@@ -1034,6 +1038,91 @@ NGI.Module = (function() {
 
 /* global NGI */
 /* jshint strict: false */
+
+NGI.ModelMixin = (function() {
+
+	// Keturns the keys for the user defined models in the scope excluding keys
+	// created by AngularJS or the `this` keyword, or the elements
+	// in an array or object
+	function getKeys(values) {
+		var keys = [];
+		for (var key in values) {
+			if (values.hasOwnProperty(key) && !/^\$/.test(key) && key !== 'this') {
+				keys.push(key);
+			}
+		}
+		return keys;
+	}
+
+	function arrayDiff(a, b) {
+		var i, ret = { added: [], removed: [], existing: [] };
+
+		// Iterate through b checking for added and existing elements
+		for (i = 0; i < b.length; i++) {
+			if (a.indexOf(b[i]) < 0) {
+				ret.added.push(b[i]);
+			} else {
+				ret.existing.push(b[i]);
+			}
+		}
+
+		// Iterate through a checking for removed elements
+		for (i = 0; i < a.length; i++) {
+			if (b.indexOf(a[i]) < 0) {
+				ret.removed.push(a[i]);
+			}
+		}
+
+		return ret;
+	}
+
+	function ModelMixin() {}
+
+	ModelMixin.prototype.values = {};
+	ModelMixin.prototype.keys = [];
+
+	ModelMixin.prototype.update = function(values, depth) {
+		var newKeys = getKeys(values),
+				diff = arrayDiff(this.keys, newKeys),
+				i, key;
+
+		this.keys = newKeys;
+		
+		// New keys
+		for (i = 0; i < diff.added.length; i++) {
+			key = diff.added[i];
+			this.values[key] = NGI.Model.instance(key, values[key], depth + 1);
+			var insertAtTop = this instanceof NGI.Scope;
+			this.view.addChild(this.values[key].view, insertAtTop);
+		}
+
+		// Updated keys
+		for (i = 0; i < diff.existing.length; i++) {
+			key = diff.existing[i];
+			this.values[key].setValue(values[key]);
+		}
+
+		// Removed keys
+		for (i = 0; i < diff.removed.length; i++) {
+			var key = diff.removed[i];
+			this.values[key].view.destroy();
+			delete this.values[key];
+		}
+	};
+
+	ModelMixin.extend = function(obj) {
+		var prop;
+		for (prop in ModelMixin.prototype) {
+			obj[prop] = ModelMixin.prototype[prop];
+		}
+	};
+
+	return ModelMixin;
+
+})();
+
+/* global NGI */
+/* jshint strict: false */
 /* jshint boss: true */
 
 NGI.Scope = (function() {
@@ -1061,28 +1150,6 @@ NGI.Scope = (function() {
 			this.node = this.view.node = node;
 		};
 
-		// Keturns the keys for the user defined models in the scope, excluding
-		// keys created by AngularJS or the `this` keyword
-		function modelKeys() {
-			var keys = [];
-			for (var key in ngScope) {
-				if (ngScope.hasOwnProperty(key) && !/^\$/.test(key) && key !== 'this') {
-					keys.push(key);
-				}
-			}
-			return keys;
-		}
-
-		// Returns an object representing the keys and values of the user defined
-		// models in the scope
-		function models() {
-			var obj = {}, keys = modelKeys();
-			for (var i = 0; i < keys.length; i++) {
-				obj[keys[i]] = ngScope[keys[i]];
-			}
-			return obj;
-		}
-
 		function childScopeIds() {
 			if (!ngScope.$$childHead) return [];
 			var childKeys = [];
@@ -1093,26 +1160,18 @@ NGI.Scope = (function() {
 			return childKeys;
 		}
 
-		var scopeModel = this;
-		function updateModels(models) {
-			view.removeChildren('ngi-model');
-			var keys = Object.keys(models);
-			for (var i = keys.length - 1; i >= 0; i--) {
-				var model = NGI.Model.instance(keys[i], models[keys[i]], depth+1);
-				scopeModel.view.addChild(model.view, true);
-			}
-		}
-
 		var oldChildIds = childScopeIds();
-		var oldModels = models();
-		updateModels(oldModels);
 
 		var destroyDeregister = angular.noop;
 		var watchDeregister = angular.noop;
 		var observerOn = false;
 
+		NGI.ModelMixin.extend(this);
+		this.update(ngScope, depth);
+
 		this.startObserver = function() {
 			if (observerOn === false) {
+				var scopeObj = this;
 				destroyDeregister = ngScope.$on('$destroy', function() {
 					view.destroy();
 				});
@@ -1126,11 +1185,8 @@ NGI.Scope = (function() {
 					oldChildIds = newChildIds;
 
 					// Models
-					var newModels = models();
-					if (!angular.equals(oldModels, newModels)) {
-						updateModels(newModels);
-					}
-					oldModels = newModels;
+					scopeObj.update(ngScope, depth);
+
 				});
 				observerOn = true;
 			}
@@ -1192,101 +1248,96 @@ NGI.Model = (function() {
 
 		this.view = NGI.TreeView.modelItem(key, value, depth);
 
-		this.arrayChildren = function() {
-			this.view.makeCollapsible(true);
-			for (var i = 0; i < value.length; i++) {
-				var childModel = NGI.Model.instance(i, value[i], depth+1);
-				this.view.addChild(childModel.view);
-			}
-		};
-
-		this.objectChildren = function() {
-			this.view.makeCollapsible(true);
-			for (var k in value) {
-				var childModel = NGI.Model.instance(k, value[k], depth+1);
-				this.view.addChild(childModel.view);
-			}
-		};
-
 		var valSpan = document.createElement('span');
 		valSpan.className = 'ngi-value';
 
-		// String
-		if (angular.isString(value)) {
-			this.view.setType('ngi-model-string');
-			if (value.trim().length > 25) {
-				valSpan.innerText = '"' + value.trim().substr(0, 25) + ' (...)"';
-				this.view.setIndicator(value.length);
+		NGI.ModelMixin.extend(this);
+
+		this.setValue = function(newValue) {
+
+			value = newValue;
+
+			// String
+			if (angular.isString(value)) {
+				this.view.setType('ngi-model-string');
+				if (value.trim().length > 25) {
+					valSpan.innerText = '"' + value.trim().substr(0, 25) + ' (...)"';
+					this.view.setIndicator(value.length);
+				}
+				else {
+					valSpan.innerText = '"' + value.trim() + '"';
+				}
 			}
+
+			// Function
+			else if (angular.isFunction(value)) {
+				this.view.setType('ngi-model-function');
+				var args = angular.injector().annotate(value).join(', ');
+				valSpan.innerText = 'function(' + args + ') {...}';
+			}
+
+			// Array
+			else if (angular.isArray(value)) {
+				this.view.setType('ngi-model-array');
+				var length = value.length;
+				if (length === 0) {
+					valSpan.innerText = '[]';
+				}
+				else {
+					valSpan.innerText = '[...]';
+					this.view.setIndicator(length);
+				}
+				this.view.makeCollapsible(true, true);
+				this.update(value, depth + 1);
+			}
+
+			// Object
+			else if (angular.isObject(value)) {
+				this.view.setType('ngi-model-object');
+				var length = Object.keys(value).length;
+				if (length === 0) {
+					valSpan.innerText = '{}';
+				}
+				else {
+					valSpan.innerText = '{...}';
+					this.view.setIndicator(length);
+				}
+				this.view.makeCollapsible(true, false);
+				this.update(value, depth + 1);
+			}
+
+			// Boolean
+			else if (typeof value === 'boolean') {
+				this.view.setType('ngi-model-boolean');
+				valSpan.innerText = value;
+			}
+
+			// Number
+			else if (angular.isNumber(value)) {
+				this.view.setType('ngi-model-number');
+				valSpan.innerText = value;
+			}
+
+			// DOM Element
+			else if (angular.isElement(value)) {
+				this.view.setType('ngi-model-element');
+				valSpan.innerText = '<' + value.tagName + '>';
+			}
+
+			// NULL
+			else if (value === null) {
+				this.view.setType('ngi-model-null');
+				valSpan.innerText = 'null';
+			}
+
+			// Undefined
 			else {
-				valSpan.innerText = '"' + value.trim() + '"';
+				this.view.setType('ngi-model-undefined');
+				valSpan.innerText = 'undefined';
 			}
-		}
 
-		// Function
-		else if (angular.isFunction(value)) {
-			this.view.setType('ngi-model-function');
-			var args = angular.injector().annotate(value).join(', ');
-			valSpan.innerText = 'function(' + args + ') {...}';
-		}
-
-		// Array
-		else if (angular.isArray(value)) {
-			this.arrayChildren();
-			this.view.setType('ngi-model-array');
-			var length = value.length;
-			if (length === 0) {
-				valSpan.innerText = '[]';
-			}
-			else {
-				valSpan.innerText = '[...]';
-				this.view.setIndicator(length);
-			}	
-		}
-
-		// Object
-		else if (angular.isObject(value)) {
-			this.view.setType('ngi-model-object');
-			var length = Object.keys(value).length;
-			if (length === 0) {
-				valSpan.innerText = '{}';
-			}
-			else {
-				valSpan.innerText = '{...}';
-				this.view.setIndicator(length);
-			}
-			this.objectChildren();
-		}
-
-		// Boolean
-		else if (typeof value === 'boolean') {
-			this.view.setType('ngi-model-boolean');
-			valSpan.innerText = value;
-		}
-
-		// Number
-		else if (angular.isNumber(value)) {
-			this.view.setType('ngi-model-number');
-			valSpan.innerText = value;
-		}
-
-		// DOM Element
-		else if (angular.isElement(value)) {
-			this.view.setType('ngi-model-element');
-			valSpan.innerText = '<' + value.tagName + '>';
-		}
-
-		// NULL
-		else if (value === null) {
-			this.view.setType('ngi-model-null');
-			valSpan.innerText = 'null';
-		}
-
-		// Undefined
-		else {
-			this.view.setType('ngi-model-undefined');
-			valSpan.innerText = 'undefined';
-		}
+		};
+		this.setValue(value);
 
 		this.view.label.appendChild(document.createTextNode(' '));
 		this.view.label.appendChild(valSpan);

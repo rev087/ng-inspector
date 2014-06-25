@@ -17,34 +17,38 @@ NGI.TreeView = (function() {
 		this.drawer.className = 'ngi-drawer';
 		this.element.appendChild(this.drawer);
 
+		this.caret = document.createElement('span');
+		this.caret.className = 'ngi-caret';
+
 		this.length = null;
 
-		this.makeCollapsible = function(initialState) {
-			var caret = document.createElement('span');
-			caret.className = 'ngi-caret';
-			this.label.appendChild(caret);
+		var collapsed = false;
+		this.setCollapsed = function(newState) {
+			if (collapsed = newState) {
+				this.element.classList.add('ngi-collapsed');
+				this.element.classList.remove('ngi-expanded');
+			} else {
+				this.element.classList.remove('ngi-collapsed');
+				this.element.classList.add('ngi-expanded');
+			}
+		};
+		this.toggle = function(e) {
+			e.stopPropagation();
+			this.setCollapsed(!collapsed);
+		};
+		this.caret.addEventListener('click', this.toggle.bind(this));
 
-			var collapsed = initialState || false;
-
-			this.setCollapsed = function(state) {
-				collapsed = state;
-				if (collapsed) {
-					this.element.classList.add('ngi-collapsed');
-					this.element.classList.remove('ngi-expanded');
-				} else {
-					this.element.classList.remove('ngi-collapsed');
-					this.element.classList.add('ngi-expanded');
-				}
-			};
-
-			this.setCollapsed(collapsed);
-
-			this.toggle = function(e) {
-				e.stopPropagation();
-				this.setCollapsed(!collapsed);
-			};
-
-			caret.addEventListener('click', this.toggle.bind(this));
+		var isCollapsible = false;
+		this.makeCollapsible = function(collapsibleState, initialState) {
+			if (isCollapsible == collapsibleState) {
+				return;
+			}
+			if (isCollapsible = collapsibleState) {
+				this.label.appendChild(this.caret);
+				this.setCollapsed(initialState || false);
+			} else {
+				this.label.removeChild(this.caret);
+			}
 		}
 
 		this.addChild = function(childItem, top) {
@@ -136,8 +140,8 @@ NGI.TreeView = (function() {
 	// AngularJS scopes
 	TreeView.scopeItem = function(label, depth, isIsolate) {
 		var item = new TreeViewItem(label);
-		item.makeCollapsible();
 		item.element.className = 'ngi-scope';
+		item.makeCollapsible(true, false);
 		if (isIsolate) {
 			item.element.classList.add('ngi-isolate-scope');
 		}
