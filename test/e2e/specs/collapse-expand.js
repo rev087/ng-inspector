@@ -39,20 +39,20 @@ describe('collapse and expand treeview items', function() {
 	});
 
 	it('should expand and collapse object models', function() {
-		// The string property should be initially visible
-		expect($p('ngi-model-object', ['ngi-model-string', 1]).isDisplayed()).toBe(true);
+		// The string property should be initially hidden
+		expect($p('ngi-model-object', ['ngi-model-string', 1]).isDisplayed()).toBe(false);
 
-		// Click the caret to collapse the object
+		// Click the caret to expand the object
 		toggle('ngi-model-object');
 
 		// The string property should now be visible
-		expect($p('ngi-model-object', ['ngi-model-string', 1]).isDisplayed()).toBe(false);
+		expect($p('ngi-model-object', ['ngi-model-string', 1]).isDisplayed()).toBe(true);
 
-		// Click the caret again to expand the object
+		// Click the caret again to collapse the object
 		toggle('ngi-model-object');
 
-		// The string property should not be visible
-		expect($p('ngi-model-object', ['ngi-model-string', 1]).isDisplayed()).toBe(true);
+		// The string property should not be hidden
+		expect($p('ngi-model-object', ['ngi-model-string', 1]).isDisplayed()).toBe(false);
 	});
 
 	it('should expand and collapse array models', function() {
@@ -74,26 +74,32 @@ describe('collapse and expand treeview items', function() {
 
 	it('should expand and collapse nested objects and arrays', function() {
 
-		// Child Array should be visible
+		// Array inside Object should be initially hidden
+		expect($p('ngi-model-object', ['ngi-model', 3]).isDisplayed()).toBe(false);
+
+		// Click the caret to expand the object
+		toggle('ngi-model-object');
+
+		// Array inside Object should now be visible
 		expect($p('ngi-model-object', ['ngi-model', 3]).isDisplayed()).toBe(true);
 
-		// Child array's child should not be visible
+		// Object > Array > child should be hidden
 		expect($p('ngi-model-object', ['ngi-model', 3], ['ngi-model', 1]).isDisplayed()).toBe(false);
 
-		// Toggle the child array's state
+		// Click the caret on Object > Array to expand it
 		toggle('ngi-model-object', ['ngi-model', 3]);
 
-		// Child array's child should now be visible
+		// Object > Array > child should now be visible
 		expect($p('ngi-model-object', ['ngi-model', 3], ['ngi-model', 1]).isDisplayed()).toBe(true);
 
-		// It's child should be visible
-		expect($p('ngi-model-object', ['ngi-model', 3], ['ngi-model', 1], ['ngi-model', 1]).isDisplayed()).toBe(true);
+		// Object > Array > Object > child should be hidden
+		expect($p('ngi-model-object', ['ngi-model', 3], ['ngi-model', 1], ['ngi-model', 1]).isDisplayed()).toBe(false);
 
-		// Toggle it
+		// Click the caret on Object > Array > Object to expand it
 		toggle('ngi-model-object', ['ngi-model', 3], ['ngi-model', 1]);
 
-		// It's child should now be hidden
-		expect($p('ngi-model-object', ['ngi-model', 3], ['ngi-model', 1], ['ngi-model', 1]).isDisplayed()).toBe(false);
+		// Object > Array > Object > child should now be visible
+		expect($p('ngi-model-object', ['ngi-model', 3], ['ngi-model', 1], ['ngi-model', 1]).isDisplayed()).toBe(true);
 	});
 
 });
