@@ -1117,12 +1117,6 @@ NGI.ModelMixin = (function() {
 
 	ModelMixin.extend = function(obj) {
 		obj.update = ModelMixin.update.bind(obj);
-		// var prop;
-		// for (prop in ModelMixin) {
-		// 	if (prop !== 'extend') {
-		// 		obj[prop] = ModelMixin[prop];
-		// 	}
-		// }
 	};
 
 	return ModelMixin;
@@ -1313,7 +1307,7 @@ NGI.Model = (function() {
 					valSpan.innerText = '{...}';
 					this.view.setIndicator(length);
 				}
-				this.view.makeCollapsible(true, false);
+				this.view.makeCollapsible(true, true);
 				this.update(value, depth + 1);
 			}
 

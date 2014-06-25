@@ -64,7 +64,7 @@ NGI.Model = (function() {
 					valSpan.innerText = '{...}';
 					this.view.setIndicator(length);
 				}
-				this.view.makeCollapsible(true, false);
+				this.view.makeCollapsible(true, true);
 				this.update(value, depth + 1);
 			}
 
