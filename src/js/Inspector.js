@@ -46,7 +46,7 @@ NGI.Inspector = function() {
 
 	// Debugging utlity, to be used in the console. Retrieves the "breadcrumb" of
 	// a specific scope in the hierarchy usage: ngInspector.scope('002')
-	this.scope = function(id) {
+	window.$scopeId = function(id) {
 
 		function findRoot(el) {
 			var child = el.firstChild;

@@ -17,7 +17,39 @@ NGI.TreeView = (function() {
 		this.drawer.className = 'ngi-drawer';
 		this.element.appendChild(this.drawer);
 
+		this.caret = document.createElement('span');
+		this.caret.className = 'ngi-caret';
+
 		this.length = null;
+
+		var collapsed = false;
+		this.setCollapsed = function(newState) {
+			if (collapsed = newState) {
+				this.element.classList.add('ngi-collapsed');
+				this.element.classList.remove('ngi-expanded');
+			} else {
+				this.element.classList.remove('ngi-collapsed');
+				this.element.classList.add('ngi-expanded');
+			}
+		};
+		this.toggle = function(e) {
+			e.stopPropagation();
+			this.setCollapsed(!collapsed);
+		};
+		this.caret.addEventListener('click', this.toggle.bind(this));
+
+		var isCollapsible = false;
+		this.makeCollapsible = function(collapsibleState, initialState) {
+			if (isCollapsible == collapsibleState) {
+				return;
+			}
+			if (isCollapsible = collapsibleState) {
+				this.label.appendChild(this.caret);
+				this.setCollapsed(initialState || false);
+			} else {
+				this.label.removeChild(this.caret);
+			}
+		}
 
 		this.addChild = function(childItem, top) {
 			if (!!top) {
@@ -109,6 +141,7 @@ NGI.TreeView = (function() {
 	TreeView.scopeItem = function(label, depth, isIsolate) {
 		var item = new TreeViewItem(label);
 		item.element.className = 'ngi-scope';
+		item.makeCollapsible(true, false);
 		if (isIsolate) {
 			item.element.classList.add('ngi-isolate-scope');
 		}
@@ -116,8 +149,9 @@ NGI.TreeView = (function() {
 
 		// Highlight DOM elements the scope is attached to when hovering the item
 		// in the inspector
-		item.label.addEventListener('mouseover', function() {
-			if ( item.node && !window.ngInspector.pane.isResizing ) {
+		item.label.addEventListener('mouseover', function(event) {
+			var isCaret = event.target && event.target.classList.contains('ngi-caret');
+			if ( item.node && !window.ngInspector.pane.isResizing && !isCaret) {
 				var target = (item.node === document) ?
 					document.querySelector('html') : item.node;
 				// target.classList.add('ngi-highlight');

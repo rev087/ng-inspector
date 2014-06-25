@@ -72,11 +72,24 @@ body {
 	background-repeat: no-repeat;
 }
 
-/* Clickthrough */
-.ngi-inspector.ngi-clickthrough {
-	pointer-events: none;
-	opacity: .2;
+.ngi-caret {
+	width: 16px;
+	background: url(icons/caret.png) 0px 16px;
+	display: block;
+	position: absolute;
+	left: 0;
+	top: 7px;
+	width: 16px;
+	height: 16px;
+
+	.ngi-collapsed & { background-position: 0 0; }
+	.ngi-scope.ngi-expanded > label:hover > & { background-position: 16px 16px; }
+	.ngi-scope.ngi-collapsed > label:hover > & { background-position: 16px 0; }
 }
+
+.ngi-collapsed .ngi-drawer { display: none; }
+.ngi-expanded > label > .ngi-value { display: none; }
+.ngi-expanded > label > .ngi-indicator { display: none; }
 
 .ngi-inspector .ngi-app>label {
 	box-sizing: border-box;
@@ -110,6 +123,7 @@ body {
 .ngi-inspector .ngi-scope > label {
 	box-sizing: border-box;
 	display: block;
+	position: relative;
 
 	line-height: 30px;
 	
@@ -213,38 +227,21 @@ body:not(.ngi-resizing) .ngi-inspector .ngi-model > label:hover {
 	top: 5px; right: 7px;
 }
 
-.ngi-inspector .ngi-drawer.ngi-collapsed { display: none; }
 .ngi-inspector ul { list-style: none; }
 .ngi-inspector label img { vertical-align: -3px; }
 
-.ngi-inspector .ngi-depth-0 { padding-left: 25px !important; background-position: 5px 7px, 0 0 !important; }
-.ngi-inspector .ngi-depth-1 { padding-left: 40px !important; background-position: 20px 7px, 0 0 !important; }
-.ngi-inspector .ngi-depth-2 { padding-left: 55px !important; background-position: 35px 7px, 0 0 !important; }
-.ngi-inspector .ngi-depth-3 { padding-left: 70px !important; background-position: 50px 7px, 0 0 !important; }
-.ngi-inspector .ngi-depth-4 { padding-left: 85px !important; background-position: 65px 7px, 0 0 !important; }
-.ngi-inspector .ngi-depth-5 { padding-left: 100px !important; background-position: 80px 7px, 0 0 !important; }
-.ngi-inspector .ngi-depth-6 { padding-left: 115px !important; background-position: 95px 7px, 0 0 !important; }
-.ngi-inspector .ngi-depth-7 { padding-left: 130px !important; background-position: 110px 7px, 0 0 !important; }
-.ngi-inspector .ngi-depth-8 { padding-left: 145px !important; background-position: 125px 7px, 0 0 !important; }
-.ngi-inspector .ngi-depth-9 { padding-left: 160px !important; background-position: 140px 7px, 0 0 !important; }
-.ngi-inspector .ngi-depth-10 { padding-left: 175px !important; background-position: 155px 7px, 0 0 !important; }
-.ngi-inspector .ngi-depth-11 { padding-left: 190px !important; background-position: 170px 7px, 0 0 !important; }
-.ngi-inspector .ngi-depth-12 { padding-left: 205px !important; background-position: 185px 7px, 0 0 !important; }
-.ngi-inspector .ngi-depth-13 { padding-left: 220px !important; background-position: 200px 7px, 0 0 !important; }
-.ngi-inspector .ngi-depth-14 { padding-left: 235px !important; background-position: 215px 7px, 0 0 !important; }
-.ngi-inspector .ngi-depth-15 { padding-left: 250px !important; background-position: 230px 7px, 0 0 !important; }
-.ngi-inspector .ngi-depth-16,
-.ngi-inspector .ngi-depth-17,
-.ngi-inspector .ngi-depth-18,
-.ngi-inspector .ngi-depth-19,
-.ngi-inspector .ngi-depth-20,
-.ngi-inspector .ngi-depth-21,
-.ngi-inspector .ngi-depth-22,
-.ngi-inspector .ngi-depth-23,
-.ngi-inspector .ngi-depth-24,
-.ngi-inspector .ngi-depth-25,
-.ngi-inspector .ngi-depth-26,
-.ngi-inspector .ngi-depth-27,
-.ngi-inspector .ngi-depth-28,
-.ngi-inspector .ngi-depth-29,
-.ngi-inspector .ngi-depth-30 { padding-left: 265px !important; background-position: 245px 7px, 0 0 !important; }
+// Make the .ngi-depth-N classes
+.loop(@i) when (@i <= 30) {
+	.loop((@i + 1));
+	.ngi-depth-@{i} {
+		padding-left: 36px + (@i * 10px) !important;
+		background-position: 16px + (@i * 10px) 7px, 0 0 !important;
+		.ngi-caret {
+			margin-left: @i * 10px;
+		}
+	}
+}
+
+.ngi-inspector {
+	.loop(0);
+}
