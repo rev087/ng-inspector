@@ -79,12 +79,6 @@ NGI.ModelMixin = (function() {
 
 	ModelMixin.extend = function(obj) {
 		obj.update = ModelMixin.update.bind(obj);
-		// var prop;
-		// for (prop in ModelMixin) {
-		// 	if (prop !== 'extend') {
-		// 		obj[prop] = ModelMixin[prop];
-		// 	}
-		// }
 	};
 
 	return ModelMixin;
