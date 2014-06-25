@@ -38,10 +38,12 @@ function bootstrap() {
 		window.angular.bootstrap = function(node, modules) {
 
 			// Continue with angular's native bootstrap method
-			_bootstrap.apply(this, arguments);
+			var ret = _bootstrap.apply(this, arguments);
 
 			// The dependencies are regitered by the `NGI.Module` object
 			NGI.App.bootstrap(node, modules);
+
+			return ret;
 		};
 
 		// Once the `angular.bootstrap` method has been wrapped, we can stop
