@@ -792,10 +792,8 @@ NGI.Service = (function() {
 
 	Service.parseQueue = function(app, module) {
 		var arr = [],
-		    queue = module._invokeQueue,
-			tempQueue,
-			i,
-			j;
+				queue = module._invokeQueue,
+				tempQueue, i, j;
 		for (i = 0; i < queue.length; i++) {
 			if (queue[i][2].length === 1 && !(queue[i][2][0] instanceof Array)) {
 				for (j in queue[i][2][0]) {
