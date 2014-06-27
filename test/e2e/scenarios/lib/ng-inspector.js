@@ -791,10 +791,23 @@ NGI.Service = (function() {
 	Service.BUILTIN = 4;
 
 	Service.parseQueue = function(app, module) {
-		var arr = [];
-		var queue = module._invokeQueue;
-		for (var i = 0; i < queue.length; i++) {
-			arr.push(new Service(app, module, queue[i]));
+		var arr = [],
+		    queue = module._invokeQueue,
+			tempQueue,
+			i,
+			j;
+		for (i = 0; i < queue.length; i++) {
+			if (queue[i][2].length === 1 && !(queue[i][2][0] instanceof Array)) {
+				for (j in queue[i][2][0]) {
+					if (Object.hasOwnProperty.call(queue[i][2][0], j)) {
+						tempQueue = queue[i].slice();
+						tempQueue[2] = [Object.keys(queue[i][2][0])[j], queue[i][2][0][j]];
+						arr.push(new Service(app, module, tempQueue));
+					}
+				}
+			} else {
+				arr.push(new Service(app, module, queue[i]));
+			}
 		}
 		return arr;
 	};
@@ -802,6 +815,7 @@ NGI.Service = (function() {
 	return Service;
 
 })();
+
 
 /* global NGI */
 /* jshint strict: false */
