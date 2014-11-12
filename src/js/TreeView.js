@@ -147,7 +147,7 @@ NGI.TreeView = (function() {
 		if (isIsolate) {
 			item.element.classList.add('ngi-isolate-scope');
 		}
-		item.label.className = 'ngi-depth-' + depth;
+		item.label.className = 'ngi-depth-' + depth.length;
 
 		// Highlight DOM elements the scope is attached to when hovering the item
 		// in the inspector
@@ -179,7 +179,7 @@ NGI.TreeView = (function() {
 	TreeView.modelItem = function(key, value, depth) {
 		var item = new TreeViewItem(key + ':');
 		item.element.className = 'ngi-model';
-		item.label.className = 'ngi-depth-' + depth;
+		item.label.className = 'ngi-depth-' + depth.length;
 
 		item.label.addEventListener('click', function() {
 			console.log(value);

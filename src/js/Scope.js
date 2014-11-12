@@ -13,9 +13,9 @@ NGI.Scope = (function() {
 
 		// Calculate the scope depth in the tree to determine the intendation level
 		// in the TreeView
-		var depth = 0;
 		var reference = ngScope;
-		while (reference = reference.$parent) { depth++; }
+		var depth = [reference];
+		while (reference = reference.$parent) { depth.push(reference); }
 
 		// Instantiate and expose the TreeViewItem representing the scope
 		var view = this.view = NGI.TreeView.scopeItem(ngScope.$id, depth, isIsolate);

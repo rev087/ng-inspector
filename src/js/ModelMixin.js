@@ -59,7 +59,7 @@ NGI.ModelMixin = (function() {
 		// New keys
 		for (i = 0; i < diff.added.length; i++) {
 			key = diff.added[i];
-			this.modelObjs[key] = NGI.Model.instance(key, values[key], depth + 1);
+			this.modelObjs[key] = NGI.Model.instance(key, values[key], depth.concat([values]));
 			var insertAtTop = this instanceof NGI.Scope;
 			this.view.addChild(this.modelObjs[key].view, insertAtTop);
 		}

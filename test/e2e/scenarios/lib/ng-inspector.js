@@ -491,7 +491,9 @@ NGI.TreeView = (function() {
 		};
 
 		this.destroy = function() {
-			this.element.parentNode.removeChild(this.element);
+			if (this.element.parentNode) {
+				this.element.parentNode.removeChild(this.element);
+			}
 		};
 
 		// Pill indicator
@@ -567,7 +569,7 @@ NGI.TreeView = (function() {
 		if (isIsolate) {
 			item.element.classList.add('ngi-isolate-scope');
 		}
-		item.label.className = 'ngi-depth-' + depth;
+		item.label.className = 'ngi-depth-' + depth.length;
 
 		// Highlight DOM elements the scope is attached to when hovering the item
 		// in the inspector
@@ -599,7 +601,7 @@ NGI.TreeView = (function() {
 	TreeView.modelItem = function(key, value, depth) {
 		var item = new TreeViewItem(key + ':');
 		item.element.className = 'ngi-model';
-		item.label.className = 'ngi-depth-' + depth;
+		item.label.className = 'ngi-depth-' + depth.length;
 
 		item.label.addEventListener('click', function() {
 			console.log(value);
@@ -611,6 +613,7 @@ NGI.TreeView = (function() {
 	return TreeView;
 
 })();
+
 
 /* global NGI */
 /* jshint strict: false */
@@ -1109,7 +1112,7 @@ NGI.ModelMixin = (function() {
 		// New keys
 		for (i = 0; i < diff.added.length; i++) {
 			key = diff.added[i];
-			this.modelObjs[key] = NGI.Model.instance(key, values[key], depth + 1);
+			this.modelObjs[key] = NGI.Model.instance(key, values[key], depth.concat([values]));
 			var insertAtTop = this instanceof NGI.Scope;
 			this.view.addChild(this.modelObjs[key].view, insertAtTop);
 		}
@@ -1135,6 +1138,7 @@ NGI.ModelMixin = (function() {
 
 })();
 
+
 /* global NGI */
 /* jshint strict: false */
 /* jshint boss: true */
@@ -1150,9 +1154,9 @@ NGI.Scope = (function() {
 
 		// Calculate the scope depth in the tree to determine the intendation level
 		// in the TreeView
-		var depth = 0;
 		var reference = ngScope;
-		while (reference = reference.$parent) { depth++; }
+		var depth = [reference];
+		while (reference = reference.$parent) { depth.push(reference); }
 
 		// Instantiate and expose the TreeViewItem representing the scope
 		var view = this.view = NGI.TreeView.scopeItem(ngScope.$id, depth, isIsolate);
@@ -1253,6 +1257,7 @@ NGI.Scope = (function() {
 
 })();
 
+
 /* global NGI */
 /* jshint strict: false */
 
@@ -1293,6 +1298,13 @@ NGI.Model = (function() {
 				valSpan.innerText = 'function(' + args + ') {...}';
 			}
 
+			// Circular
+			else if (depth.indexOf(value) >= 0) {
+				console.log(depth, value);
+				this.view.setType('ngi-model-object');
+				valSpan.innerText = '{ Circular }';
+			}
+
 			// Array
 			else if (angular.isArray(value)) {
 				this.view.setType('ngi-model-array');
@@ -1305,7 +1317,7 @@ NGI.Model = (function() {
 					this.view.setIndicator(length);
 				}
 				this.view.makeCollapsible(true, true);
-				this.update(value, depth + 1);
+				this.update(value, depth.concat([this.value]));
 			}
 
 			// Object
@@ -1320,7 +1332,7 @@ NGI.Model = (function() {
 					this.view.setIndicator(length);
 				}
 				this.view.makeCollapsible(true, true);
-				this.update(value, depth + 1);
+				this.update(value, depth.concat([this.value]));
 			}
 
 			// Boolean
@@ -1360,13 +1372,14 @@ NGI.Model = (function() {
 		this.view.label.appendChild(valSpan);
 	}
 
-	Model.instance = function(scope, key, value, depth) {
-		return new Model(scope, key, value, depth);
+	Model.instance = function(key, value, depth) {
+		return new Model(key, value, depth);
 	};
 
 	return Model;
 
 })();
+
 
 /* global NGI, console */
 /* jshint strict: false */
