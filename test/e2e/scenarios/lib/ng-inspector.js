@@ -1300,9 +1300,14 @@ NGI.Model = (function() {
 
 			// Circular
 			else if (depth.indexOf(value) >= 0) {
-				console.log(depth, value);
 				this.view.setType('ngi-model-object');
 				valSpan.innerText = '{ Circular }';
+			}
+
+			// NULL
+			else if (value === null) {
+				this.view.setType('ngi-model-null');
+				valSpan.innerText = 'null';
 			}
 
 			// Array
@@ -1318,6 +1323,12 @@ NGI.Model = (function() {
 				}
 				this.view.makeCollapsible(true, true);
 				this.update(value, depth.concat([this.value]));
+			}
+
+			// DOM Element
+			else if (angular.isElement(value)) {
+				this.view.setType('ngi-model-element');
+				valSpan.innerText = '<' + value.tagName + '>';
 			}
 
 			// Object
@@ -1345,18 +1356,6 @@ NGI.Model = (function() {
 			else if (angular.isNumber(value)) {
 				this.view.setType('ngi-model-number');
 				valSpan.innerText = value;
-			}
-
-			// DOM Element
-			else if (angular.isElement(value)) {
-				this.view.setType('ngi-model-element');
-				valSpan.innerText = '<' + value.tagName + '>';
-			}
-
-			// NULL
-			else if (value === null) {
-				this.view.setType('ngi-model-null');
-				valSpan.innerText = 'null';
 			}
 
 			// Undefined
