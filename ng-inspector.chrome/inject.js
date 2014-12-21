@@ -10,7 +10,7 @@ if (window.top === window) {
 	if ('chrome' in window) {
 		chrome.runtime.onMessage.addListener(function(message, sender) {
 			if (message.command && message.command === 'ngi-toggle') {
-				window.postMessage(message, window.location.origin);
+				window.postMessage(JSON.stringify(message), window.location.origin);
 			}
 		});
 	}
