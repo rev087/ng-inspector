@@ -40,7 +40,10 @@ function bootstrap() {
 			// Continue with angular's native bootstrap method
 			var ret = _bootstrap.apply(this, arguments);
 
-			// The dependencies are regitered by the `NGI.Module` object
+			// Unwrap if jQuery or jqLite element
+			if (node.jquery || node.injector) node = node[0];
+
+			// The dependencies are registered by the `NGI.Module` object
 			NGI.App.bootstrap(node, modules);
 
 			return ret;
