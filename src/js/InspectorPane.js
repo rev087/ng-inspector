@@ -14,6 +14,9 @@ NGI.InspectorPane = function() {
 	// localStorage
 	var inspectorWidth = localStorage.getItem('ng-inspector-width') || 300;
 
+	// Quicker reference to body through-out InspectorPane lexical scope
+	var body = document.body;
+
 	// Create the root DOM node for the inspector pane
 	var pane = document.createElement('div');
 	pane.className = 'ngi-inspector';
@@ -50,23 +53,26 @@ NGI.InspectorPane = function() {
 			mouseup: {fn: onMouseUp, target: document},
 			resize: {fn: onResize, target: window}
 		};
+
 		if ( pane.parentNode ) {
-			this.visible = false;
-			document.body.removeChild(pane);
-			document.body.classList.remove('ngi-open');
+			body.removeChild(pane);
+			body.classList.remove('ngi-open');
+			setStyleProps(body, {
+				'width': '100%',
+				'margin-right': 0
+			});
 			this.clear();
-			Object.keys(events).forEach(function(key) {
-				events[key].target.removeEventListener(key, events[key].fn);
-			});
-			return false;
+			eventListenerBulk(events, true);
+			return this.visible = false;;
 		} else {
-			this.visible = true;
-			document.body.appendChild(pane);
-			document.body.classList.add('ngi-open');
-			Object.keys(events).forEach(function(key) {
-				events[key].target.addEventListener(key, events[key].fn);
+			body.appendChild(pane);
+			body.classList.add('ngi-open');
+			setStyleProps(body, {
+				'width': 'calc(100% - ' + pane.offsetWidth + 'px)',
+				'margin-right': pane.offsetWidth + 'px'
 			});
-			return true;
+			eventListenerBulk(events, false);
+			return this.visible = true;
 		}
 	};
 
@@ -112,10 +118,10 @@ NGI.InspectorPane = function() {
 		if (pane.offsetLeft - LEFT_RESIZE_HANDLE_PAD <= event.clientX &&
 			event.clientX <= pane.offsetLeft + RIGHT_RESIZE_HANDLE_PAD) {
 			canResize = true;
-			document.body.classList.add('ngi-resize');
+			body.classList.add('ngi-resize');
 		} else {
 			canResize = false;
-			document.body.classList.remove('ngi-resize');
+			body.classList.remove('ngi-resize');
 		}
 		
 		// If the user is currently performing a resize, the width is adjusted
@@ -142,7 +148,7 @@ NGI.InspectorPane = function() {
 	function onMouseDown() {
 		if (canResize) {
 			isResizing = true;
-			document.body.classList.add('ngi-resizing');
+			body.classList.add('ngi-resizing');
 		}
 	}
 	
@@ -152,7 +158,8 @@ NGI.InspectorPane = function() {
 	function onMouseUp() {
 		if (isResizing) {
 			isResizing = false;
-			document.body.classList.remove('ngi-resizing');
+			body.classList.remove('ngi-resizing');
+			setStyleProps(body, {'width': 'calc(100% - ' + pane.offsetWidth + 'px)'});
 			localStorage.setItem('ng-inspector-width', pane.offsetWidth);
 		}
 	}
@@ -160,9 +167,27 @@ NGI.InspectorPane = function() {
 	// If the user contracts the window, this makes sure the pane won't end up
 	// wider thant the viewport
 	function onResize() {
-		if (pane.offsetWidth >= document.body.offsetWidth - MINIMUM_WIDTH) {
-			pane.style.width = (document.body.offsetWidth - MINIMUM_WIDTH) + 'px';
+		if (pane.offsetWidth >= body.offsetWidth - MINIMUM_WIDTH) {
+			pane.style.width = (body.offsetWidth - MINIMUM_WIDTH) + 'px';
 		}
+	}
+
+	// Utility function to set multiple styles on an element, while ensuring 
+	// all styles set dynamically for the inspector pane have the "!important" rule enforced,
+	// to prevent collisions with the app(s) being inspected
+	function setStyleProps(element, stylesObj) {
+		Object.keys(stylesObj).forEach(function(styleProp) {
+			element.style.setProperty(styleProp, stylesObj[styleProp], 'important');
+		});
+	}
+
+	// Can perform a mapping of events/functions to addEventListener
+	// or removeEventListener, to prevent code duplication when bulk adding/removing
+	function eventListenerBulk(eventsObj, remove) {
+		var eventListenerFunc = remove ? 'removeEventListener' : 'addEventListener';
+		Object.keys(eventsObj).forEach(function(event) {
+			eventsObj[event].target[eventListenerFunc](event, eventsObj[event].fn);
+		});
 	}
 
 };

@@ -29,8 +29,6 @@ body.ngi-resizing {
   cursor: col-resize !important;
 }
 .ngi-open {
-  margin-right: 300px !important;
-  width: calc(100% -  300px) !important;
   overflow: scroll !important;
 }
 .ngi-inspector {
