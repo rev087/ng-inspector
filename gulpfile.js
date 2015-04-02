@@ -100,7 +100,7 @@ gulp.task('build:js', function() {
 		'src/js/bootstrap.js'
 	])
 		.pipe(concat('ng-inspector.js', {newLine:"\n\n"}))
-		.pipe(wrap("\"use strict\";\n(function(window) {\n<%= contents %>\n})(window);"), {variable:'data'})
+		.pipe(wrap("(function(window) {\n\"use strict\";\n\n<%= contents %>\n})(window);"), {variable:'data'})
 		.pipe(gulp.dest('ng-inspector.safariextension/'))
 		.pipe(gulp.dest('ng-inspector.chrome/'))
 		.pipe(gulp.dest('test/e2e/scenarios/lib/'));

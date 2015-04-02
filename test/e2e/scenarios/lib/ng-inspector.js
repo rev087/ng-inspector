@@ -1,5 +1,6 @@
-"use strict";
 (function(window) {
+"use strict";
+
 /* jshint strict: false */
 
 var NGI = {};
