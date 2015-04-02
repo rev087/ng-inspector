@@ -1,3 +1,5 @@
+@panel-width: 300px;
+
 /* Highlights */
 .ngi-hl {
 	padding: 0px;
@@ -34,13 +36,21 @@ body {
 	}
 }
 
+.ngi-open {
+	margin-right: @panel-width !important;
+	// http://stackoverflow.com/a/17904128
+	width: calc(~"100% - "@panel-width) !important;
+	overflow: scroll !important;
+}
+
 .ngi-inspector {
 	/* Dimensions and Positioning */
 	position: fixed;
+	float: right;
 	top: 0;
 	right: 0;
 	height: 100vh;
-	width: 300px;
+	width: @panel-width;
 	z-index: 999999999999;
 
 	/* Styling */

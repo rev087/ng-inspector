@@ -53,6 +53,7 @@ NGI.InspectorPane = function() {
 		if ( pane.parentNode ) {
 			this.visible = false;
 			document.body.removeChild(pane);
+			document.body.classList.remove('ngi-open');
 			this.clear();
 			Object.keys(events).forEach(function(key) {
 				events[key].target.removeEventListener(key, events[key].fn);
@@ -61,6 +62,7 @@ NGI.InspectorPane = function() {
 		} else {
 			this.visible = true;
 			document.body.appendChild(pane);
+			document.body.classList.add('ngi-open');
 			Object.keys(events).forEach(function(key) {
 				events[key].target.addEventListener(key, events[key].fn);
 			});
