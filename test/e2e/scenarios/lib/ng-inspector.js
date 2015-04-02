@@ -721,7 +721,8 @@ NGI.Service = (function() {
 				var dir = app.$injector.invoke(this.factory);
 				if (!dir) {
 					console.warn(
-						'Invalid directive found. Make sure all registered directives ' + 
+						'Invalid directive "' + (this.name || '(unknown)') +
+						'" found. Make sure all registered directives ' + 
 						'return a "Directive Definition Object"'
 					);
 					return;
