@@ -12,3 +12,4 @@ When the inspection pane is triggered (the user clicks on the toolbar button):
 6. **NGI.InspectorAgent.inspectApp()** is called for each Angular app found in the initial traversal, and after a change is detected by the MutationObserver
 	- **traverseScopes()** is called for the app root scope and traverses the scope tree down, instantiating `NGI.Scope` objects along the way
 	- **traverseDOM()** is called for the app root DOM node and traverses the DOM subtree down, internally registering which DOM nodes are housing a scope found in the previous traversal and calling the "probe" functions to annotate controller and directive names in the TreeView
+7. **NGI.Scope.instance()** called for each scope found, registers a watcher for the scope and triggers a scope traversal on changes
