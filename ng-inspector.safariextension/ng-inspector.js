@@ -311,22 +311,26 @@ NGI.InspectorPane = function() {
 	// Toggle the inspector pane on and off. Returns a boolean representing the
 	// new visibility state.
 	this.toggle = function() {
+		var events = {
+			mousemove: {fn: onMouseMove, target: document},
+			mousedown: {fn: onMouseDown, target: document},
+			mouseup: {fn: onMouseUp, target: document},
+			resize: {fn: onResize, target: window}
+		};
 		if ( pane.parentNode ) {
 			this.visible = false;
 			document.body.removeChild(pane);
 			this.clear();
-			document.removeEventListener('mousemove', onMouseMove);
-			document.removeEventListener('mousedown', onMouseDown);
-			document.removeEventListener('mouseup', onMouseUp);
-			window.removeEventListener('resize', onResize);
+			Object.keys(events).forEach(function(key) {
+				events[key].target.removeEventListener(key, events[key].fn);
+			});
 			return false;
 		} else {
 			this.visible = true;
 			document.body.appendChild(pane);
-			document.addEventListener('mousemove', onMouseMove);
-			document.addEventListener('mousedown', onMouseDown);
-			document.addEventListener('mouseup', onMouseUp);
-			window.addEventListener('resize', onResize);
+			Object.keys(events).forEach(function(key) {
+				events[key].target.addEventListener(key, events[key].fn);
+			});
 			return true;
 		}
 	};
