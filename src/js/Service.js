@@ -45,6 +45,13 @@ NGI.Service = (function() {
 		switch(this.provider) {
 			case '$compileProvider':
 				var dir = app.$injector.invoke(this.factory);
+				if (!dir) {
+					console.warn(
+						'Invalid directive found. Make sure all registered directives ' + 
+						'return a "Directive Definition Object"'
+					);
+					return;
+				}
 				var restrict = dir.restrict || 'A';
 				var name = this.name;
 
