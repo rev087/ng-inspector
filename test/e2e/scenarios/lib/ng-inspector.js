@@ -491,7 +491,9 @@ NGI.TreeView = (function() {
 		};
 
 		this.destroy = function() {
-			this.element.parentNode.removeChild(this.element);
+			if (this.element.parentNode) {
+				this.element.parentNode.removeChild(this.element);
+			}
 		};
 
 		// Pill indicator
@@ -611,6 +613,7 @@ NGI.TreeView = (function() {
 	return TreeView;
 
 })();
+
 
 /* global NGI */
 /* jshint strict: false */
