@@ -95,6 +95,8 @@ NGI.InspectorPane = function() {
 	// are considered within the resize handle
 	var LEFT_RESIZE_HANDLE_PAD = 3;
 	var RIGHT_RESIZE_HANDLE_PAD = 2;
+	var MINIMUM_WIDTH = 50;
+	var MAXIMUM_WIDTH = 100;
 
 	// Listen for mousemove events in the page body, setting the canResize state
 	// if the mouse hovers close to the 
@@ -123,10 +125,10 @@ NGI.InspectorPane = function() {
 			var width = (window.innerWidth - event.clientX);
 
 			// Enforce minimum and maximum limits
-			if (width >= window.innerWidth - 50) {
-				width = window.innerWidth - 50;
-			} else if (width <= 100) {
-				width = 100;
+			if (width >= window.innerWidth - MINIMUM_WIDTH) {
+				width = window.innerWidth - MINIMUM_WIDTH;
+			} else if (width <= MAXIMUM_WIDTH) {
+				width = MAXIMUM_WIDTH;
 			}
 
 			pane.style.width = width + 'px';
@@ -158,8 +160,8 @@ NGI.InspectorPane = function() {
 	// If the user contracts the window, this makes sure the pane won't end up
 	// wider thant the viewport
 	function onResize() {
-		if (pane.offsetWidth >= document.body.offsetWidth - 50) {
-			pane.style.width = (document.body.offsetWidth - 50) + 'px';
+		if (pane.offsetWidth >= document.body.offsetWidth - MINIMUM_WIDTH) {
+			pane.style.width = (document.body.offsetWidth - MINIMUM_WIDTH) + 'px';
 		}
 	}
 
