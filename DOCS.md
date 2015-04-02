@@ -10,5 +10,5 @@ When the inspection pane is triggered (the user clicks on the toolbar button):
 4. **NGI.Module.register()**: if the app is not anonimous, this method is called recursively to register module dependencies.
 5. **NGI.Service.parseQueue()**: for each module registered, the `_invokeQueue` is iterated over and a "probe" (see item 3) is registered for each directive and controller in the module
 6. **NGI.InspectorAgent.inspectApp()** is called for each Angular app found in the initial traversal, and after a change is detected by the MutationObserver
-7. **(NGI.InspectorAgent) traverseScopes()** is called for the app root scope and traverses the scope tree down, instantiating `NGI.Scope` objects along the way
-8. **(NGI.InspectorAgent) traverseDOM()** is called for the app root DOM node and traverses the DOM subtree down, internally registering which DOM nodes are housing a scope found in the previous traversal and calling the "probe" functions to annotate controller and directive names in the TreeView
+	- **traverseScopes()** is called for the app root scope and traverses the scope tree down, instantiating `NGI.Scope` objects along the way
+	- **traverseDOM()** is called for the app root DOM node and traverses the DOM subtree down, internally registering which DOM nodes are housing a scope found in the previous traversal and calling the "probe" functions to annotate controller and directive names in the TreeView
