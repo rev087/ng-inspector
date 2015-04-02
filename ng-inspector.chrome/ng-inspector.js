@@ -342,6 +342,12 @@ NGI.InspectorPane = function() {
 		}
 	});
 
+	// Catch clicks at the top of the pane, and stop them, to prevent
+	// triggering behavior in the app being inspected
+	pane.addEventListener('click', function(event) {
+		event.stopPropagation();
+	});
+
 	// States for the inspector pane resizing functionality
 	var isResizing = false;
 	var canResize = false;
