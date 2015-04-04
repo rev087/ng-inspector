@@ -36,6 +36,7 @@ body.ngi-resizing {
   height: 100vh;
   width: 300px;
   z-index: 999999999999;
+  direction: ltr;
   /* Styling */
   background: #D8D8D8 !important;
   border-left: 1px solid #B0B0B0 !important;
