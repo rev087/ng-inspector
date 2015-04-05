@@ -14,7 +14,7 @@ describe('empty directive', function() {
 
 	it('should warn about empty directive declarations', function() {
 		expect($('#warning').getText())
-			.toBe('Invalid directive found. Make sure all registered directives return a "Directive Definition Object"');
+			.toMatch(/Make sure all registered directives return a "Directive Definition Object"/);
 	});
 
 });
