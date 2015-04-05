@@ -5,7 +5,7 @@
     <key>Author</key>
     <string>Bruno Daniel</string>
     <key>Builder Version</key>
-    <string>9537.76.4</string>
+    <string>10600.4.10.7</string>
     <key>CFBundleDisplayName</key>
     <string>ng-inspector for AngularJS</string>
     <key>CFBundleIdentifier</key>
@@ -13,9 +13,9 @@
     <key>CFBundleInfoDictionaryVersion</key>
     <string>6.0</string>
     <key>CFBundleShortVersionString</key>
-    <string>v0.5.5</string>
+    <string>v0.5.6</string>
     <key>CFBundleVersion</key>
-    <string>v0.5.5</string>
+    <string>v0.5.6</string>
     <key>Chrome</key>
     <dict>
       <key>Database Quota</key>
@@ -58,6 +58,8 @@
     </dict>
     <key>Description</key>
     <string>Inspect the AngularJS scope hierarchy in a page.</string>
+    <key>DeveloperIdentifier</key>
+    <string>76VT48N9LK</string>
     <key>ExtensionInfoDictionaryVersion</key>
     <string>1.0</string>
     <key>Permissions</key>
