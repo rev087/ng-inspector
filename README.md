@@ -22,10 +22,6 @@ Download the latest build from [ng-inspector.org](http://ng-inspector.org), then
 
 Thanks for @caitp, Stephen, wafflejock and zomg at #angularjs for helping me figure out many of AngularJS concepts and edge cases, @jcummins and @commandtab for going out of their way to share great bug reports. 
 
-## Artwork
-
-All the artwork for the extension, the logo and the ng-inspector.org page are also open-source and available at [layervault.com/rev087/ng-inspector](https://layervault.com/rev087/ng-inspector).
-
 ## License
 
 The MIT License (MIT)  
