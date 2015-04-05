@@ -30,7 +30,7 @@ NGI.InspectorAgent = (function() {
 
 				// If there's no AngularJS metadata in the node .data() store, we
 				// just move on
-				if (Object.keys(nodeData).length > 0) {
+				if (nodeData && Object.keys(nodeData).length > 0) {
 
 					// Match nodes with scopes attached to the relevant TreeViewItem
 					var $scope = nodeData.$scope;

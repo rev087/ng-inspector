@@ -13,7 +13,7 @@ if (window.top === window) {
 				command: 'ngi-toggle',
 				settings: event.message
 			};
-			window.postMessage(message, window.location.origin);
+			window.postMessage(JSON.stringify(message), window.location.origin);
 		}
 	}, false);
 

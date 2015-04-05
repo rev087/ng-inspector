@@ -40,7 +40,10 @@ function bootstrap() {
 			// Continue with angular's native bootstrap method
 			var ret = _bootstrap.apply(this, arguments);
 
-			// The dependencies are regitered by the `NGI.Module` object
+			// Unwrap if jQuery or jqLite element
+			if (node.jquery || node.injector) node = node[0];
+
+			// The dependencies are registered by the `NGI.Module` object
 			NGI.App.bootstrap(node, modules);
 
 			return ret;
@@ -67,8 +70,12 @@ window.addEventListener('message', function (event) {
 	// Ensure the message was sent by this origin
 	if (event.origin !== window.location.origin) return;
 
+	var eventData = event.data;
+	if (!eventData || typeof eventData !== 'string') return;
+	eventData = JSON.parse(eventData);
+
 	// Respond to 'ngi-toggle' events only
-	if (event.data && event.data.command === 'ngi-toggle') {
+	if (eventData.command === 'ngi-toggle') {
 
 
 		// Fail if the inspector has not been initialized yet (before window.load)
@@ -76,7 +83,7 @@ window.addEventListener('message', function (event) {
 			return console.warn('The ng-inspector has not yet initialized');
 		}
 
-		window.ngInspector.toggle(event.data.settings);
+		window.ngInspector.toggle(eventData.settings);
 	}
 
 }, false);
