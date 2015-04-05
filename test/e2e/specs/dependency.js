@@ -2,7 +2,7 @@ browser.ignoreSynchronization = true;
 var $$ = function(query) { return element.all(by.css(query)); }
 var $ = function(query) { return element(by.css(query)); }
 
-describe('anonymous app', function() {
+describe('dependency', function() {
 
   beforeEach(function () {
 		browser.get('/dependency.html');
