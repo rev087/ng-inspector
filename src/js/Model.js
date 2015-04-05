@@ -38,6 +38,18 @@ NGI.Model = (function() {
 				valSpan.innerText = 'function(' + args + ') {...}';
 			}
 
+			// Circular
+			else if (depth.indexOf(value) >= 0) {
+				this.view.setType('ngi-model-object');
+				valSpan.innerText = '{ Circular }';
+			}
+
+			// NULL
+			else if (value === null) {
+				this.view.setType('ngi-model-null');
+				valSpan.innerText = 'null';
+			}
+
 			// Array
 			else if (angular.isArray(value)) {
 				this.view.setType('ngi-model-array');
@@ -50,7 +62,13 @@ NGI.Model = (function() {
 					this.view.setIndicator(length);
 				}
 				this.view.makeCollapsible(true, true);
-				this.update(value, depth + 1);
+				this.update(value, depth.concat([this.value]));
+			}
+
+			// DOM Element
+			else if (angular.isElement(value)) {
+				this.view.setType('ngi-model-element');
+				valSpan.innerText = '<' + value.tagName + '>';
 			}
 
 			// Object
@@ -65,7 +83,7 @@ NGI.Model = (function() {
 					this.view.setIndicator(length);
 				}
 				this.view.makeCollapsible(true, true);
-				this.update(value, depth + 1);
+				this.update(value, depth.concat([this.value]));
 			}
 
 			// Boolean
@@ -78,18 +96,6 @@ NGI.Model = (function() {
 			else if (angular.isNumber(value)) {
 				this.view.setType('ngi-model-number');
 				valSpan.innerText = value;
-			}
-
-			// DOM Element
-			else if (angular.isElement(value)) {
-				this.view.setType('ngi-model-element');
-				valSpan.innerText = '<' + value.tagName + '>';
-			}
-
-			// NULL
-			else if (value === null) {
-				this.view.setType('ngi-model-null');
-				valSpan.innerText = 'null';
 			}
 
 			// Undefined
@@ -105,8 +111,8 @@ NGI.Model = (function() {
 		this.view.label.appendChild(valSpan);
 	}
 
-	Model.instance = function(scope, key, value, depth) {
-		return new Model(scope, key, value, depth);
+	Model.instance = function(key, value, depth) {
+		return new Model(key, value, depth);
 	};
 
 	return Model;
