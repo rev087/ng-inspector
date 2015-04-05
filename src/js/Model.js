@@ -40,8 +40,8 @@ NGI.Model = (function() {
 
 			// Circular
 			else if (depth.indexOf(value) >= 0) {
-				this.view.setType('ngi-model-object');
-				valSpan.innerText = '{ Circular }';
+				this.view.setType('ngi-model-circular');
+				valSpan.innerText = 'circular reference';
 			}
 
 			// NULL

@@ -29,6 +29,8 @@ body.ngi-resizing {
   cursor: col-resize !important;
 }
 .ngi-inspector {
+  /* Direction */
+  direction: ltr;
   /* Dimensions and Positioning */
   position: fixed;
   top: 0;
@@ -210,6 +212,10 @@ body:not(.ngi-resizing) .ngi-inspector .ngi-scope.ngi-isolate-scope > label:hove
   /* background-image: url(chrome-extension://__MSG_@@extension_id__/icons/null.png); */
   background-image: none !important;
 }
+.ngi-inspector .ngi-model.ngi-model-circular > label {
+  /* background-image: url(chrome-extension://__MSG_@@extension_id__/icons/circular.png); */
+  background-image: none !important;
+}
 .ngi-inspector .ngi-model.ngi-model-string > label > .ngi-value {
   color: green !important;
 }
@@ -227,6 +233,9 @@ body:not(.ngi-resizing) .ngi-inspector .ngi-scope.ngi-isolate-scope > label:hove
 }
 .ngi-inspector .ngi-model.ngi-model-null > label > .ngi-value,
 .ngi-inspector .ngi-model.ngi-model-undefined > label > .ngi-value {
+  color: gray !important;
+}
+.ngi-inspector .ngi-model.ngi-model-circular > label > .ngi-value {
   color: gray !important;
 }
 body:not(.ngi-resizing) .ngi-inspector .ngi-model > label:hover {
