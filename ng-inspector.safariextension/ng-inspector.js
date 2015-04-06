@@ -282,6 +282,9 @@ NGI.InspectorPane = function() {
 	// localStorage
 	var inspectorWidth = localStorage.getItem('ng-inspector-width') || 300;
 
+	// Quicker reference to body through-out InspectorPane lexical scope
+	var body = document.body;
+
 	// Create the root DOM node for the inspector pane
 	var pane = document.createElement('div');
 	pane.className = 'ngi-inspector';
@@ -312,23 +315,22 @@ NGI.InspectorPane = function() {
 	// Toggle the inspector pane on and off. Returns a boolean representing the
 	// new visibility state.
 	this.toggle = function() {
+		var events = {
+			mousemove: {fn: onMouseMove, target: document},
+			mousedown: {fn: onMouseDown, target: document},
+			mouseup: {fn: onMouseUp, target: document},
+			resize: {fn: onResize, target: window}
+		};
+
 		if ( pane.parentNode ) {
-			this.visible = false;
-			document.body.removeChild(pane);
+			body.removeChild(pane);
 			this.clear();
-			document.removeEventListener('mousemove', onMouseMove);
-			document.removeEventListener('mousedown', onMouseDown);
-			document.removeEventListener('mouseup', onMouseUp);
-			window.removeEventListener('resize', onResize);
-			return false;
+			eventListenerBulk(events, true);
+			return this.visible = false;
 		} else {
-			this.visible = true;
-			document.body.appendChild(pane);
-			document.addEventListener('mousemove', onMouseMove);
-			document.addEventListener('mousedown', onMouseDown);
-			document.addEventListener('mouseup', onMouseUp);
-			window.addEventListener('resize', onResize);
-			return true;
+			body.appendChild(pane);
+			eventListenerBulk(events, false);
+			return this.visible = true;
 		}
 	};
 
@@ -357,6 +359,8 @@ NGI.InspectorPane = function() {
 	// are considered within the resize handle
 	var LEFT_RESIZE_HANDLE_PAD = 3;
 	var RIGHT_RESIZE_HANDLE_PAD = 2;
+	var MINIMUM_WIDTH = 50;
+	var MAXIMUM_WIDTH = 100;
 
 	// Listen for mousemove events in the page body, setting the canResize state
 	// if the mouse hovers close to the 
@@ -372,10 +376,10 @@ NGI.InspectorPane = function() {
 		if (pane.offsetLeft - LEFT_RESIZE_HANDLE_PAD <= event.clientX &&
 			event.clientX <= pane.offsetLeft + RIGHT_RESIZE_HANDLE_PAD) {
 			canResize = true;
-			document.body.classList.add('ngi-resize');
+			body.classList.add('ngi-resize');
 		} else {
 			canResize = false;
-			document.body.classList.remove('ngi-resize');
+			body.classList.remove('ngi-resize');
 		}
 		
 		// If the user is currently performing a resize, the width is adjusted
@@ -385,10 +389,10 @@ NGI.InspectorPane = function() {
 			var width = (window.innerWidth - event.clientX);
 
 			// Enforce minimum and maximum limits
-			if (width >= window.innerWidth - 50) {
-				width = window.innerWidth - 50;
-			} else if (width <= 100) {
-				width = 100;
+			if (width >= window.innerWidth - MINIMUM_WIDTH) {
+				width = window.innerWidth - MINIMUM_WIDTH;
+			} else if (width <= MAXIMUM_WIDTH) {
+				width = MAXIMUM_WIDTH;
 			}
 
 			pane.style.width = width + 'px';
@@ -402,7 +406,7 @@ NGI.InspectorPane = function() {
 	function onMouseDown() {
 		if (canResize) {
 			isResizing = true;
-			document.body.classList.add('ngi-resizing');
+			body.classList.add('ngi-resizing');
 		}
 	}
 	
@@ -412,7 +416,7 @@ NGI.InspectorPane = function() {
 	function onMouseUp() {
 		if (isResizing) {
 			isResizing = false;
-			document.body.classList.remove('ngi-resizing');
+			body.classList.remove('ngi-resizing');
 			localStorage.setItem('ng-inspector-width', pane.offsetWidth);
 		}
 	}
@@ -420,9 +424,18 @@ NGI.InspectorPane = function() {
 	// If the user contracts the window, this makes sure the pane won't end up
 	// wider thant the viewport
 	function onResize() {
-		if (pane.offsetWidth >= document.body.offsetWidth - 50) {
-			pane.style.width = (document.body.offsetWidth - 50) + 'px';
+		if (pane.offsetWidth >= body.offsetWidth - MINIMUM_WIDTH) {
+			pane.style.width = (body.offsetWidth - MINIMUM_WIDTH) + 'px';
 		}
+	}
+
+	// Can perform a mapping of events/functions to addEventListener
+	// or removeEventListener, to prevent code duplication when bulk adding/removing
+	function eventListenerBulk(eventsObj, remove) {
+		var eventListenerFunc = remove ? 'removeEventListener' : 'addEventListener';
+		Object.keys(eventsObj).forEach(function(event) {
+			eventsObj[event].target[eventListenerFunc](event, eventsObj[event].fn);
+		});
 	}
 
 };
