@@ -12,7 +12,7 @@ describe('anonymous app', function() {
 
 	it('should inspect the anonymous app', function() {
 		expect($$('.ngi-app').count()).toBe(1);
-		expect($('.ngi-app > label').getText()).toBe('body.ng-scope');
+		expect($('.ngi-app > label').getText()).toBe('body.ng-scope.ngi-open');
 	});
 
 	it('should inspect the root scope', function() {

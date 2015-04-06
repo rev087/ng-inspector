@@ -28,11 +28,15 @@ body.ngi-resizing {
   user-select: none;
   cursor: col-resize !important;
 }
+.ngi-open {
+  overflow: scroll !important;
+}
 .ngi-inspector {
   /* Direction */
   direction: ltr;
   /* Dimensions and Positioning */
   position: fixed;
+  float: right;
   top: 0;
   right: 0;
   height: 100vh;
