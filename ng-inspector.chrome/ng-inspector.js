@@ -1485,7 +1485,12 @@ window.addEventListener('message', function (event) {
 
 	var eventData = event.data;
 	if (!eventData || typeof eventData !== 'string') return;
-	eventData = JSON.parse(eventData);
+	try {
+		eventData = JSON.parse(eventData);
+	} catch(e) {
+		// Not a JSON object. Typically means another script on the page
+		// is using postMessage. Safe to ignore
+	}
 
 	// Respond to 'ngi-toggle' events only
 	if (eventData.command === 'ngi-toggle') {
