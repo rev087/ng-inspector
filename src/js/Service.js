@@ -44,6 +44,9 @@ NGI.Service = (function() {
 		
 		switch(this.provider) {
 			case '$compileProvider':
+				if (!this.factory.$inject) {
+					this.factory.$inject = app.$injector.annotate(this.factory);
+				}
 				var dir = app.$injector.invoke(this.factory);
 				if (!dir) {
 					console.warn(
