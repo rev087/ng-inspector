@@ -9,9 +9,9 @@
 	<script>
 		var app = angular.module('MyApp', []);
 
-		app.controller('MainCtrl', function($scope) {
+		app.controller('MainCtrl', ['$scope', function($scope) {
 			$scope.name = 'World';
-		});
+		}]);
 
 		app.directive('sampleDirective', function($window){
 			return {
