@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Strict DI</title>
+	<script src="lib/angular.min.js"></script>
+	<script src="lib/ng-inspector.js"></script>
+	<style>@import url(lib/stylesheet.css);</style>
+	<script>
+		var app = angular.module('MyApp', []);
+
+		app.controller('MainCtrl', function($scope) {
+			$scope.name = 'World';
+		});
+
+		app.directive('sampleDirective', function($window){
+			return {
+				restrict: 'AE',
+				scope: {}
+			};
+		});
+
+	</script>
+</head>
+<body ng-app="MyApp" ng-strict-di>
+
+	<p ng-controller="MainCtrl">Hello {{name}}!</p>
+
+	<button type="button" onclick="window.ngInspector.toggle()" id="ngInspectorToggle">ngInspector</button>
+
+</body>
+</html>
