@@ -12,7 +12,7 @@ function bootstrap() {
 	// If angular was included via <script src=...> tag, the angular object should
 	// already be present in the window scope, and we can wrapBootstrap() right
 	// away
-	if ('angular' in window) {
+	if (window.angular && window.angular.bootstrap) {
 		wrapBootstrap();
 	} else {
 		// RequireJS and similar loaders work by injecting <script> tags into the
@@ -26,9 +26,9 @@ function bootstrap() {
 	// `angular.bootstrap` method
 	function wrapBootstrap() {
 
-		// Ensure that the angular object exists in the window scope and the
-		// `angular.bootstrap` method is wrapped only once
-		if (!window.angular || didWrapBootstrap) {
+		// Prevent wrapping bootstrap method if it doesn't currently exist,
+		// or if it's already been wrapped
+		if (!window.angular || window.angular && !window.angular.bootstrap || didWrapBootstrap) {
 			return;
 		}
 
