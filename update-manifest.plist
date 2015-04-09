@@ -10,9 +10,9 @@
        <key>Developer Identifier</key>
        <string>76VT48N9LK</string>
        <key>CFBundleVersion</key>
-       <string>v0.5.5</string>
+       <string>v0.5.8</string>
        <key>CFBundleShortVersionString</key>
-       <string>v0.5.5</string>
+       <string>v0.5.8</string>
        <key>URL</key>
        <string>http://rev087.github.io/ng-inspector/ng-inspector.safariextz</string>
      </dict>
