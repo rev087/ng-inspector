@@ -734,6 +734,10 @@ NGI.Service = (function() {
 			case '$compileProvider':
 				if (!this.factory.$inject) {
 					this.factory.$inject = app.$injector.annotate(this.factory);
+					var hasInvalidDependency = this.factory.$inject.some(function(dep) {
+						return !app.$injector.has(dep);
+					});
+					if (hasInvalidDependency) return;
 				}
 				var dir = app.$injector.invoke(this.factory);
 				if (!dir) {
