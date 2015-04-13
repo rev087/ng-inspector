@@ -1,3 +1,9 @@
 node_modules
 npm-debug.log
 .DS_Store
+
+## generated files
+ng-inspector.firefox/*.xpi
+ng-inspector.firefox/data/icons/
+ng-inspector.firefox/data/ng-inspector.js
+ng-inspector.firefox/data/stylesheet.css
