@@ -1,6 +1,6 @@
 var manifest = require("package.json");
 
-var toolbarButtonConfig = manifest["firefox-devtools"]["toolbar-buttons"][0]
+var toolbarButtonConfig = manifest["firefox-devtools"]["toolbar-buttons"][0];
 
 var { ActionButton } = require("sdk/ui/button/action");
 var tabs = require("sdk/tabs");
