@@ -1,31 +1,42 @@
 {
-  "name": "ng-inspector",
-  "title": "ng-inspector for AngularJS",
-  "description": "Inspector pane for AngularJS apps",
-  "version": "0.5.10",
-  "main": "lib/main.js",
-  "author": "Bruno Daniel",
-  "contributors": [
-    "Bruno Daniel",
-    "Luca Greco (ALCA Societa' Cooperativa)"
-  ],
-  "icon": "icon128.png",
-  "license": "MIT",
-  "engines": {
-    "firefox": ">=37.0a2 <=*"
-  },
-  "firefox-devtools": {
-    "toolbar-buttons": [{
-       "icons": {
-          "19": "./btn19.png",
-          "38": "./btn38.png"
-       },
-       "label": "ng-inspector"
-    }],
-    "page-mods": [{
-      "include": [ "*" ],
-      "contentStyleFile": [ "./stylesheet.css" ],
-      "contentScriptFile": [ "./inject.js" ]
-    }]
-  }
+    "name": "ng-inspector",
+    "license": "MIT",
+    "description": "Inspector pane for AngularJS apps",
+    "author": "Bruno Daniel",
+    "contributors": [
+        "Bruno Daniel",
+        "Luca Greco (ALCA Societa' Cooperativa)"
+    ],
+    "title": "ng-inspector for AngularJS",
+    "version": "0.5.10",
+    "engines": {
+        "firefox": ">=38 <=*"
+    },
+    "id": "firefox-addon@ng-inspector.org",
+    "icon": "data/icon128.png",
+    "main": "lib/main.js",
+    "firefox-devtools": {
+        "page-mods": [
+            {
+                "include": [
+                    "*"
+                ],
+                "contentStyleFiles": [
+                    "./stylesheet.css"
+                ],
+                "contentScriptFiles": [
+                    "./inject.js"
+                ]
+            }
+        ],
+        "toolbar-buttons": [
+            {
+                "label": "ng-inspector",
+                "icons": {
+                    "19": "./btn19.png",
+                    "38": "./btn38.png"
+                }
+            }
+        ]
+    }
 }

@@ -1,4 +1,34 @@
-var manifest = require("package.json");
+var manifest = {};
+try {
+  // on jpm (Firefox >= 38) loads configuration from the package.json metadata
+  manifest = require("package.json");
+} catch(e) {
+  // on cfx (Firefox < 38) fallbacks to configure it here
+  manifest["firefox-devtools"] = {
+    "page-mods": [
+      {
+        "include": [
+          "*"
+        ],
+        "contentStyleFiles": [
+          "./stylesheet.css"
+        ],
+        "contentScriptFiles": [
+          "./inject.js"
+        ]
+      }
+    ],
+    "toolbar-buttons": [
+      {
+        "label": "ng-inspector",
+        "icons": {
+          "19": "./btn19.png",
+          "38": "./btn38.png"
+        }
+      }
+    ]
+  };
+}
 
 var toolbarButtonConfig = manifest["firefox-devtools"]["toolbar-buttons"][0];
 
@@ -31,11 +61,15 @@ var self = require("sdk/self");
 
 pageMod.PageMod({
   include: pageModConfig.include,
-  contentScriptFile: pageModConfig.contentScriptFile,
+  contentScriptFile: pageModConfig.contentScriptFiles.map(function(path) {
+    return self.data.url(path);
+  }),
   contentScriptOptions: {
     ngInspectorURL: self.data.url("./ng-inspector.js")
   },
-  contentStyleFile: pageModConfig.contentStyleFile,
+  contentStyleFile: pageModConfig.contentStyleFiles.map(function(path) {
+    return self.data.url(path);
+  }),
   onAttach: function(worker) {
     injectedTabPortsMap.set(this.tab, worker.port);
   }
