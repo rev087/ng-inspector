@@ -27,12 +27,10 @@ NGI.Service = (function() {
 				try {
 					var dir = app.$injector.invoke(this.factory);
 				} catch(e) {
-					console.warn(
-						'Invalid directive "' + (this.name || '(unknown)') +
-						'" found. Make sure all registered directives ' + 
-						'return a "Directive Definition Object"'
+					return console.warn(
+						'An error occurred attempting to parse directive: ' +
+						(this.name || '(unknown)')
 					);
-					return;
 				}
 				var restrict = dir.restrict || 'A';
 				var name = this.name;
