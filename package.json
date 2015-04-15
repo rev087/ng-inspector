@@ -1,6 +1,6 @@
 {
   "name": "ng-inspector",
-  "version": "v0.5.8",
+  "version": "v0.5.9",
   "description": "A Safari extension to inspect AngularJS applications",
   "main": "ng-inspector.js",
   "scripts": {
