@@ -34,7 +34,7 @@ NGI.Model = (function() {
 			// Function
 			else if (angular.isFunction(value)) {
 				this.view.setType('ngi-model-function');
-				var args = angular.injector().annotate(value).join(', ');
+				var args = NGI.Utils.annotate(value).join(', ');
 				valSpan.innerText = 'function(' + args + ') {...}';
 			}
 

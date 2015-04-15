@@ -91,6 +91,7 @@ gulp.task('build:js', function() {
 		'src/js/InspectorPane.js',
 		'src/js/TreeView.js',
 		'src/js/Highlighter.js',
+		'src/js/Utils.js',
 		'src/js/Service.js',
 		'src/js/App.js',
 		'src/js/Module.js',

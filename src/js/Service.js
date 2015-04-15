@@ -4,35 +4,6 @@
 
 NGI.Service = (function() {
 
-	var PREFIX_REGEXP = /^(x[\:\-_]|data[\:\-_])/i;
-	/**
-	 * Converts all accepted directives format into proper directive name.
-	 * All of these will become 'myDirective':
-	 *   my:Directive
-	 *   my-directive
-	 *   x-my-directive
-	 *   data-my:directive
-	 */
-	function directiveNormalize(name) {
-	  return camelCase(name.replace(PREFIX_REGEXP, ''));
-	}
-
-	var SPECIAL_CHARS_REGEXP = /([\:\-\_]+(.))/g;
-	var MOZ_HACK_REGEXP = /^moz([A-Z])/;
-
-	/**
-	 * Converts snake_case to camelCase.
-	 * Also there is special case for Moz prefix starting with upper case letter.
-	 * @param name Name to normalize
-	 */
-	function camelCase(name) {
-	  return name.
-	    replace(SPECIAL_CHARS_REGEXP, function(_, separator, letter, offset) {
-	      return offset ? letter.toUpperCase() : letter;
-	    }).
-	    replace(MOZ_HACK_REGEXP, 'Moz$1');
-	}
-
 	var CLASS_DIRECTIVE_REGEXP = /(([\d\w\-_]+)(?:\:([^;]+))?;?)/;
 
 	function Service(app, module, invoke) {
@@ -49,16 +20,13 @@ NGI.Service = (function() {
 				// If $injector.annotate is available in the user's version of Angular we
 				// attempt to salvage it, otherwise return and ignore the directive.
 				if (Object.prototype.toString.call(this.factory) !== '[object Array]') {
-					if (app.$injector.annotate) {
-						var annotated = app.$injector.annotate(this.factory);
-						annotated.push(this.factory);
-						this.factory = annotated;
-					} else {
-						return;
-					}
+					var annotation = NGI.Utils.annotate(this.factory);
+					annotation.push(this.factory);
+					this.factory = annotation;
 				}
-				var dir = app.$injector.invoke(this.factory);
-				if (!dir) {
+				try {
+					var dir = app.$injector.invoke(this.factory);
+				} catch(e) {
 					console.warn(
 						'Invalid directive "' + (this.name || '(unknown)') +
 						'" found. Make sure all registered directives ' + 
@@ -80,7 +48,7 @@ NGI.Service = (function() {
 					if (restrict.indexOf('A') > -1 ||
 						(dir.replace === true && restrict.indexOf('M') > -1)) {
 						for (var i = 0; i < node.attributes.length; i++) {
-							var normalized = directiveNormalize(node.attributes[i].name);
+							var normalized = NGI.Utils.directiveNormalize(node.attributes[i].name);
 							if (normalized === name) {
 								if (!isIsolate && dir.scope === true ||
 									isIsolate && typeof dir.scope === typeof {}) {
@@ -92,7 +60,7 @@ NGI.Service = (function() {
 
 					// Test for Element directives
 					if (restrict.indexOf('E') > -1) {
-						var normalized = directiveNormalize(node.tagName.toLowerCase());
+						var normalized = NGI.Utils.directiveNormalize(node.tagName.toLowerCase());
 						if (normalized === name) {
 							if (!isIsolate && dir.scope === true ||
 								isIsolate && typeof dir.scope === typeof {}) {
@@ -107,7 +75,7 @@ NGI.Service = (function() {
 						if (matches) {
 							for (var i = 0; i < matches.length; i++) {
 								if (!matches[i]) continue;
-								var normalized = directiveNormalize(matches[i]);
+								var normalized = NGI.Utils.directiveNormalize(matches[i]);
 								if (normalized === name) {
 									if (!isIsolate && dir.scope === true ||
 										isIsolate && typeof dir.scope === typeof {}) {
@@ -130,7 +98,7 @@ NGI.Service = (function() {
 
 					// Test for the presence of the ngController directive
 					for (var i = 0; i < node.attributes.length; i++) {
-						var normalized = directiveNormalize(node.attributes[i].name);
+						var normalized = NGI.Utils.directiveNormalize(node.attributes[i].name);
 						if (normalized === 'ngController') {
 							scope.view.addAnnotation(node.attributes[i].value, Service.CTRL);
 						}
