@@ -7,10 +7,6 @@
 	<script src="lib/ng-inspector.js"></script>
 	<style>@import url(lib/stylesheet.css);</style>
 	<script>
-
-		console.warn = function(msg) {
-			document.getElementById('warning').innerHTML = msg;
-		}
 			
 		var app = angular.module('MyApp', []);
 
@@ -27,8 +23,6 @@
 <body ng-app="MyApp">
 
 	<p ng-controller="MainCtrl">Hello {{name}}!</p>
-
-	<p id="warning"></p>
 
 	<button type="button" onclick="window.ngInspector.toggle()" id="ngInspectorToggle">ngInspector</button>
 

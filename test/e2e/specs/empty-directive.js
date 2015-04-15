@@ -12,9 +12,15 @@ describe('empty directive', function() {
 		browser.sleep(250);
   });
 
-	it('should warn about empty directive declarations', function() {
-		expect($('#warning').getText())
-			.toMatch(/Make sure all registered directives return a "Directive Definition Object"/);
+	it('should not throw exception when directive with DDO is used', function() {
+		browser.manage().logs().get('browser').then(function (browserLog) {
+			var severeWarnings = browserLog.filter(function(log) {
+				// Not concerned about info or warnings
+				return log.level.name === 'SEVERE';
+			});
+
+			expect(severeWarnings.length).toBe(0);
+		});
 	});
 
 });
