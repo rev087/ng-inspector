@@ -19,7 +19,7 @@ NGI.Service = (function() {
 				// Unnannotated directives declared in the application will throw an exception.
 				// If $injector.annotate is available in the user's version of Angular we
 				// attempt to salvage it, otherwise return and ignore the directive.
-				if (Object.prototype.toString.call(this.factory) !== '[object Array]') {
+				if (!Array.isArray(this.factory)) {
 					var annotation = NGI.Utils.annotate(this.factory);
 					annotation.push(this.factory);
 					this.factory = annotation;
@@ -27,14 +27,14 @@ NGI.Service = (function() {
 				try {
 					var dir = app.$injector.invoke(this.factory);
 				} catch(e) {
-					console.warn(
-						'Invalid directive "' + (this.name || '(unknown)') +
-						'" found. Make sure all registered directives ' + 
-						'return a "Directive Definition Object"'
+					return console.warn(
+						'An error occurred attempting to parse directive: ' +
+						(this.name || '(unknown)')
 					);
-					return;
 				}
-				var restrict = dir.restrict || 'A';
+
+				if (!dir) dir = {};
+				var restrict = dir.restrict || 'AE';
 				var name = this.name;
 
 				app.registerProbe(function(node, scope, isIsolate) {
