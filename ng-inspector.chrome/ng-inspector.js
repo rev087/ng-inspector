@@ -803,6 +803,8 @@ NGI.Service = (function() {
 						(this.name || '(unknown)')
 					);
 				}
+
+				if (!dir) dir = {};
 				var restrict = dir.restrict || 'AE';
 				var name = this.name;
 
