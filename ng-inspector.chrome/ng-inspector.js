@@ -803,7 +803,7 @@ NGI.Service = (function() {
 						(this.name || '(unknown)')
 					);
 				}
-				var restrict = dir.restrict || 'A';
+				var restrict = dir.restrict || 'AE';
 				var name = this.name;
 
 				app.registerProbe(function(node, scope, isIsolate) {
