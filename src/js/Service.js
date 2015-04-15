@@ -19,7 +19,7 @@ NGI.Service = (function() {
 				// Unnannotated directives declared in the application will throw an exception.
 				// If $injector.annotate is available in the user's version of Angular we
 				// attempt to salvage it, otherwise return and ignore the directive.
-				if (Object.prototype.toString.call(this.factory) !== '[object Array]') {
+				if (!Array.isArray(this.factory)) {
 					var annotation = NGI.Utils.annotate(this.factory);
 					annotation.push(this.factory);
 					this.factory = annotation;
