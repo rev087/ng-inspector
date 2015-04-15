@@ -732,8 +732,18 @@ NGI.Service = (function() {
 		
 		switch(this.provider) {
 			case '$compileProvider':
-				if (!this.factory.$inject) {
-					this.factory.$inject = app.$injector.annotate(this.factory);
+
+				// Unnannotated directives declared in the application will throw an exception.
+				// If $injector.annotate is available in the user's version of Angular we
+				// attempt to salvage it, otherwise return and ignore the directive.
+				if (Object.prototype.toString.call(this.factory) !== '[object Array]') {
+					if (app.$injector.annotate) {
+						var annotated = app.$injector.annotate(this.factory);
+						annotated.push(this.factory);
+						this.factory = annotated;
+					} else {
+						return;
+					}
 				}
 				var dir = app.$injector.invoke(this.factory);
 				if (!dir) {
