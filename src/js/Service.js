@@ -16,19 +16,21 @@ NGI.Service = (function() {
 		switch(this.provider) {
 			case '$compileProvider':
 
-				// Unnannotated directives declared in the application will throw an exception.
-				// If $injector.annotate is available in the user's version of Angular we
-				// attempt to salvage it, otherwise return and ignore the directive.
-				if (!Array.isArray(this.factory)) {
+				if (typeof this.factory === 'function') {
 					var annotation = NGI.Utils.annotate(this.factory);
-					annotation.push(this.factory);
-					this.factory = annotation;
+					if (annotation.length > 0) {
+						annotation.push(this.factory);
+						this.factory = annotation;
+					}
 				}
+
+				var dir;
+
 				try {
-					var dir = app.$injector.invoke(this.factory);
+					dir = app.$injector.invoke(this.factory);
 				} catch(e) {
 					return console.warn(
-						'An error occurred attempting to parse directive: ' +
+						'ng-inspector: An error occurred attempting to parse directive: ' +
 						(this.name || '(unknown)')
 					);
 				}
