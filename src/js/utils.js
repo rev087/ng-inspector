@@ -40,16 +40,13 @@ NGI.Utils = (function() {
 	}
 
 	/**
-	 * Receives a function and returns an array of strings representing the
-	 * function arguments.
+	 * Receives a service factory and returns an injection token. Only used in
+	 * older versions of AngularJS that did not expose `.annotate`
 	 * 
 	 * Adapted from https://github.com/angular/angular.js/blob/0baa17a3b7ad2b242df2b277b81cebdf75b04287/src/auto/injector.js
 	 **/
 	Utils.annotate = function(fn) {
-		var $inject,
-				fnText,
-				argDecl,
-				last;
+		var $inject, fnText, argDecl;
 
 		if (typeof fn === 'function') {
 			if (!($inject = fn.$inject)) {
@@ -67,13 +64,12 @@ NGI.Utils = (function() {
 				}
 				fn.$inject = $inject;
 			}
-		} else if (isArray(fn)) {
-			last = fn.length - 1;
-			assertArgFn(fn[last], 'fn');
-			$inject = fn.slice(0, last);
+		} else if (Array.isArray(fn)) {
+			$inject = fn.slice(0, fn.length - 1);
 		} else {
-			assertArgFn(fn, 'fn', true);
+			return false;
 		}
+
 		return $inject;
 	}
 

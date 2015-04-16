@@ -16,22 +16,15 @@ NGI.Service = (function() {
 		switch(this.provider) {
 			case '$compileProvider':
 
-				if (typeof this.factory === 'function') {
-					var annotation = NGI.Utils.annotate(this.factory);
-					if (annotation.length > 0) {
-						annotation.push(this.factory);
-						this.factory = annotation;
-					}
-				}
-
 				var dir;
 
 				try {
 					dir = app.$injector.invoke(this.factory);
-				} catch(e) {
+				} catch(err) {
 					return console.warn(
-						'ng-inspector: An error occurred attempting to parse directive: ' +
-						(this.name || '(unknown)')
+						'ng-inspector: An error occurred attempting to invoke directive: ' +
+						(this.name || '(unknown)'),
+						err
 					);
 				}
 
