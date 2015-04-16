@@ -541,7 +541,7 @@ NGI.TreeView = (function() {
 			}
 			var span = document.createElement('span');
 			span.className = 'ngi-annotation';
-			span.innerText = name;
+			span.textContent = name;
 			switch(type) {
 				case NGI.Service.DIR:
 					span.classList.add('ngi-annotation-dir');
@@ -663,7 +663,7 @@ NGI.Highlighter = (function() {
 		var box = document.createElement('div');
 		box.className = 'ngi-hl ngi-hl-scope';
 		if (label) {
-			box.innerText = label;
+			box.textContent = label;
 		}
 		var pos = offsets(node);
 		box.style.left = pos.x + 'px';
@@ -686,84 +686,6 @@ NGI.Highlighter = (function() {
 
 })();
 
-/* global NGI */
-/* jshint strict: false */
-/* jshint shadow: true */
-
-NGI.Utils = (function() {
-
-	var Utils = {};
-
-	var SPECIAL_CHARS_REGEXP = /([\:\-\_]+(.))/g;
-	var MOZ_HACK_REGEXP = /^moz([A-Z])/;
-
-	/**
-	 * Converts snake_case to camelCase.
-	 * Also a special case for Moz prefix starting with upper case letter.
-	 */
-	Utils.camelCase = function(name) {
-		return name.
-			replace(SPECIAL_CHARS_REGEXP, function(_, separator, letter, offset) {
-				return offset ? letter.toUpperCase() : letter;
-			}).
-			replace(MOZ_HACK_REGEXP, 'Moz$1');
-	}
-
-	var FN_ARGS = /^function\s*[^\(]*\(\s*([^\)]*)\)/m;
-	var FN_ARG_SPLIT = /,/;
-	var FN_ARG = /^\s*(_?)(\S+?)\1\s*$/;
-	var STRIP_COMMENTS = /((\/\/.*$)|(\/\*[\s\S]*?\*\/))/mg;
-
-	var PREFIX_REGEXP = /^(x[\:\-_]|data[\:\-_])/i;
-	/**
-	 * Converts all accepted directives format into proper directive name.
-	 * All of these will become 'myDirective':
-	 *   my:Directive
-	 *   my-directive
-	 *   x-my-directive
-	 *   data-my:directive
-	 */
-	Utils.directiveNormalize = function(name) {
-		return NGI.Utils.camelCase(name.replace(PREFIX_REGEXP, ''));
-	}
-
-	/**
-	 * Receives a service factory and returns an injection token. Only used in
-	 * older versions of AngularJS that did not expose `.annotate`
-	 * 
-	 * Adapted from https://github.com/angular/angular.js/blob/0baa17a3b7ad2b242df2b277b81cebdf75b04287/src/auto/injector.js
-	 **/
-	Utils.annotate = function(fn) {
-		var $inject, fnText, argDecl;
-
-		if (typeof fn === 'function') {
-			if (!($inject = fn.$inject)) {
-				$inject = [];
-				if (fn.length) {
-					fnText = fn.toString().replace(STRIP_COMMENTS, '');
-					argDecl = fnText.match(FN_ARGS);
-					var argDecls = argDecl[1].split(FN_ARG_SPLIT);
-					for (var i = 0; i < argDecls.length; i++) {
-						var arg = argDecls[i];
-						arg.replace(FN_ARG, function(all, underscore, name) {
-							$inject.push(name);
-						});
-					};
-				}
-				fn.$inject = $inject;
-			}
-		} else if (Array.isArray(fn)) {
-			$inject = fn.slice(0, fn.length - 1);
-		} else {
-			return false;
-		}
-
-		return $inject;
-	}
-
-	return Utils;
-
-})();
 
 /* global NGI */
 /* jshint strict: false */
@@ -1366,11 +1288,11 @@ NGI.Model = (function() {
 			if (angular.isString(value)) {
 				this.view.setType('ngi-model-string');
 				if (value.trim().length > 25) {
-					valSpan.innerText = '"' + value.trim().substr(0, 25) + ' (...)"';
+					valSpan.textContent = '"' + value.trim().substr(0, 25) + ' (...)"';
 					this.view.setIndicator(value.length);
 				}
 				else {
-					valSpan.innerText = '"' + value.trim() + '"';
+					valSpan.textContent = '"' + value.trim() + '"';
 				}
 			}
 
@@ -1378,19 +1300,19 @@ NGI.Model = (function() {
 			else if (angular.isFunction(value)) {
 				this.view.setType('ngi-model-function');
 				var args = NGI.Utils.annotate(value).join(', ');
-				valSpan.innerText = 'function(' + args + ') {...}';
+				valSpan.textContent = 'function(' + args + ') {...}';
 			}
 
 			// Circular
 			else if (depth.indexOf(value) >= 0) {
 				this.view.setType('ngi-model-circular');
-				valSpan.innerText = 'circular reference';
+				valSpan.textContent = 'circular reference';
 			}
 
 			// NULL
 			else if (value === null) {
 				this.view.setType('ngi-model-null');
-				valSpan.innerText = 'null';
+				valSpan.textContent = 'null';
 			}
 
 			// Array
@@ -1398,10 +1320,10 @@ NGI.Model = (function() {
 				this.view.setType('ngi-model-array');
 				var length = value.length;
 				if (length === 0) {
-					valSpan.innerText = '[ ]';
+					valSpan.textContent = '[ ]';
 				}
 				else {
-					valSpan.innerText = '[...]';
+					valSpan.textContent = '[...]';
 					this.view.setIndicator(length);
 				}
 				this.view.makeCollapsible(true, true);
@@ -1411,7 +1333,7 @@ NGI.Model = (function() {
 			// DOM Element
 			else if (angular.isElement(value)) {
 				this.view.setType('ngi-model-element');
-				valSpan.innerText = '<' + value.tagName + '>';
+				valSpan.textContent = '<' + value.tagName + '>';
 			}
 
 			// Object
@@ -1419,10 +1341,10 @@ NGI.Model = (function() {
 				this.view.setType('ngi-model-object');
 				var length = Object.keys(value).length;
 				if (length === 0) {
-					valSpan.innerText = '{ }';
+					valSpan.textContent = '{ }';
 				}
 				else {
-					valSpan.innerText = '{...}';
+					valSpan.textContent = '{...}';
 					this.view.setIndicator(length);
 				}
 				this.view.makeCollapsible(true, true);
@@ -1432,19 +1354,19 @@ NGI.Model = (function() {
 			// Boolean
 			else if (typeof value === 'boolean') {
 				this.view.setType('ngi-model-boolean');
-				valSpan.innerText = value;
+				valSpan.textContent = value;
 			}
 
 			// Number
 			else if (angular.isNumber(value)) {
 				this.view.setType('ngi-model-number');
-				valSpan.innerText = value;
+				valSpan.textContent = value;
 			}
 
 			// Undefined
 			else {
 				this.view.setType('ngi-model-undefined');
-				valSpan.innerText = 'undefined';
+				valSpan.textContent = 'undefined';
 			}
 
 		};

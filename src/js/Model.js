@@ -23,11 +23,11 @@ NGI.Model = (function() {
 			if (angular.isString(value)) {
 				this.view.setType('ngi-model-string');
 				if (value.trim().length > 25) {
-					valSpan.innerText = '"' + value.trim().substr(0, 25) + ' (...)"';
+					valSpan.textContent = '"' + value.trim().substr(0, 25) + ' (...)"';
 					this.view.setIndicator(value.length);
 				}
 				else {
-					valSpan.innerText = '"' + value.trim() + '"';
+					valSpan.textContent = '"' + value.trim() + '"';
 				}
 			}
 
@@ -35,19 +35,19 @@ NGI.Model = (function() {
 			else if (angular.isFunction(value)) {
 				this.view.setType('ngi-model-function');
 				var args = NGI.Utils.annotate(value).join(', ');
-				valSpan.innerText = 'function(' + args + ') {...}';
+				valSpan.textContent = 'function(' + args + ') {...}';
 			}
 
 			// Circular
 			else if (depth.indexOf(value) >= 0) {
 				this.view.setType('ngi-model-circular');
-				valSpan.innerText = 'circular reference';
+				valSpan.textContent = 'circular reference';
 			}
 
 			// NULL
 			else if (value === null) {
 				this.view.setType('ngi-model-null');
-				valSpan.innerText = 'null';
+				valSpan.textContent = 'null';
 			}
 
 			// Array
@@ -55,10 +55,10 @@ NGI.Model = (function() {
 				this.view.setType('ngi-model-array');
 				var length = value.length;
 				if (length === 0) {
-					valSpan.innerText = '[ ]';
+					valSpan.textContent = '[ ]';
 				}
 				else {
-					valSpan.innerText = '[...]';
+					valSpan.textContent = '[...]';
 					this.view.setIndicator(length);
 				}
 				this.view.makeCollapsible(true, true);
@@ -68,7 +68,7 @@ NGI.Model = (function() {
 			// DOM Element
 			else if (angular.isElement(value)) {
 				this.view.setType('ngi-model-element');
-				valSpan.innerText = '<' + value.tagName + '>';
+				valSpan.textContent = '<' + value.tagName + '>';
 			}
 
 			// Object
@@ -76,10 +76,10 @@ NGI.Model = (function() {
 				this.view.setType('ngi-model-object');
 				var length = Object.keys(value).length;
 				if (length === 0) {
-					valSpan.innerText = '{ }';
+					valSpan.textContent = '{ }';
 				}
 				else {
-					valSpan.innerText = '{...}';
+					valSpan.textContent = '{...}';
 					this.view.setIndicator(length);
 				}
 				this.view.makeCollapsible(true, true);
@@ -89,19 +89,19 @@ NGI.Model = (function() {
 			// Boolean
 			else if (typeof value === 'boolean') {
 				this.view.setType('ngi-model-boolean');
-				valSpan.innerText = value;
+				valSpan.textContent = value;
 			}
 
 			// Number
 			else if (angular.isNumber(value)) {
 				this.view.setType('ngi-model-number');
-				valSpan.innerText = value;
+				valSpan.textContent = value;
 			}
 
 			// Undefined
 			else {
 				this.view.setType('ngi-model-undefined');
-				valSpan.innerText = 'undefined';
+				valSpan.textContent = 'undefined';
 			}
 
 		};
