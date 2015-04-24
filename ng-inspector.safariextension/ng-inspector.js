@@ -140,7 +140,7 @@ NGI.InspectorAgent = (function() {
 					// TreeViewItem
 					if ($node.isolateScope) {
 						var $isolate = $node.isolateScope();
-						if ($isolate) {	
+						if ($isolate) {
 							var isolateMatch = NGI.Scope.get($isolate.$id);
 							if (isolateMatch) {
 								isolateMatch.setNode(node);
@@ -167,7 +167,7 @@ NGI.InspectorAgent = (function() {
 			if (--nodeQueue === 0) {
 				// Done
 			}
-			
+
 		}
 	}
 
@@ -217,7 +217,7 @@ NGI.InspectorAgent = (function() {
 
 			// Once the Scope traversal is complete, the DOM traversal starts
 			traverseDOM(app, app.node);
-			
+
 		});
 	};
 
@@ -363,7 +363,7 @@ NGI.InspectorPane = function() {
 	var MAXIMUM_WIDTH = 100;
 
 	// Listen for mousemove events in the page body, setting the canResize state
-	// if the mouse hovers close to the 
+	// if the mouse hovers close to the
 	function onMouseMove(event) {
 
 		// Don't do anything if the inspector is detached from the DOM
@@ -381,7 +381,7 @@ NGI.InspectorPane = function() {
 			canResize = false;
 			body.classList.remove('ngi-resize');
 		}
-		
+
 		// If the user is currently performing a resize, the width is adjusted
 		// based on the cursor position
 		if (isResizing) {
@@ -409,7 +409,7 @@ NGI.InspectorPane = function() {
 			body.classList.add('ngi-resizing');
 		}
 	}
-	
+
 
 	// Listen to mouseup events on the page, turning off the resize mode if one
 	// is underway. The inspector width is then persisted in the localStorage
@@ -779,7 +779,7 @@ NGI.Service = (function() {
 		this.definition = invoke[2];
 		this.name = (typeof this.definition[0] === typeof '') ? this.definition[0] : null;
 		this.factory = this.definition[1];
-		
+
 		switch(this.provider) {
 			case '$compileProvider':
 
@@ -940,7 +940,7 @@ NGI.App = (function(window) {
 		this.node = node;
 
 		this.$injector = window.angular.element(node).data('$injector');
-		
+
 		if (!modules) {
 			modules = [];
 		} else if (typeof modules === typeof '') {
@@ -1191,7 +1191,7 @@ NGI.ModelMixin = (function() {
 			this.modelObjs[key].view.destroy();
 			delete this.modelObjs[key];
 		}
-		
+
 		// New keys
 		for (i = 0; i < diff.added.length; i++) {
 			key = diff.added[i];
@@ -1557,4 +1557,12 @@ window.addEventListener('message', function (event) {
 	}
 
 }, false);
+
+// Listen for alt+cmd+x
+window.addEventListener('keydown', function (event) {
+	if (event.target.nodeName.toLowerCase() !== 'input' && event.altKey && event.metaKey && event.keyCode == "88") {
+		window.ngInspector.toggle();
+	}
+});
+
 })(window);
