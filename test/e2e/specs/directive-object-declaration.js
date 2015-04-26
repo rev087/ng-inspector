@@ -1,7 +1,3 @@
-browser.ignoreSynchronization = true;
-var $$ = function(query) { return element.all(by.css(query)); }
-var $ = function(query) { return element(by.css(query)); }
-
 /**
  * Receives N CSS class names as arguments, and returns a selector in the
  * format:
@@ -33,7 +29,6 @@ describe('identify directives declared with the object style', function() {
 	beforeEach(function () {
 		browser.get('/directive-object-declaration.html');
 		element(by.id('ngInspectorToggle')).click();
-		browser.sleep(250);
 	});
 
 	it('should expand and collapse object models', function() {

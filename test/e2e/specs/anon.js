@@ -1,14 +1,9 @@
-browser.ignoreSynchronization = true;
-var $$ = function(query) { return element.all(by.css(query)); }
-var $ = function(query) { return element(by.css(query)); }
-
 describe('anonymous app', function() {
 
-  beforeEach(function () {
+	beforeEach(function () {
 		browser.get('/anon.html');
 		element(by.id('ngInspectorToggle')).click();
-		browser.sleep(250);
-  });
+	});
 
 	it('should inspect the anonymous app', function() {
 		expect($$('.ngi-app').count()).toBe(1);

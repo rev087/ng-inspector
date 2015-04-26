@@ -6,6 +6,7 @@
   "scripts": {
     "test": "./node_modules/.bin/protractor test/protractor.conf.js",
     "update-webdriver": "./node_modules/.bin/webdriver-manager update",
+    "start-webdriver": "./node_modules/.bin/webdriver-manager start",
     "scenarios": "./node_modules/.bin/http-server test/e2e/scenarios/ -p 8000",
     "build-xpi": "gulp && cd ng-inspector.firefox && jpm xpi ",
     "run-xpi": "gulp && cd ng-inspector.firefox && jpm run "
