@@ -49,11 +49,11 @@ function bump(release) {
 		var manifestStr = JSON.stringify(manifest, null, 2);
 		fs.writeFileSync('./ng-inspector.chrome/manifest.json', manifestStr);
 
-                // Bump the version in manifest.json
-	        var fxpackage = require('./ng-inspector.firefox/package.json');
-	        fxpackage.version = semver.inc(fxpackage.version, release);
-	        var fxPackageStr = JSON.stringify(fxpackage, null, 2);
-	        fs.writeFileSync('./ng-inspector.firefox/package.json', manifestStr);
+		// Bump the version in manifest.json
+		var fxpackage = require('./ng-inspector.firefox/package.json');
+		fxpackage.version = semver.inc(fxpackage.version, release);
+		var fxPackageStr = JSON.stringify(fxpackage, null, 2);
+		fs.writeFileSync('./ng-inspector.firefox/package.json', manifestStr);
 
 		// Git add
 		run('git', ['add', 'package.json', 'ng-inspector.safariextension/Info.plist', 'ng-inspector.chrome/manifest.json', 'ng-inspector/package.json'], function() {
@@ -88,7 +88,7 @@ gulp.task('build:icons', function() {
 	return gulp.src(['src/icons/*.png'])
 		.pipe(gulp.dest('ng-inspector.safariextension/icons/'))
 		.pipe(gulp.dest('ng-inspector.chrome/icons/'))
-                .pipe(gulp.dest('ng-inspector.firefox/data/icons/'));
+		.pipe(gulp.dest('ng-inspector.firefox/data/icons/'));
 });
 
 gulp.task('build:js', function() {
@@ -111,7 +111,7 @@ gulp.task('build:js', function() {
 		.pipe(wrap("(function(window) {\n\"use strict\";\n\n<%= contents %>\n})(window);"), {variable:'data'})
 		.pipe(gulp.dest('ng-inspector.safariextension/'))
 		.pipe(gulp.dest('ng-inspector.chrome/'))
-                .pipe(gulp.dest('ng-inspector.firefox/data/'))
+		.pipe(gulp.dest('ng-inspector.firefox/data/'))
 		.pipe(gulp.dest('test/e2e/scenarios/lib/'));
 });
 
@@ -119,7 +119,7 @@ gulp.task('build:css', function() {
 	return gulp.src(['src/less/stylesheet.less'])
 		.pipe(less())
 		.pipe(gulp.dest('ng-inspector.safariextension/'))
-                .pipe(gulp.dest('ng-inspector.firefox/data/'))
+		.pipe(gulp.dest('ng-inspector.firefox/data/'))
 		.pipe(replace(/url\(/g, 'url(chrome-extension://__MSG_@@extension_id__/')) // Add path prefix for Chrome
 		.pipe(gulp.dest('ng-inspector.chrome/'))
 		.pipe(replace(/(\s*)(.+url\(.+)/g, '$1/* $2 */$1background-image: none !important;')) // Remove images from the test build
