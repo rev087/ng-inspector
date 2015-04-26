@@ -1,0 +1,42 @@
+{
+    "name": "ng-inspector",
+    "license": "MIT",
+    "description": "Inspector pane for AngularJS apps",
+    "author": "Bruno Daniel",
+    "contributors": [
+        "Bruno Daniel",
+        "Luca Greco (ALCA Societa' Cooperativa)"
+    ],
+    "title": "ng-inspector for AngularJS",
+    "version": "0.5.10",
+    "engines": {
+        "firefox": ">=38 <=*"
+    },
+    "id": "firefox-addon@ng-inspector.org",
+    "icon": "data/icon128.png",
+    "main": "lib/main.js",
+    "firefox-devtools": {
+        "page-mods": [
+            {
+                "include": [
+                    "*"
+                ],
+                "contentStyleFiles": [
+                    "./stylesheet.css"
+                ],
+                "contentScriptFiles": [
+                    "./inject.js"
+                ]
+            }
+        ],
+        "toolbar-buttons": [
+            {
+                "label": "ng-inspector",
+                "icons": {
+                    "19": "./btn19.png",
+                    "38": "./btn38.png"
+                }
+            }
+        ]
+    }
+}

@@ -26,7 +26,7 @@ NGI.Highlighter = (function() {
 		var box = document.createElement('div');
 		box.className = 'ngi-hl ngi-hl-scope';
 		if (label) {
-			box.innerText = label;
+			box.textContent = label;
 		}
 		var pos = offsets(node);
 		box.style.left = pos.x + 'px';

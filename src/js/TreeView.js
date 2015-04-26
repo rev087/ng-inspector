@@ -99,7 +99,7 @@ NGI.TreeView = (function() {
 			}
 			var span = document.createElement('span');
 			span.className = 'ngi-annotation';
-			span.innerText = name;
+			span.textContent = name;
 			switch(type) {
 				case NGI.Service.DIR:
 					span.classList.add('ngi-annotation-dir');
