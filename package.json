@@ -27,17 +27,17 @@
   },
   "homepage": "https://github.com/rev087/ng-inspector",
   "devDependencies": {
+    "colors": "~0.6.2",
     "gulp": "~3.6.2",
     "gulp-concat": "~2.2.0",
-    "gulp-wrap": "~0.3.0",
-    "semver": "~2.3.0",
-    "colors": "~0.6.2",
-    "plist": "~0.4.3",
     "gulp-jshint": "~1.5.5",
     "gulp-less": "~1.2.3",
     "gulp-replace": "~0.3.0",
-    "protractor": "~0.24.0",
+    "gulp-wrap": "~0.3.0",
     "http-server": "~0.6.1",
-    "jpm": "^1.0.0"
+    "jpm": "^1.0.0",
+    "plist": "~0.4.3",
+    "protractor": "^2.0.0",
+    "semver": "~2.3.0"
   }
 }
