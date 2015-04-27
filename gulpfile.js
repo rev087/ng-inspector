@@ -8,6 +8,8 @@ var fs = require('fs');
 var colors = require('colors');
 var plist = require('plist');
 var spawn = require('child_process').spawn;
+var angularProtractor = require('gulp-angular-protractor');
+var webserver = require('gulp-webserver');
 
 function run(cmd, args, callback) {
 	var child = spawn(cmd, args);
@@ -124,6 +126,21 @@ gulp.task('build:css', function() {
 		.pipe(gulp.dest('ng-inspector.chrome/'))
 		.pipe(replace(/(\s*)(.+url\(.+)/g, '$1/* $2 */$1background-image: none !important;')) // Remove images from the test build
 		.pipe(gulp.dest('test/e2e/scenarios/lib/'));
+});
+
+gulp.task('test', function(cb) {
+	var stream = gulp.src('test/e2e/scenarios/').pipe(webserver());
+
+	gulp.src(['test/e2e/specs/*.js'])
+		.pipe(angularProtractor({
+		    'configFile': 'test/protractor.conf.js',
+		    'autoStartStopServer': true
+		}))
+		.on('error', function(e) { throw e })
+		.on('end', function() {
+			stream.emit('kill');
+			cb;
+		});
 });
 
 // Here would be a good place to build the Safari archive. But it requires a
