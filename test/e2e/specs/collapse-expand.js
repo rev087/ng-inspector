@@ -1,7 +1,3 @@
-browser.ignoreSynchronization = true;
-var $$ = function(query) { return element.all(by.css(query)); }
-var $ = function(query) { return element(by.css(query)); }
-
 /**
  * Receives N CSS class names as arguments, and returns a selector in the
  * format:
@@ -27,15 +23,14 @@ function toggle() {
 	sel += ' > label > .ngi-caret';
 	element(by.css(sel)).click();
 }
+
 function $p() { return $(path.apply(null, arguments)); }
-function $$p() { return $$(path.apply(null, arguments)); }
 
 describe('collapse and expand treeview items', function() {
 
 	beforeEach(function () {
 		browser.get('/collapse-expand.html');
 		element(by.id('ngInspectorToggle')).click();
-		browser.sleep(250);
 	});
 
 	it('should expand and collapse object models', function() {

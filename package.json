@@ -6,6 +6,7 @@
   "scripts": {
     "test": "./node_modules/.bin/protractor test/protractor.conf.js",
     "update-webdriver": "./node_modules/.bin/webdriver-manager update",
+    "start-webdriver": "./node_modules/.bin/webdriver-manager start",
     "scenarios": "./node_modules/.bin/http-server test/e2e/scenarios/ -p 8000",
     "build-xpi": "gulp && cd ng-inspector.firefox && jpm xpi ",
     "run-xpi": "gulp && cd ng-inspector.firefox && jpm run "
@@ -27,17 +28,18 @@
   },
   "homepage": "https://github.com/rev087/ng-inspector",
   "devDependencies": {
-    "gulp": "~3.6.2",
-    "gulp-concat": "~2.2.0",
-    "gulp-wrap": "~0.3.0",
-    "semver": "~2.3.0",
     "colors": "~0.6.2",
-    "plist": "~0.4.3",
+    "gulp": "~3.6.2",
+    "gulp-angular-protractor": "0.0.2",
+    "gulp-concat": "~2.2.0",
     "gulp-jshint": "~1.5.5",
     "gulp-less": "~1.2.3",
     "gulp-replace": "~0.3.0",
-    "protractor": "~0.24.0",
-    "http-server": "~0.6.1",
-    "jpm": "^1.0.0"
+    "gulp-webserver": "^0.9.0",
+    "gulp-wrap": "~0.3.0",
+    "jpm": "^1.0.0",
+    "plist": "~0.4.3",
+    "protractor": "^2.0.0",
+    "semver": "~2.3.0"
   }
 }
