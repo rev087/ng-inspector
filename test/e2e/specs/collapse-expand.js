@@ -29,7 +29,6 @@ function $p() { return $(path.apply(null, arguments)); }
 describe('collapse and expand treeview items', function() {
 
 	beforeEach(function () {
-		browser.ignoreSynchronization = false;
 		browser.get('/collapse-expand.html');
 		element(by.id('ngInspectorToggle')).click();
 	});
