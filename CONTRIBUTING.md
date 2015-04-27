@@ -20,6 +20,15 @@ JavaScript source is located at `/src`, and uses [gulp](http://gulpjs.com) to bu
 
 ## Testing
 
-ng-inspector uses [Protractor](https://github.com/angular/protractor) for end to end tests in Chrome. First, execute `npm run update-webdriver` to let Protractor download or update the required Chrome webdriver. Then start the scenarios server with `npm run scenarios` and finally `npm test` to run the tests.
+ng-inspector uses [Protractor](https://github.com/angular/protractor) for end to end tests in Chrome. 
 
-Scenarios are small angular applications written to test various AngularJS use cases, and are located at `/test/e2e/scenarios/`. Each scenario should have one spec file containing the tests themselves, and they are located at `/test/e2e/specs/`.
+### Running Tests
+
+1. Run `gulp` to ensure you have a fresh copy of the extension built from source
+2. Run `npm run update-webdriver` to download/update the Chrome webdriver
+3. Run `npm run start-webdriver` to start the local webdriver server
+4. Run `npm run scenarios` to start a local webserver that serves the Scenarios*
+5. Run `npm test` to execute the test suite
+
+
+*Scenarios are small angular applications written to test various AngularJS use cases, and are located at `/test/e2e/scenarios/`. Each scenario should have one spec file containing the tests themselves, and they are located at `/test/e2e/specs/`.
