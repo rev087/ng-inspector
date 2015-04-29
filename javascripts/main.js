@@ -8,6 +8,10 @@ $(function() {
 		ga('send', 'event', 'button', 'click', 'safari-download');
 	});
 
+	$('#firefox-dl-btn').click(function(e) {
+		ga('send', 'event', 'button', 'click', 'firefox-download');
+	});
+
 	$('#github-repo-btn').click(function(e) {
 		ga('send', 'event', 'button', 'click', 'github-repo');
 	});
