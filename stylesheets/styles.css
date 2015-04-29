@@ -154,7 +154,7 @@ header h1 {
 .version {
 	font-size: 18px;
 	font-weight: 300;
-	margin: 0 0 50px 0;
+	margin: 0 0 35px 0;
 }
 
 .dl-btn {
@@ -167,7 +167,7 @@ header h1 {
 	color: #444;
 	text-decoration: none;
 	position: relative;
-	margin: 0 30px;
+	margin: 15px;
 	transition: border-color .3s;
 }
 .dl-btn:hover {
@@ -208,6 +208,7 @@ header h1 {
 .dl-icon.safari { background-position: 0 0; top: 2px; }
 .dl-icon.chrome { background-position: 0 -80px; }
 .dl-icon.github { background-position: 0 -160px; }
+.dl-icon.firefox { background-position: 0 -240px; }
 
 
 @media (max-width: 1025px) {
