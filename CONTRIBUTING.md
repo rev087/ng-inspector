@@ -22,9 +22,38 @@ JavaScript source is located at `/src`, and uses [gulp](http://gulpjs.com) to bu
 	- `ng-inspector.chrome/manifest.json` (Chrome)
 	- `ng-inspector.firefox/package.json` (Firefox)
 
+## Packaging the extension
+
+Each of the supported browsers require a different packaging process. Begin by building the extension with the default `gulp` task, then follow the browser-specific instructions below.
+
+### Safari
+
+Make sure _Show Develop menu in menu bar_ is selected in _Preferences…_ > _Advanced_ tab. Navigate to _Develop_ > _Show Extension Builder_, click the `+` button and select the `ng-inspector.safariextension` directory to add the extension to Safari in development mode. Finally, click _Build Package…_.
+
+### Chrome
+
+Compress the `ng-inspector.chrome` directory in a _.zip_ file and upload to the _Chrome Web Store_.
+
+### Firefox
+
+For 30 <= Firefox < 38, use _CFX_:
+
+- Install addon-sdk 1.17 from https://ftp.mozilla.org/pub/mozilla.org/labs/jetpack/jetpack-sdk-latest.zip
+(Reference: https://developer.mozilla.org/en-US/Add-ons/SDK/Tutorials/Installation)
+- Activate cfx (e.g. source bin/activate)
+- In the terminal, navigate to the `ng-inspector.firefox` directory.
+	- To try the extension: `cfx run -b /path/to/firefox-30.0/firefox`
+	- To build the _xpi_: `cfx xpi`
+
+For Firefox >= 38, use _JPM_:
+
+- Make sure to have installed the npm dependencies via `npm install`
+- To try: `npm run run-xpi -- -b /path/to/firefox-38/firefox`
+- To build the _xpi_: `npm run build-xpi`
+
 ## Testing
 
-ng-inspector uses [Protractor](https://github.com/angular/protractor) for end to end tests in Chrome. 
+ng-inspector uses [Protractor](https://github.com/angular/protractor) for end to end tests in Chrome.
 
 ### Running Tests
 
