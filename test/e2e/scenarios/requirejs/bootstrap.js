@@ -8,6 +8,6 @@ define([
 ], function (require, angular) {
   'use strict';
   angular.element(document).ready(function() {
-    angular.bootstrap(document, ['DemoApp']);
+    angular.bootstrap(document.querySelector('.angular-root-element'), ['DemoApp']);
   });
 });

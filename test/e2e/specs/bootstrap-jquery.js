@@ -1,7 +1,9 @@
 describe('bootstrap with a jquery object', function() {
+	
+	var angularVersion = browser.params.angularVersion;
 
 	beforeEach(function () {
-		browser.get('/bootstrap-jquery.html');
+		browser.get('bootstrap-jquery/' + angularVersion);
 		element(by.id('ngInspectorToggle')).click();
 	});
 

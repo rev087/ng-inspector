@@ -1,7 +1,9 @@
 describe('strict di', function() {
 
+	var angularVersion = browser.params.angularVersion;
+
 	beforeEach(function () {
-		browser.get('/strict-di.html');
+		browser.get('strict-di/' + angularVersion);
 		element(by.id('ngInspectorToggle')).click();
 	});
 

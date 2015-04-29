@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Angular Scenario: <%= scenario %></title>
+	<!--
+		The Angular lib *could* be added here, but we include it in the scenario partials
+		instead, since at-least 1 test requires jQuery, which needs to be loaded before Angular
+	 -->
+	<script src="/lib/ng-inspector.js"></script>
+	<style>@import url(/lib/stylesheet.css);</style>
+</head>
+<body>
+	<%- include(scenarioPath); %>
+</body>
+</html>

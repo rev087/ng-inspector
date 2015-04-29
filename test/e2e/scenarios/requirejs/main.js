@@ -1,7 +1,8 @@
 require.config({
   noGlobal: true,
+  baseUrl: '/',
   paths: {
-    'angular': 'lib/angular.min'
+    'angular': window.angularLibPath
   },
   shim: {
     'angular': {

@@ -10,6 +10,7 @@ var plist = require('plist');
 var spawn = require('child_process').spawn;
 var angularProtractor = require('gulp-angular-protractor');
 var webserver = require('gulp-webserver');
+var scenarioServer = require('./test/e2e/scenarios/scenario-server');
 
 function run(cmd, args, callback) {
 	var child = spawn(cmd, args);
@@ -129,7 +130,7 @@ gulp.task('build:css', function() {
 });
 
 gulp.task('test', function(cb) {
-	var stream = gulp.src('test/e2e/scenarios/').pipe(webserver());
+	var server = scenarioServer(3000);
 
 	gulp.src(['test/e2e/specs/*.js'])
 		.pipe(angularProtractor({
@@ -138,8 +139,8 @@ gulp.task('test', function(cb) {
 		}))
 		.on('error', function(e) { throw e })
 		.on('end', function() {
-			stream.emit('kill');
-			cb;
+			server.close();
+			cb();
 		});
 });
 

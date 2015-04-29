@@ -1,27 +1,18 @@
-<!doctype html>
-<html lang="en">
-<head>
-	<meta charset="UTF-8">
-	<title>Circular Reference</title>
-	<script src="lib/angular.min.js"></script>
-	<script src="lib/ng-inspector.js"></script>
-	<style>@import url(lib/stylesheet.css);</style>
-	<script>
-			
-		angular.module('TestApp', [])
-			.controller('TestCtrl', function($scope) {
-				$scope.username = 'John Doe';
-				$scope.foo = {};
-				$scope.foo.bar = $scope.foo;
-			});
+<script src="/lib/angular/<%= angularVersion %>.min.js"></script>
 
-	</script>
-</head>
-<body ng-app="TestApp">
+<script>
+	angular.module('TestApp', [])
+		.controller('TestCtrl', function($scope) {
+			$scope.username = 'John Doe';
+			$scope.foo = {};
+			$scope.foo.bar = $scope.foo;
+		});
+</script>
+
+<div class="angular-root-element" ng-app="TestApp">
 
 	<div ng-controller="TestCtrl">Hello {{username}}</div>	
 
 	<button type="button" onclick="window.ngInspector.toggle()" id="ngInspectorToggle">ngInspector</button>
 
-</body>
-</html>
+</div>

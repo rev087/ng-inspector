@@ -1,9 +1,10 @@
 describe('empty directive', function() {
 
+	var angularVersion = browser.params.angularVersion;
 	var _warn, _warnMessage;
 
 	beforeEach(function () {
-		browser.get('/empty-directive.html');
+		browser.get('empty-directive/' + angularVersion);
 		element(by.id('ngInspectorToggle')).click();
 	});
 
