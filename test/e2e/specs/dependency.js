@@ -1,7 +1,9 @@
 describe('dependency', function() {
 
+	var angularVersion = browser.params.angularVersion;
+
 	beforeEach(function () {
-		browser.get('/dependency.html');
+		browser.get('dependency/' + angularVersion);
 		element(by.id('ngInspectorToggle')).click();
 	});
 

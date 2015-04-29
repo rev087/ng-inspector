@@ -28,8 +28,10 @@ function $p() { return $(path.apply(null, arguments)); }
 
 describe('collapse and expand treeview items', function() {
 
+	var angularVersion = browser.params.angularVersion;
+
 	beforeEach(function () {
-		browser.get('/collapse-expand.html');
+		browser.get('collapse-expand/' + angularVersion);
 		element(by.id('ngInspectorToggle')).click();
 	});
 

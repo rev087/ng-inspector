@@ -3,6 +3,12 @@
 exports.config = {
   allScriptsTimeout: 11000,
 
+  params: {
+    angularVersion: '1.3.0'
+  },
+
+  rootElement: 'div.angular-root-element',
+
   specs: [
     'e2e/specs/*.js'
   ],
@@ -11,7 +17,7 @@ exports.config = {
     'browserName': 'chrome'
   },
 
-  baseUrl: 'http://localhost:8000/',
+  baseUrl: 'http://localhost:3000/app/',
 
   jasmineNodeOpts: {
     showColors: true,

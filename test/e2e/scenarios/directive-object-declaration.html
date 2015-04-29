@@ -1,38 +1,28 @@
-<!doctype html>
-<html lang="en">
-<head>
-	<meta charset="UTF-8">
-	<title>Dependency</title>
-	<script src="lib/angular.min.js"></script>
-	<script src="lib/ng-inspector.js"></script>
-	<style>@import url(lib/stylesheet.css);</style>
-	<script>
-			
-		angular.module('auth', [])
-			.service('user', function() {
-				return {name: 'John Doe'};
-			});
-		
-		var testDir = function(usr) {
-			return {
-				template: '<h3>Hello {{user.name}}</h3>',
-				controller: function($scope) {
-					$scope.user = usr;
-				}
-			};
+<script src="/lib/angular/<%= angularVersion %>.min.js"></script>
+<script>
+	angular.module('auth', [])
+		.service('user', function() {
+			return {name: 'John Doe'};
+		});
+	
+	var testDir = function(usr) {
+		return {
+			template: '<h3>Hello {{user.name}}</h3>',
+			controller: function($scope) {
+				$scope.user = usr;
+			}
 		};
-		testDir.$inject = ['user'];
+	};
+	testDir.$inject = ['user'];
 
-		angular.module('MyApp', ['auth'])
-			.directive({testDir: testDir});
+	angular.module('MyApp', ['auth'])
+		.directive({testDir: testDir});
+</script>
 
-	</script>
-</head>
-<body ng-app="MyApp">
+<div class="angular-root-element" ng-app="MyApp">
 
 	<div test-dir></div>
 
 	<button type="button" onclick="window.ngInspector.toggle()" id="ngInspectorToggle">ngInspector</button>
 
-</body>
-</html>
+</div>

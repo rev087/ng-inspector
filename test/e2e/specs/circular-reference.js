@@ -1,7 +1,9 @@
 describe('detect circular references', function() {
 
+	var angularVersion = browser.params.angularVersion;
+
 	beforeEach(function () {
-		browser.get('/circular-reference.html');
+		browser.get('circular-reference/' + angularVersion);
 		element(by.id('ngInspectorToggle')).click();
 	});
 

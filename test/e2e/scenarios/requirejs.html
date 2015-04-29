@@ -1,11 +1,5 @@
-<!DOCTYPE html>
-<html><!-- no ng-app: see bootstrap.js -->
-	<head>
-		<title>RequireJS</title>
-		<script src="lib/ng-inspector.js"></script>
-		<style>@import url(lib/stylesheet.css);</style>
-	</head>
-	<body ng-controller="DemoCtrl">
+<div class="angular-root-element">
+	<div ng-controller="DemoCtrl">
 		<label for="foo"> Type Something:
 		<input type="text" size="30" name="foo" id="foo" ng-model="foo">
 		<p>{{ foo }}</p>
@@ -13,7 +7,11 @@
 		<p>Test contributed by https://github.com/commandtab</p>
 
 		<button type="button" onclick="window.ngInspector.toggle()" id="ngInspectorToggle">ngInspector</button>
-		<script src="requirejs/requirejs.min.js"></script>
-		<script src="requirejs/main.js"></script>
-	</body>
-</html>
+	</div>
+</div>
+
+<script>
+	window.angularLibPath = 'lib/angular/<%= angularVersion %>.min';
+</script>
+<script src="/requirejs/requirejs.min.js"></script>
+<script src="/requirejs/main.js"></script>
