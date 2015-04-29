@@ -8,7 +8,7 @@ Run `npm install` (npm comes bundled with [node.js](http://nodejs.org)) to insta
 
 ## Building the extension
 
-JavaScript source is located at `/src`, and uses [gulp](http://gulpjs.com) to build for Chrome at `/ng-inspector.chrome` and Safari at `/ng-inspector.safariextension`.
+JavaScript source is located at `/src`, and uses [gulp](http://gulpjs.com) to build for Chrome at `/ng-inspector.chrome`, Safari at `/ng-inspector.safariextension` and Firefox at `/ng-inspector.firefox`.
 
 ### Gulp Tasks:
 
@@ -16,7 +16,11 @@ JavaScript source is located at `/src`, and uses [gulp](http://gulpjs.com) to bu
 - `build:icons`: copies the icons over to each browser folders
 - `build:css`: compiles the less files over to each browser folders
 - `build:js`: concatenates the source JavaScript over to each browser folder
-- `bump:major`, `bump:minor`, `bump:patch`: bumps the version in `package.json`, `Info.plist` (Safari) and `manifest.json` (Chrome), adds these files to Git staging, commits with a "Prepare for vX.Y.Z" message and tag the commit with the version number
+- `bump:major`, `bump:minor`, `bump:patch`: bumps the version in the manifest files, stages the changes in git, commits with a "Prepare for vX.Y.Z" message and tag the commit with the version number. Manifest files updated:
+	- `package.json`
+	- `ng-inspector.safariextension/Info.plist` (Safari)
+	- `ng-inspector.chrome/manifest.json` (Chrome)
+	- `ng-inspector.firefox/package.json` (Firefox)
 
 ## Testing
 
