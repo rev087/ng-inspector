@@ -16,3 +16,6 @@ ng-inspector.safariextension/stylesheet.css
 ng-inspector.chrome/icons/
 ng-inspector.chrome/ng-inspector.js
 ng-inspector.chrome/stylesheet.css
+
+test/e2e/scenarios/lib/ng-inspector/ng-inspector.js
+test/e2e/scenarios/lib/ng-inspector/stylesheet.css
