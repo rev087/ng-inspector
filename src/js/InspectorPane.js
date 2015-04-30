@@ -20,7 +20,6 @@ NGI.InspectorPane = function() {
 	// Create the root DOM node for the inspector pane
 	var pane = document.createElement('div');
 	pane.className = 'ngi-inspector';
-	pane.innerHTML = '';
 	pane.style.width = inspectorWidth + 'px';
 
 	// Create and expose the root DOM node for the treeView
