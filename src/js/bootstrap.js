@@ -9,17 +9,19 @@ function bootstrap() {
 	// True once the wrapBootstrap() method runs for the first time
 	var didWrapBootstrap = false;
 
+	// RequireJS and similar loaders work by injecting <script> tags into the
+	// DOM. If the page uses such mechanism, the angular namespace might not
+	// yet be available by the time `NGI.InspectorAgent` is instantiated. By
+	// listening to the MutationOvserver we can support this use case.
+	var loaderObserver = new MutationObserver(wrapBootstrap.bind(this));
+
 	// If angular was included via <script src=...> tag, the angular object should
 	// already be present in the window scope, and we can wrapBootstrap() right
 	// away
 	if (window.angular && window.angular.bootstrap) {
 		wrapBootstrap();
 	} else {
-		// RequireJS and similar loaders work by injecting <script> tags into the
-		// DOM. If the page uses such mechanism, the angular namespace might not
-		// yet be available by the time `NGI.InspectorAgent` is instantiated. By
-		// listening to the DOMNodeInserted event we can support this use case.
-		document.addEventListener('DOMNodeInserted', wrapBootstrap.bind(this));
+		loaderObserver.observe(document, { childList: true, subtree: true });
 	}
 
 	// The manual AngularJS module bootstrap capturing mechanism, wraps the
@@ -49,11 +51,8 @@ function bootstrap() {
 			return ret;
 		};
 
-		// Once the `angular.bootstrap` method has been wrapped, we can stop
-		// listening for DOMNodeInserted events, used to wait until angular has
-		// been loaded by RequireJS or a similar mechanism
-		document.removeEventListener('DOMNodeInserted', wrapBootstrap.bind(this));
 		didWrapBootstrap = true;
+		loaderObserver.disconnect();
 	}
 
 }
@@ -64,7 +63,6 @@ if (document.readyState === 'complete') {
 	window.addEventListener('load', bootstrap);
 }
 
-// In Safari, we use window messages
 window.addEventListener('message', function (event) {
 
 	// Ensure the message was sent by this origin
@@ -85,7 +83,7 @@ window.addEventListener('message', function (event) {
 
 		// Fail if the inspector has not been initialized yet (before window.load)
 		if ( !window.ngInspector ) {
-			return console.warn('The ng-inspector has not yet initialized');
+			return console.warn('ng-inspector: The page must finish loading before using ng-inspector');
 		}
 
 		window.ngInspector.toggle(eventData.settings);
