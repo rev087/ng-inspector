@@ -53,13 +53,13 @@ function bump(release) {
 		fs.writeFileSync('./ng-inspector.chrome/manifest.json', manifestStr);
 
 		// Bump the version in manifest.json
-		var fxpackage = require('./ng-inspector.firefox/package.json');
-		fxpackage.version = semver.inc(fxpackage.version, release);
-		var fxPackageStr = JSON.stringify(fxpackage, null, 2);
-		fs.writeFileSync('./ng-inspector.firefox/package.json', manifestStr);
+		var ffpkg = require('./ng-inspector.firefox/package.json');
+		ffpkg.version = semver.inc(fxpackage.version, release);
+		var ffpkgString = JSON.stringify(fxpackage, null, 2);
+		fs.writeFileSync('./ng-inspector.firefox/package.json', ffpkgString);
 
 		// Git add
-		run('git', ['add', 'package.json', 'ng-inspector.safariextension/Info.plist', 'ng-inspector.chrome/manifest.json', 'ng-inspector/package.json'], function() {
+		run('git', ['add', 'package.json', 'ng-inspector.safariextension/Info.plist', 'ng-inspector.chrome/manifest.json', 'ng-inspector.firefox/package.json'], function() {
 
 			// Git commit
 			var commitMsg = 'Prepare for ' + pkg.version;
