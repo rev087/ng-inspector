@@ -160,26 +160,36 @@ NGI.App = (function(window) {
 		}
 	};
 
-	// Utility function that returns a string representation of a DOM Node similar
-	// to CSS selectors to be shown in the UI
+	// Utility function that returns a DOM Node to be injected in the UI,
+	// displaying a user-friendly CSS selector-like representation of a DOM Node
+	// in the inspected application
 	function nodeRep(node) {
-		if (node === document) return 'document';
+		var label = document.createElement('label');
+
+		if (node === document) {
+			label.textContent = 'document';
+			return label;
+		}
 
 		// tag
-		var rep = node.tagName.toLowerCase();
+		label.textContent = node.tagName.toLowerCase();
 
 		// #id
 		if (node.hasAttribute('id')) {
-			rep += '<small>#' + node.getAttribute('id') + '</small>';
+			var small = document.createElement('small');
+			small.textContent = '#' + node.getAttribute('id');
+			label.appendChild(small);
 		}
 
 		// .class.list
 		var classList = node.className.split(/\s/);
 		for (var i = 0; i < classList.length; i++) {
-			rep += '<small>.' + classList[i] + '</small>';
+			var small = document.createElement('small');
+			small.textContent = '.' + classList[i];
+			label.appendChild(small);
 		}
 
-		return rep;
+		return label;
 	}
 
 	return App;

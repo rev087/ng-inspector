@@ -9,8 +9,13 @@ NGI.TreeView = (function() {
 
 		this.element = document.createElement('div');
 
-		this.label = document.createElement('label');
-		this.label.textContent = label;
+		// Accepts a label DOM Node or a string
+		if (typeof label === 'string' || typeof label === 'number') {
+			this.label = document.createElement('label');
+			this.label.textContent = label;
+		} else if (!!label.tagName) {
+			this.label = label;
+		}
 		this.element.appendChild(this.label);
 
 		this.drawer = document.createElement('div');
