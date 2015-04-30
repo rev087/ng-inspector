@@ -10,7 +10,7 @@ NGI.TreeView = (function() {
 		this.element = document.createElement('div');
 
 		this.label = document.createElement('label');
-		this.label.innerHTML = label;
+		this.label.textContent = label;
 		this.element.appendChild(this.label);
 
 		this.drawer = document.createElement('div');
@@ -83,7 +83,7 @@ NGI.TreeView = (function() {
 				if (!indicator) {
 					indicator = document.createElement('span');
 					indicator.className = 'ngi-indicator';
-					indicator.innerHTML = value;
+					// indicator.innerHTML = value;
 					this.label.appendChild(indicator);
 				}
 			}
