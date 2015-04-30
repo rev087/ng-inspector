@@ -8,7 +8,7 @@ var fs = require('fs');
 var colors = require('colors');
 var plist = require('plist');
 var spawn = require('child_process').spawn;
-var angularProtractor = require('gulp-angular-protractor');
+var protractor = require('gulp-angular-protractor');
 var webserver = require('gulp-webserver');
 var scenarioServer = require('./test/e2e/scenarios/scenario-server');
 
@@ -129,11 +129,15 @@ gulp.task('build:css', function() {
 		.pipe(gulp.dest('test/e2e/scenarios/lib/'));
 });
 
+gulp.task('scenarios', function() {
+	scenarioServer(3000);
+});
+
 gulp.task('test', function(cb) {
 	var server = scenarioServer(3000);
 
 	gulp.src(['test/e2e/specs/*.js'])
-		.pipe(angularProtractor({
+		.pipe(protractor({
 		    'configFile': 'test/protractor.conf.js',
 		    'autoStartStopServer': true
 		}))
