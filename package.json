@@ -38,6 +38,7 @@
     "jpm": "^1.0.0",
     "plist": "~0.4.3",
     "protractor": "^2.0.0",
+    "require-dir": "^0.3.0",
     "semver": "~2.3.0"
   }
 }
