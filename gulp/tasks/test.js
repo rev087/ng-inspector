@@ -1,13 +1,15 @@
 var gulp = require('gulp');
-var scenarioServer = require('../../test/e2e/scenarios/scenario-server');
+var format = require('util').format;
+var config = require('../config');
+var scenarioServer = require(format('../../%s/scenarios/scenario-server', config.e2eDir));
 var protractor = require('gulp-angular-protractor');
 
 gulp.task('test', function(cb) {
 	var server = scenarioServer(3000);
 
-	gulp.src(['test/e2e/specs/*.js'])
+	gulp.src([format('%s/specs/*.js', config.e2eDir)])
 		.pipe(protractor({
-		    'configFile': 'test/protractor.conf.js',
+		    'configFile': format('%s/protractor.conf.js', config.testDir),
 		    'autoStartStopServer': true
 		}))
 		.on('error', function(e) { throw e })
