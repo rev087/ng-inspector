@@ -1,6 +1,3 @@
-/* global NGI */
-/* jshint strict: false */
-
 /**
  * `NGI.InspectorPane` is responsible for the root element and basic interaction
  * with the pane (in practice, a <div>) injected in the page DOM, such as
@@ -8,7 +5,7 @@
  * level of child views.
  */
 
-NGI.InspectorPane = function() {
+module.exports = function() {
 
 	// The width of the pane can be resized by the user, and is persisted via
 	// localStorage

@@ -1,5 +1,7 @@
-/* global NGI, console */
-/* jshint strict: false */
+var NGI = {
+	Inspector: require('./Inspector'),
+	App: require('./App')
+};
 
 function bootstrap() {
 
