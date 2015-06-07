@@ -1,13 +1,10 @@
-/* jshint strict: false */
+var NGI = {
+	InspectorPane: require('./InspectorPane'),
+	App: require('./App'),
+	Scope: require('./Scope')
+};
 
-var NGI = {};
-
-NGI.newID = (function() {
-	var id = 0;
-	return function() { return id++; };
-})();
-
-NGI.Inspector = function() {
+module.exports = function() {
 
 	// Settings defaults
 	this.settings = {

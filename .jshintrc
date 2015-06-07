@@ -1,0 +1,7 @@
+{
+	"strict": false,
+	"expr": true,
+	"boss": true,
+	"shadow": true,
+	"predef": ["console"]
+}

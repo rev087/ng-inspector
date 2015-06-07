@@ -9,6 +9,8 @@ module.exports = {
 	chromeDir: 'ng-inspector.chrome',
 	iconsDir: 'src/icons',
 	jsDir: 'src/js',
+	browserifyEntry: 'src/js/bootstrap.js',
+	jsOutputName: 'ng-inspector.js',
 	testDir: testDir,
 	e2eDir: format('%s/e2e', testDir)
 };
