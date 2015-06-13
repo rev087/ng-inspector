@@ -1,14 +1,17 @@
-// Keturns the keys for the user defined models in the scope excluding keys
-// created by AngularJS or the `this` keyword, or the elements
-// in an array or object
-function getKeys(values) {
-	var keys = [];
-	for (var key in values) {
-		if (values.hasOwnProperty(key) && !/^\$/.test(key) && key !== 'this') {
-			keys.push(key);
-		}
-	}
-	return keys;
+function getUserDefinedKeys(values) {
+	return Object.keys(values).filter(function(key) {
+		return !isPrivateAngularProp(key);
+	});
+}
+
+function isPrivateAngularProp(propName) {
+	var PRIVATE_KEY_BLACKLIST = ['$parent', '$root', '$id'];
+	var ANGULAR_PRIVATE_PREFIX = '$$';
+	var firstTwoChars = propName[0] + propName[1];
+
+	if (firstTwoChars === ANGULAR_PRIVATE_PREFIX) return true;
+	if (PRIVATE_KEY_BLACKLIST.indexOf(propName) > -1 || propName === 'this') return true;
+	return false;
 }
 
 function arrayDiff(a, b) {
@@ -40,7 +43,7 @@ ModelMixin.update = function(values, depth, Model) {
 	if (typeof this.modelObjs === 'undefined') this.modelObjs = {};
 	if (typeof this.modelKeys === 'undefined') this.modelKeys = [];
 
-	var newKeys = getKeys(values),
+	var newKeys = getUserDefinedKeys(values),
 			diff = arrayDiff(this.modelKeys, newKeys),
 			i, key;
 
