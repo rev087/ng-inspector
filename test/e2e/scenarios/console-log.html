@@ -1,0 +1,18 @@
+<script src="/lib/angular/<%= angularVersion %>.min.js"></script>
+<script>
+	angular.module('MainApp', [])
+			.controller('MainCtrl', function($scope) {
+				$scope.isSelected = true;
+			});
+</script>
+
+<div class="angular-root-element" ng-app="MainApp">
+
+	<div ng-controller="MainCtrl">
+		<input id="checkbox" type="checkbox" ng-model="isSelected">
+		<label for="checkbox">Toggle</label>
+	</div>
+
+	<button type="button" onclick="window.ngInspector.toggle()" id="ngInspectorToggle">ngInspector</button>
+</div>
+

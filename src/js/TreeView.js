@@ -179,13 +179,13 @@ TreeView.scopeItem = function(label, depth, isIsolate) {
 
 // Creates a TreeViewItem instance, with styling and metadata relevant for
 // AngularJS models
-TreeView.modelItem = function(key, value, depth) {
-	var item = new TreeViewItem(key + ':');
+TreeView.modelItem = function(modelInstance, depth) {
+	var item = new TreeViewItem(modelInstance.key + ':');
 	item.element.className = 'ngi-model';
 	item.label.className = 'ngi-depth-' + depth.length;
 
 	item.label.addEventListener('click', function() {
-		console.log(value);
+		console.info(modelInstance.value);
 	});
 
 	return item;
