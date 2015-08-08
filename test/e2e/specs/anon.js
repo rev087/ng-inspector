@@ -1,11 +1,8 @@
-describe('anonymous app', function() {
-	
-	var angularVersion = browser.params.angularVersion;
+var preparePage = require('../helpers/preparePage')('anon');
 
-	beforeEach(function () {
-		browser.get('anon/' + angularVersion);
-		element(by.id('ngInspectorToggle')).click();
-	});
+describe('anonymous app', function() {
+
+	beforeEach(preparePage);
 
 	var ROOT_ELEMENT = 'div.angular-root-element';
 

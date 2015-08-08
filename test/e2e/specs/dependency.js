@@ -1,11 +1,8 @@
+var preparePage = require('../helpers/preparePage')('dependency');
+
 describe('dependency', function() {
 
-	var angularVersion = browser.params.angularVersion;
-
-	beforeEach(function () {
-		browser.get('dependency/' + angularVersion);
-		element(by.id('ngInspectorToggle')).click();
-	});
+	beforeEach(preparePage);
 
 	it('should inspect the directive in a dependency', function() {
 		expect($$('.ngi-scope').count()).toBe(2);
