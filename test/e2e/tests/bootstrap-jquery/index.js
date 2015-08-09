@@ -1,4 +1,4 @@
-var preparePage = require('../helpers/preparePage')('bootstrap-jquery');
+var preparePage = require('../../helpers/preparePage')('bootstrap-jquery');
 
 describe('bootstrap with a jquery object', function() {
 	

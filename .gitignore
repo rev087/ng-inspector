@@ -17,5 +17,5 @@ ng-inspector.chrome/icons/
 ng-inspector.chrome/ng-inspector.js
 ng-inspector.chrome/stylesheet.css
 
-test/e2e/scenarios/lib/ng-inspector.js
-test/e2e/scenarios/lib/stylesheet.css
+test/e2e/lib/ng-inspector.js
+test/e2e/lib/stylesheet.css

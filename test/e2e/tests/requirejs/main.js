@@ -1,6 +1,6 @@
 require.config({
   noGlobal: true,
-  baseUrl: '/',
+  baseUrl: '/tests/requirejs',
   paths: {
     'angular': window.angularLibPath
   },
@@ -9,5 +9,5 @@ require.config({
       exports: 'angular'
     }
   },
-  deps: ['requirejs/bootstrap'] // depend on (and load) bootstrap.js
+  deps: ['bootstrap'] // depend on (and load) bootstrap.js
 });

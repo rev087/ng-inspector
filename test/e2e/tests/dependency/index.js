@@ -1,4 +1,4 @@
-var preparePage = require('../helpers/preparePage')('dependency');
+var preparePage = require('../../helpers/preparePage')('dependency');
 
 describe('dependency', function() {
 

@@ -19,5 +19,5 @@ gulp.task('build:js', function () {
     .pipe(gulp.dest(format('%s/', config.safariDir)))
     .pipe(gulp.dest(format('%s/', config.chromeDir)))
     .pipe(gulp.dest(format('%s/data/', config.firefoxDir)))
-    .pipe(gulp.dest(format('%s/scenarios/lib/', config.e2eDir)));
+    .pipe(gulp.dest(format('%s/lib/', config.e2eDir)));
 });

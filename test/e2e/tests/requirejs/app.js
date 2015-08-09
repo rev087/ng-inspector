@@ -3,7 +3,7 @@ define([
   // RequireJS module already defined in main.js, and the
   // 'controllers' RequireJS module defined in controllers.js
   'angular',
-  'requirejs/controllers'
+  'controllers'
 ], function (angular) {
   'use strict';
   // Define the emtpy Angular app

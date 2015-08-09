@@ -1,4 +1,4 @@
-var preparePage = require('../helpers/preparePage')('collapse-expand');
+var preparePage = require('../../helpers/preparePage')('collapse-expand');
 
 /**
  * Receives N CSS class names as arguments, and returns a selector in the

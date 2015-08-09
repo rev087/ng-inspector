@@ -32,10 +32,11 @@ function scenarioServer(port) {
 	});
 
 	app.get('/app/:scenario/:angularVersion', function (req, res) {
-	  res.render('base-template', {
+	  res.render('../tests/base-template', {
 	  	angularVersion: req.params.angularVersion,
 	  	scenario: req.params.scenario,
-	  	scenarioPath: '../' + req.params.scenario + '.html'
+	  	scenarioPath: '../tests/' + req.params.scenario + '/index.html',
+	  	// scenarioPath: '../' + req.params.scenario + '.html'
 	  });
 	});
 

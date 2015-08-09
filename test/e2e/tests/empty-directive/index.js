@@ -1,4 +1,4 @@
-var preparePage = require('../helpers/preparePage')('empty-directive');
+var preparePage = require('../../helpers/preparePage')('empty-directive');
 
 describe('empty directive', function() {
 

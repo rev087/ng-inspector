@@ -1,4 +1,4 @@
-var preparePage = require('../helpers/preparePage')('strict-di');
+var preparePage = require('../../helpers/preparePage')('strict-di');
 
 describe('strict di', function() {
 

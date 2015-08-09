@@ -4,7 +4,7 @@
 define([
   'require',
   'angular',
-  'requirejs/app'
+  'app'
 ], function (require, angular) {
   'use strict';
   angular.element(document).ready(function() {

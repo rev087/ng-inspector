@@ -1,8 +1,7 @@
-var preparePage = require('../helpers/preparePage')('requirejs');
+var preparePage = require('../../helpers/preparePage')('requirejs');
 
 describe('require.js', function() {
 
-	var angularVersion = browser.params.angularVersion;
 	var ROOT_ELEMENT = 'div.angular-root-element';
 
 	beforeEach(preparePage);

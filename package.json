@@ -7,7 +7,7 @@
     "build-xpi": "gulp && cd ng-inspector.firefox && jpm xpi ",
     "run-xpi": "gulp && cd ng-inspector.firefox && jpm run ",
     "test": "gulp e2e",
-    "test-max": "gulp e2e --maxSessions 0"
+    "test-throttled": "gulp e2e --maxSessions 1"
   },
   "repository": {
     "type": "git",
@@ -26,6 +26,7 @@
   },
   "homepage": "https://github.com/rev087/ng-inspector",
   "devDependencies": {
+    "browserify": "^11.0.1",
     "colors": "~0.6.2",
     "ejs": "^2.3.1",
     "express": "^4.12.3",

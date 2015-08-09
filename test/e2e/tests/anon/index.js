@@ -1,4 +1,4 @@
-var preparePage = require('../helpers/preparePage')('anon');
+var preparePage = require('../../helpers/preparePage')('anon');
 
 describe('anonymous app', function() {
 

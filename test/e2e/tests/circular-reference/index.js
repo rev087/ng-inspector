@@ -1,4 +1,4 @@
-var preparePage = require('../helpers/preparePage')('circular-reference');
+var preparePage = require('../../helpers/preparePage')('circular-reference');
 
 describe('detect circular references', function() {
 

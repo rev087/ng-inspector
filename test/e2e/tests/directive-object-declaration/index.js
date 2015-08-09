@@ -1,4 +1,4 @@
-var preparePage = require('../helpers/preparePage')('directive-object-declaration');
+var preparePage = require('../../helpers/preparePage')('directive-object-declaration');
 
 /**
  * Receives N CSS class names as arguments, and returns a selector in the

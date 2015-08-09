@@ -3,7 +3,7 @@ var path = require('path');
 var config = require('../config');
 var format = require('util').format;
 var child_process = require('child_process');
-var scenarioServer = require('../../test/e2e/scenarios/scenario-server');
+var scenarioServer = require('../../test/e2e/scenario-server');
 
 // Protractor execution adapted from: https://github.com/mllrsohn/gulp-protractor
 
@@ -18,7 +18,7 @@ function getProtractorConfPath() {
     return format('%s/protractor.conf.js', config.e2eDir);
 }
 
-gulp.task('e2e', function(done) {
+gulp.task('e2e', ['default'], function(done) {
     var server = scenarioServer(3000);
     var argv = process.argv.slice(3);
     var protractorArgs = [].concat.apply(getProtractorConfPath(), argv);
