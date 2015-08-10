@@ -1,3 +1,5 @@
+var preparePage = require('../helpers/preparePage')('directive-object-declaration');
+
 /**
  * Receives N CSS class names as arguments, and returns a selector in the
  * format:
@@ -26,12 +28,7 @@ function toggle() {
 
 describe('identify directives declared with the object style', function() {
 
-	var angularVersion = browser.params.angularVersion;
-
-	beforeEach(function () {
-		browser.get('directive-object-declaration/' + angularVersion);
-		element(by.id('ngInspectorToggle')).click();
-	});
+	beforeEach(preparePage);
 
 	it('should expand and collapse object models', function() {
 		toggle('ngi-model-object');

@@ -1,11 +1,8 @@
+var preparePage = require('../helpers/preparePage')('strict-di');
+
 describe('strict di', function() {
 
-	var angularVersion = browser.params.angularVersion;
-
-	beforeEach(function () {
-		browser.get('strict-di/' + angularVersion);
-		element(by.id('ngInspectorToggle')).click();
-	});
+	beforeEach(preparePage);
 
 	it('should not throw an error when unannotated directive is used', function() {
 		browser.manage().logs().get('browser').then(function (browserLog) {

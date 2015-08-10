@@ -1,3 +1,5 @@
+var preparePage = require('../helpers/preparePage')('collapse-expand');
+
 /**
  * Receives N CSS class names as arguments, and returns a selector in the
  * format:
@@ -28,12 +30,7 @@ function $p() { return $(path.apply(null, arguments)); }
 
 describe('collapse and expand treeview items', function() {
 
-	var angularVersion = browser.params.angularVersion;
-
-	beforeEach(function () {
-		browser.get('collapse-expand/' + angularVersion);
-		element(by.id('ngInspectorToggle')).click();
-	});
+	beforeEach(preparePage);
 
 	it('should expand and collapse object models', function() {
 		// The string property should be initially hidden

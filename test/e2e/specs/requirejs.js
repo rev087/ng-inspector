@@ -1,12 +1,11 @@
+var preparePage = require('../helpers/preparePage')('requirejs');
+
 describe('require.js', function() {
 
 	var angularVersion = browser.params.angularVersion;
 	var ROOT_ELEMENT = 'div.angular-root-element';
 
-	beforeEach(function () {
-		browser.get('requirejs/' + angularVersion);
-		element(by.id('ngInspectorToggle')).click();
-	});
+	beforeEach(preparePage);
 
 	it('should inspect app loaded with require.js', function() {
 		expect($('.ngi-app > label').getText()).toBe(ROOT_ELEMENT);

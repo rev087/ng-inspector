@@ -1,12 +1,10 @@
+var preparePage = require('../helpers/preparePage')('empty-directive');
+
 describe('empty directive', function() {
 
-	var angularVersion = browser.params.angularVersion;
 	var _warn, _warnMessage;
 
-	beforeEach(function () {
-		browser.get('empty-directive/' + angularVersion);
-		element(by.id('ngInspectorToggle')).click();
-	});
+	beforeEach(preparePage);
 
 	it('should not throw exception when directive with empty DDO is used', function() {
 		browser.manage().logs().get('browser').then(function (browserLog) {

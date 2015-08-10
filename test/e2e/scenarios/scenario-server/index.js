@@ -39,7 +39,7 @@ function scenarioServer(port) {
 	  });
 	});
 
-	return app.listen(3000, function () {
+	return app.listen(port, function () {
 	  var port = this.address().port;
 	  console.log('Serving scenarios on port %s'.green, port);
 	});
