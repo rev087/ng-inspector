@@ -3,6 +3,19 @@ var fs = require('fs');
 var util = require('util');
 var express = require('express');
 var colors = require('colors');
+var versionConfig = require('../angular-versions.conf');
+
+function getTestNames() {
+	var testDirPath = path.join(__dirname, '../tests');
+	// Sync because this is only used for basic debugging in development
+	return fs.readdirSync(testDirPath).filter(function(file) {
+		return fs.statSync(require('path').resolve(testDirPath, file)).isDirectory();
+	});
+}
+
+function getLibPath(angularVersion) {
+	return versionConfig.versions[angularVersion].path;
+}
 
 function scenarioServer(port) {
 	var app = express();
@@ -12,37 +25,28 @@ function scenarioServer(port) {
 	app.set('view engine', 'html');
 	app.use(express.static(path.join(__dirname, '..')));
 
-	// If accessing the root route, render a list of scenarios
-	var HTML_EXTENSION = /\.html$/;
-	app.get('/:angularVersion?', function(req, res) {
-		var version = req.params.angularVersion || '1.3.0';
-		var title= util.format('Scenarios (using Angular %s)', version);
-		var scenarios = [];
-		fs.readdir(path.join(__dirname, '..'), function(err, files) {
-			for (var i=0; i<files.length; i++) {
-				var filepath = path.join(__dirname, '..', files[i]);
-				var stat = fs.statSync(filepath);
-				if (stat.isFile() && files[i].match(HTML_EXTENSION)) {
-					var scenario = files[i].replace(HTML_EXTENSION, '');
-					scenarios.push(util.format('<li><a href="/app/%s/%s">%s</a></li>', scenario, version, scenario));
-				}
-			}
-			res.send(util.format('<h1>%s</h1> <ul>%s</ul>', title, scenarios.join("\n")));
+	app.get('/', function(req, res) {
+		var defaultVersion = Object.keys(versionConfig.versions)[0];
+		res.render('directory', {
+			angularVersions: versionConfig.versions,
+			testNames: getTestNames(),
+			angularVersion: req.query.version || defaultVersion
 		});
 	});
 
-	app.get('/app/:scenario/:angularVersion', function (req, res) {
-	  res.render('../tests/base-template', {
-	  	angularVersion: req.params.angularVersion,
-	  	scenario: req.params.scenario,
-	  	scenarioPath: '../tests/' + req.params.scenario + '/index.html',
-	  	// scenarioPath: '../' + req.params.scenario + '.html'
-	  });
+	app.get('/app/:scenario/:angularVersion', function(req, res) {
+		var params = req.params;
+		res.render('../tests/base-template', {
+			angularVersion: params.angularVersion,
+			angularLibPath: getLibPath(params.angularVersion),
+			scenario: req.params.scenario,
+			scenarioPath: '../tests/' + params.scenario + '/index.html'
+		});
 	});
 
-	return app.listen(port, function () {
-	  var port = this.address().port;
-	  console.log('Serving scenarios on port %s'.green, port);
+	return app.listen(port, function() {
+		var port = this.address().port;
+		console.log('Serving scenarios on port %s'.green, port);
 	});
 };
 

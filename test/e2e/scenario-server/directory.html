@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Index</title>
+</head>
+<body>
+    <h1>Scenario Server - Index</h1>
+    <div class="angular-versions">
+        <h2>Angular Versions</h2>
+        <ul>
+            <% Object.keys(angularVersions).forEach(function(version) { %>
+                <li>
+                    <a href="/?version=<%= version %>"><%= version %></a>
+                </li>
+            <% }) %>
+        </ul>
+    </div>
+    <div class="scenarios-list">
+        <h2>Scenarios (<%= angularVersion %>)</h2>
+        <ul>
+             <% testNames.forEach(function(testName) { %>
+                 <li>
+                     <a href="/app/<%= testName %>/<%= angularVersion %>"><%= testName %></a>
+                 </li>
+             <% }) %>
+        </ul>
+    </div>
+</body>
+</html>
