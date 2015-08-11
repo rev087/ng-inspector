@@ -1,0 +1,15 @@
+<script src="<%= angularLibPath %>"></script>
+<script>
+    angular.module('TestApp', [])
+    .controller('SampleCtrl', function() {
+        this.username = 'John Doe';
+    });
+</script>
+
+<div class="angular-root-element" ng-app="TestApp" ng-controller="SampleCtrl as sample">
+
+    <h1>Hello {{sample.username}}!</h1>
+    <input type="text" ng-model="sample.username" />
+
+    <button type="button" onclick="window.ngInspector.toggle()" id="ngInspectorToggle">ngInspector</button>
+</div>

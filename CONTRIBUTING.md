@@ -62,6 +62,9 @@ There are two different options for running tests locally:
 * `npm test` - Will open as many browsers as possible when running tests
 * `npm run test-throttled` - Will limit tests to one browser at a time
 
+### Creating a new e2e test
+
+The protractor tests in this repo follow a specific pattern, that helps to automate testing against the different versions of Angular. To scaffold a basic new e2e test, run `gulp newtest --name test-name-here`. This will create the basic test files for you, and place them in a new directory under `test/e2e/tests`.
 
 ### Angular Versions
 
