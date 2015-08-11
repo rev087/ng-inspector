@@ -53,12 +53,16 @@ For Firefox >= 38, use _JPM_:
 
 ## Testing
 
-ng-inspector uses [Protractor](https://github.com/angular/protractor) for end to end tests in Chrome.
+ng-inspector uses [Protractor](https://github.com/angular/protractor) to run e2e tests in Chrome and Firefox. Tests are run against several releases of Angular.
 
 ### Running Tests
 
-1. Run `gulp` to ensure you have a fresh copy of the extension built from source
-2. Run `gulp test` to run the test suite
+There are two different options for running tests locally:
+
+* `npm test` - Will open as many browsers as possible when running tests
+* `npm run test-throttled` - Will limit tests to one browser at a time
 
 
-*Scenarios are small angular applications written to test various AngularJS use cases, and are located at `/test/e2e/scenarios/`. Each scenario should have one spec file containing the tests themselves, and they are located at `/test/e2e/specs/`.
+### Angular Versions
+
+Tests are executed against multiple versions of Angular, and can be configured in `test/e2e/angular-versions.conf.js`.
