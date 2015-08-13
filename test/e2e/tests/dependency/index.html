@@ -1,0 +1,22 @@
+<script src="<%= angularLibPath %>"></script>
+<script>	
+	angular.module('aDependency', [])
+		.directive('sayHi', function() {
+			return {
+				scope: true,
+				link: function(scope, elem) {
+					elem.text('Hi');
+				}
+			};
+		});
+
+	angular.module('MyApp', ['aDependency']);
+</script>
+
+<div class="angular-root-element" ng-app="MyApp">
+
+	<div say-hi>Hello</div>	
+
+	<button type="button" onclick="window.ngInspector.toggle()" id="ngInspectorToggle">ngInspector</button>
+
+</div>

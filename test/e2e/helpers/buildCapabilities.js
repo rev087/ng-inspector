@@ -1,16 +1,24 @@
+var format = require('util').format;
 var objAssign = require('object-assign');
+
+var BUILD_NUMBER = process.env.TRAVIS_BUILD_NUMBER;
 
 function capabilityFromConfig(version, config) {
     return config.browsers.map(function(browser) {
         return objAssign({
             browserName: browser,
-            name: version,
-            logName: version,
+            ngVersion: version,
+            name: getFriendlyName(version),
             specs: config.additionalSpecs,
             exclude: config.excludeSpecs
         }, config.extraCapabilities || {});
     });
 };
+
+function getFriendlyName(version) {
+    var buildNumString = BUILD_NUMBER ? format(' - Build: %s', BUILD_NUMBER) : '';
+    return format('Angular Version: %s%s', version, buildNumString);
+}
 
 function flattenArray(array) {
     return [].concat.apply([], array);

@@ -1,0 +1,17 @@
+<div class="angular-root-element">
+	<div ng-controller="DemoCtrl">
+		<label for="foo"> Type Something:
+		<input type="text" size="30" name="foo" id="foo" ng-model="foo">
+		<p>{{ foo }}</p>
+
+		<p>Test contributed by https://github.com/commandtab</p>
+
+		<button type="button" onclick="window.ngInspector.toggle()" id="ngInspectorToggle">ngInspector</button>
+	</div>
+</div>
+
+<script>
+	window.angularLibPath = '<%= angularLibPath.substring(0, angularLibPath.length - 3) %>';
+</script>
+<script src="/lib/requirejs.min.js"></script>
+<script src="/tests/requirejs/main.js"></script>

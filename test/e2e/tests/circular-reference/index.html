@@ -1,0 +1,18 @@
+<script src="<%= angularLibPath %>"></script>
+
+<script>
+	angular.module('TestApp', [])
+		.controller('TestCtrl', function($scope) {
+			$scope.username = 'John Doe';
+			$scope.foo = {};
+			$scope.foo.bar = $scope.foo;
+		});
+</script>
+
+<div class="angular-root-element" ng-app="TestApp">
+
+	<div ng-controller="TestCtrl">Hello {{username}}</div>	
+
+	<button type="button" onclick="window.ngInspector.toggle()" id="ngInspectorToggle">ngInspector</button>
+
+</div>
