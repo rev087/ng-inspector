@@ -8,5 +8,8 @@ env:
       - SAUCE_USERNAME: rev087
       - SAUCE_ACCESS_KEY: 8247a039-7c68-484e-ae27-a8f2ef94c47f
 
+before_script:
+    - travis_start_sauce_connect
+
 addons:
   sauce_connect: true
