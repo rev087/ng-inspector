@@ -7,8 +7,8 @@ function TreeViewItem(label) {
 
 	this.element = document.createElement('div');
 
-    // Store reference to itself. Needed for delegated mouseover
-    this.element.item = this;
+	// Store reference to itself. Needed for delegated mouseover
+	this.element.item = this;
 
 	// Accepts a label DOM Node or a string
 	if (typeof label === 'string' || typeof label === 'number') {
@@ -142,33 +142,33 @@ TreeView.appItem = function(label, node) {
 	item.node = node;
 	item.element.className = 'ngi-app';
 
-    // Highlight DOM elements the scope is attached to when hovering the item
-    // in the inspector
-    item.element.addEventListener('mouseover', function(event) {
-        if(event.target.nodeName === 'LABEL' && event.target.parentNode.classList.contains('ngi-scope')) {
-            // Do not add a layer when mouse comes from ngi-annotation
-            if (event.relatedTarget.classList.contains('ngi-annotation')) return false;
+	// Highlight DOM elements the scope is attached to when hovering the item
+	// in the inspector
+	item.element.addEventListener('mouseover', function(event) {
+		if(event.target.nodeName === 'LABEL' && event.target.parentNode.classList.contains('ngi-scope')) {
+			// Do not add a layer when mouse comes from ngi-annotation
+			if (event.relatedTarget.classList.contains('ngi-annotation')) return false;
 
-            var item = event.target.parentNode.item;
-            if ( item.node && !window.ngInspector.pane.isResizing) {
-                var target = (item.node === document) ?
-                    document.querySelector('html') : item.node;
-                // target.classList.add('ngi-highlight');
-                NGI.Highlighter.hl(target);
-            }
-        }
-    });
-    item.element.addEventListener('mouseout', function(event) {
-        if(event.target.nodeName === 'LABEL' && event.target.parentNode.classList.contains('ngi-scope')) {
-            // Do not remove the layer when mouse leaves for ngi-annotation
-            if (event.relatedTarget.classList.contains('ngi-annotation')) return false;
+			var item = event.target.parentNode.item;
+			if ( item.node && !window.ngInspector.pane.isResizing) {
+				var target = (item.node === document) ?
+					document.querySelector('html') : item.node;
+				// target.classList.add('ngi-highlight');
+				NGI.Highlighter.hl(target);
+			}
+		}
+	});
+	item.element.addEventListener('mouseout', function(event) {
+		if(event.target.nodeName === 'LABEL' && event.target.parentNode.classList.contains('ngi-scope')) {
+			// Do not remove the layer when mouse leaves for ngi-annotation
+			if (event.relatedTarget.classList.contains('ngi-annotation')) return false;
 
-            var item = event.target.parentNode.item;
-            if (item.node) {
-                NGI.Highlighter.clear();
-            }
-        }
-    });
+			var item = event.target.parentNode.item;
+			if (item.node) {
+				NGI.Highlighter.clear();
+			}
+		}
+	});
 
     return item;
 };
