@@ -3,6 +3,7 @@ var fs = require('fs');
 var util = require('util');
 var express = require('express');
 var colors = require('colors');
+var argv = require('yargs').argv;
 var versionConfig = require('../angular-versions.conf');
 
 function getTestNames() {
@@ -40,6 +41,7 @@ function scenarioServer(port) {
 			angularVersion: params.angularVersion,
 			angularLibPath: getLibPath(params.angularVersion),
 			scenario: req.params.scenario,
+			noEmbed: argv.noEmbed || argv.n,
 			scenarioPath: '../tests/' + params.scenario + '/index.html'
 		});
 	});

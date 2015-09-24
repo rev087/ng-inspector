@@ -7,8 +7,10 @@
 		The Angular lib *could* be added here, but we include it in the scenario partials
 		instead, since at-least 1 test requires jQuery, which needs to be loaded before Angular
 	 -->
+	 <% if (!noEmbed) { %>
 	<script src="/lib/ng-inspector.js"></script>
 	<style>@import url(/lib/stylesheet.css);</style>
+	 <% } %>
 </head>
 <body>
 	<%- include(scenarioPath); %>
