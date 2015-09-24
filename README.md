@@ -20,6 +20,24 @@ Install it from the [Chrome Web Store](https://chrome.google.com/webstore/detail
 
 Download the latest build from [ng-inspector.org](http://ng-inspector.org), then double click the `ng-inspector.safariextz` file to install.
 
+## Lifehack
+
+Show in panel controller names instead of $id
+
+```javascript
+    app
+    .config(['$provide', function ($provide) {
+      $provide.decorator('$controller', ['$delegate', function ($delegate) {
+          return function(constructor, locals) {
+            if (typeof constructor == "string") {
+              locals.$scope.$id = constructor;
+            }
+            return $delegate(constructor, locals);
+          }
+        }]);
+    }])
+```
+
 ## License
 
 The MIT License (MIT)  
