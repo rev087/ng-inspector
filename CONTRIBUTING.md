@@ -53,6 +53,11 @@ For Firefox >= 38, use _JPM_:
 
 ## Testing
 
+### Prerequisites
+
+- JDK
+- Chrome & Firefox
+
 ng-inspector uses [Protractor](https://github.com/angular/protractor) to run e2e tests in Chrome and Firefox. Tests are run against several releases of Angular.
 
 ### Running Tests
