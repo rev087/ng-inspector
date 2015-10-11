@@ -18,7 +18,7 @@
     "48": "icon48.png",
     "128": "icon128.png"
   },
-  "browser_action": {
+  "page_action": {
     "default_icon": {
       "19": "btn19.png",
       "38": "btn38.png"
@@ -35,7 +35,8 @@
       ],
       "js": [
         "inject.js"
-      ]
+      ],
+      "run_at": "document_start"
     }
   ],
   "web_accessible_resources": [
