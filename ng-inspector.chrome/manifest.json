@@ -28,7 +28,8 @@
   "content_scripts": [
     {
       "matches": [
-        "*://*/*"
+        "*://*/*",
+        "file:///*"
       ],
       "css": [
         "stylesheet.css"
