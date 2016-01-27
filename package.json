@@ -4,6 +4,7 @@
   "description": "A Chrome/Safari/Firefox extension to inspect AngularJS applications",
   "main": "ng-inspector.js",
   "scripts": {
+    "postinstall": "./node_modules/.bin/webdriver-manager update",
     "build-xpi": "gulp && cd ng-inspector.firefox && jpm xpi ",
     "run-xpi": "gulp && cd ng-inspector.firefox && jpm run ",
     "test": "gulp e2e",
