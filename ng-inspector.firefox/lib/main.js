@@ -55,7 +55,7 @@ var button = ActionButton({
   }
 });
 
-var pageModConfig = manifest["firefox-devtools"]["page-mods"][0]
+var pageModConfig = manifest["firefox-devtools"]["page-mods"][0];
 var pageMod = require("sdk/page-mod");
 var self = require("sdk/self");
 
