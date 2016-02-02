@@ -4,7 +4,7 @@ if (window.top === window) {
 	var inspectorScript = document.createElement('script');
 	inspectorScript.type = 'text/javascript';
 	inspectorScript.src = safari.extension.baseURI + 'ng-inspector.js';
-	document.head.appendChild(inspectorScript);
+	document.documentElement.appendChild(inspectorScript);
 
 	// Forward the toggle event
 	safari.self.addEventListener('message', function(event) {

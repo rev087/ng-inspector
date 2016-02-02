@@ -3,7 +3,7 @@ if (window.top === window) {
   var inspectorScript = document.createElement('script');
   inspectorScript.type = 'text/javascript';
   inspectorScript.src = self.options.ngInspectorURL;
-  document.head.appendChild(inspectorScript);
+  document.documentElement.appendChild(inspectorScript);
 
   // In Firefox, we use this thing
 

@@ -46,9 +46,9 @@
     <dict>
       <key>Scripts</key>
       <dict>
-        <key>End</key>
+        <key>Start</key>
         <array>
-          <string>inject-end.js</string>
+          <string>inject.js</string>
         </array>
       </dict>
       <key>Stylesheets</key>

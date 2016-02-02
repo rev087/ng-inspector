@@ -1,73 +1,76 @@
 var NGI = {
 	Inspector: require('./Inspector'),
-	App: require('./App')
+	App: require('./App'),
+	PublishEvent: require('./PublishEvent')
 };
 
-function bootstrap() {
+var _angular;
+var _bootstrap;
 
-	// Instantiate the inspector
-	window.ngInspector = new NGI.Inspector();
 
-	// True once the wrapBootstrap() method runs for the first time
-	var didWrapBootstrap = false;
-
-	// RequireJS and similar loaders work by injecting <script> tags into the
-	// DOM. If the page uses such mechanism, the angular namespace might not
-	// yet be available by the time `NGI.InspectorAgent` is instantiated. By
-	// listening to the MutationOvserver we can support this use case.
-	var loaderObserver = new MutationObserver(wrapBootstrap.bind(this));
-
-	// If angular was included via <script src=...> tag, the angular object should
-	// already be present in the window scope, and we can wrapBootstrap() right
-	// away
-	if (window.angular && window.angular.bootstrap) {
+// Wrap Angular property (prior to being defined by angular itself)
+// so we can be notified when Angular is present on the page, without
+// having to resort to polling
+Object.defineProperty(window, 'angular', {
+	// enumerable: false to prevent other extensions (WAppalyzer, for example)
+	// from thinking angular is present by checking "if (angular in window)"
+	enumerable: false,
+	configurable: true,
+	get: function() { return _angular; },
+	set: function(val) {
+		_angular = val;
 		wrapBootstrap();
-	} else {
-		loaderObserver.observe(document, { childList: true, subtree: true });
+		// Now that Angular is present on the page, allow the property to be
+		// visible through reflection
+		Object.defineProperty(window, 'angular', { enumerable: true });
+		NGI.PublishEvent('ngi-angular-found');
 	}
+});
 
-	// The manual AngularJS module bootstrap capturing mechanism, wraps the
-	// `angular.bootstrap` method
-	function wrapBootstrap() {
-
-		// Prevent wrapping bootstrap method if it doesn't currently exist,
-		// or if it's already been wrapped
-		if (!window.angular || window.angular && !window.angular.bootstrap || didWrapBootstrap) {
-			return;
+function wrapBootstrap() {
+	// Hook Angular's manual bootstrapping mechanism to catch applications
+	// that do not use the "ng-app" directive
+	Object.defineProperty(_angular, 'bootstrap', {
+		get: function() {
+			// Return falsey val when angular hasn't assigned it's own bootstrap
+			// prop yet, or will get warning about multiple angular versions loaded
+			return _bootstrap ? modifiedBootstrap : null;
+		},
+		set: function(val) {
+			_bootstrap = val;
 		}
-
-		// Cache the original `angular.bootstrap` method
-		var _bootstrap = window.angular.bootstrap;
-
-		window.angular.bootstrap = function(node, modules) {
-
-			// Continue with angular's native bootstrap method
-			var ret = _bootstrap.apply(this, arguments);
-
-			// Unwrap if jQuery or jqLite element
-			if (node.jquery || node.injector) node = node[0];
-
-			// The dependencies are registered by the `NGI.Module` object
-			NGI.App.bootstrap(node, modules);
-
-			return ret;
-		};
-
-		didWrapBootstrap = true;
-		loaderObserver.disconnect();
-	}
-
+	});
 }
 
-if (document.readyState === 'complete') {
-	bootstrap();
-} else {
-	window.addEventListener('load', bootstrap);
+var modifiedBootstrap = function(node, modules) {
+	// Used to monkey-patch over angular.bootstrap, to allow the extension
+	// to be notified when a manually-bootstrapped app has been found. Necessary
+	// since we can't find the application by traversing the DOM looking for ng-app
+	initializeInspector();
+
+	// Continue with angular's native bootstrap method
+	var ret = _bootstrap.apply(this, arguments);
+
+	// Unwrap if jQuery or jqLite element
+	if (node.jquery || node.injector) node = node[0];
+
+	NGI.App.bootstrap(node, modules);
+
+	return ret;
+};
+
+// Attempt to initialize inspector at the same time Angular's ng-app directive
+// kicks off. If angular isn't found at this point, it has to be a manually
+// bootstrapped app
+document.addEventListener('DOMContentLoaded', initializeInspector);
+
+function initializeInspector() {
+	if (_angular && !window.ngInspector) {
+		window.ngInspector = new NGI.Inspector();
+	}
 }
 
 window.addEventListener('message', function (event) {
-
-	// Ensure the message was sent by this origin
 	if (event.origin !== window.location.origin) return;
 
 	var eventData = event.data;
@@ -79,12 +82,9 @@ window.addEventListener('message', function (event) {
 		// is using postMessage. Safe to ignore
 	}
 
-	// Respond to 'ngi-toggle' events only
 	if (eventData.command === 'ngi-toggle') {
-
-
 		// Fail if the inspector has not been initialized yet (before window.load)
-		if ( !window.ngInspector ) {
+		if (!window.ngInspector) {
 			return console.warn('ng-inspector: The page must finish loading before using ng-inspector');
 		}
 

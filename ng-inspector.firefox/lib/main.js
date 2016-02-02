@@ -61,6 +61,7 @@ var self = require("sdk/self");
 
 pageMod.PageMod({
   include: pageModConfig.include,
+  contentScriptWhen: 'start',
   contentScriptFile: pageModConfig.contentScriptFiles.map(function(path) {
     return self.data.url(path);
   }),
