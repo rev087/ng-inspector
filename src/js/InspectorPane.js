@@ -54,10 +54,12 @@ module.exports = function() {
 			body.removeChild(pane);
 			this.clear();
 			eventListenerBulk(events, true);
+			body.classList.remove('ngi-open');
 			return this.visible = false;
 		} else {
 			body.appendChild(pane);
 			eventListenerBulk(events, false);
+			body.classList.add('ngi-open');
 			return this.visible = true;
 		}
 	};
