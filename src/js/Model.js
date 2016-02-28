@@ -10,7 +10,8 @@ function Model(key, value, depth) {
 	this.value = value;
 	this.ngiType = 'Model';
 
-	this.view = NGI.TreeView.modelItem(key, value, depth);
+	//TODO check for memory leaks
+	this.view = NGI.TreeView.modelItem(this, depth);
 
 	var valSpan = document.createElement('span');
 	valSpan.className = 'ngi-value';
