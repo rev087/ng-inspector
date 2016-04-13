@@ -45,8 +45,9 @@ Utils.annotate = function(fn) {
 	if (typeof fn === 'function') {
 		if (!($inject = fn.$inject)) {
 			$inject = [];
-			if (fn.length) {
-				fnText = fn.toString().replace(STRIP_COMMENTS, '');
+			fnText = fn.length && fn.toString();
+			if (fnText) {
+				fnText = fnText.replace(STRIP_COMMENTS, '');
 				argDecl = fnText.match(FN_ARGS);
 				var argDecls = argDecl[1].split(FN_ARG_SPLIT);
 				for (var i = 0; i < argDecls.length; i++) {
