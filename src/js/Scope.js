@@ -13,7 +13,7 @@ function Scope(app, ngScope, isIsolate) {
 	this.ngScope = ngScope;
 	this.ngiType = 'Scope';
 
-	// Calculate the scope depth in the tree to determine the intendation level
+	// Calculate the scope depth in the tree to determine the indentation level
 	// in the TreeView
 	var reference = ngScope;
 	var depth = [reference];
