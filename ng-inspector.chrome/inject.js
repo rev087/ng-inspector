@@ -1,4 +1,4 @@
-if (window.top === window) {
+if (window.top === window && document.head) {
 	
 	// Inject the bridge script
 	var inspectorScript = document.createElement('script');
