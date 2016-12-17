@@ -9,6 +9,15 @@
 				safari.application.activeBrowserWindow.activeTab.page.dispatchMessage("toggle-inspector", {showWarnings:safari.extension.settings.showWarnings});
 			}
 		}, false);
+
+		// Listens to message from injected keyboardShortcutHandler.js
+		safari.application.addEventListener('message', handleKeyboardMessage, false);
+
+		// When message received, toggle inspector panel
+		function handleKeyboardMessage(e) {
+		    if (e.name == 'toggleInspector')
+				safari.application.activeBrowserWindow.activeTab.page.dispatchMessage("toggle-inspector", {showWarnings:safari.extension.settings.showWarnings});
+		}
 	</script>
 </head>
 <body>
